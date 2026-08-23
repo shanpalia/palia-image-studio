@@ -87,3 +87,91 @@ body.editor-mode .workspace.hidden{display:block!important}
 .mode-card-image{height:155px;border-radius:10px;overflow:hidden;background:#f3f6f5}.mode-card-image img{width:100%;height:100%;object-fit:cover;object-position:center}
 .mode-card-copy{display:flex;gap:9px;align-items:center;padding:10px 4px 5px}.mode-icon{width:30px;height:30px;border-radius:9px;background:#e7f7f1;color:#138b6b;display:grid;place-items:center;font-size:15px;flex:0 0 30px}.mode-card b{display:block;font-size:12px;color:#27332f}.mode-card small{display:block;font-size:9px;color:#7d8884;margin-top:3px}
 @media(max-width:900px){.landing{grid-template-columns:1fr;padding-top:30px}.mode-switch{grid-template-columns:1fr}.mode-card-image{height:130px}}
+
+/* Home-page polish: marked top area + larger tool visuals */
+.mode-switch{
+  width:min(760px,calc(100% - 48px));
+  margin:10px auto 2px;
+  display:flex;
+  justify-content:center;
+  gap:10px;
+}
+.mode-btn{
+  min-width:210px;
+  height:46px;
+  padding:0 18px;
+  border:1px solid #dce7e3;
+  border-radius:12px;
+  background:#fff;
+  color:#34413d;
+  display:flex;
+  align-items:center;
+  justify-content:center;
+  gap:9px;
+  font-size:12px;
+  font-weight:800;
+  letter-spacing:.01em;
+  cursor:pointer;
+  box-shadow:0 2px 8px rgba(24,52,44,.04);
+  transition:.18s ease;
+}
+.mode-btn:hover{transform:translateY(-1px);border-color:#9fd6c7}
+.mode-btn.active{
+  background:#eaf8f3;
+  border-color:#159b78;
+  color:#11765e;
+  box-shadow:0 0 0 2px rgba(21,155,120,.08);
+}
+.mode-btn-icon{
+  width:28px;height:28px;border-radius:8px;
+  background:#dff4ec;
+  display:grid;place-items:center;
+  color:#138b6b;font-size:14px;
+}
+.site-header .brand-title,
+header .brand-title{
+  font-weight:900!important;
+  letter-spacing:-.02em;
+  font-size:19px!important;
+}
+.site-header .brand-subtitle,
+header .brand-subtitle{
+  font-weight:600!important;
+  letter-spacing:.01em;
+}
+nav a, nav button{
+  font-weight:700!important;
+  letter-spacing:.01em;
+}
+.large-mode-card-image{
+  height:190px!important;
+  min-height:190px!important;
+  width:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+.mode-card{
+  overflow:hidden!important;
+}
+.mode-card-content{
+  padding:13px 14px 15px!important;
+}
+.mode-card-title{
+  font-weight:900!important;
+  font-size:14px!important;
+}
+.mode-card-subtitle{
+  font-weight:600!important;
+}
+@media(max-width:900px){
+  .mode-switch{width:calc(100% - 24px);overflow:auto;justify-content:flex-start}
+  .mode-btn{min-width:190px}
+  .large-mode-card-image{height:155px!important;min-height:155px!important}
+}
+
+.tool-choice img,.tool-card img,.mode-card img,.feature-card img{
+  max-height:190px;
+  width:100%;
+  object-fit:cover;
+  border-radius:12px 12px 0 0;
+}

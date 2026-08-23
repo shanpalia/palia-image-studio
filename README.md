@@ -116,3 +116,8 @@ The browser AI remover is configured for CPU + single-thread WASM. WebGPU is int
 ## Enhance quality
 
 The Enhance action now performs a real canvas upscale with high-quality image smoothing, a multi-pass resize, and a subtle unsharp-mask detail pass. It outputs a larger PNG and visibly improves edge/detail crispness compared with plain scaling. It is not a generative AI super-resolution model; it improves resampling/detail appearance without inventing unsupported image content. Zoom controls are placed directly beside the Enhance tab in the top toolbar.
+
+
+## Home UI polish
+
+Added two prominent Background Remover / Image Enhancer buttons in the marked top area, enlarged the two tool visuals, and made the Palia Image Studio header/navigation typography bolder and more polished.
