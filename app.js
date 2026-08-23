@@ -193,8 +193,10 @@ function syncAdjustmentUI(){
 function syncBackgroundUI(){
   $$("[data-bg]").forEach(x=>x.classList.toggle("selected",x.dataset.bg===bg));
   if(bg && bg!=="transparent" && !$$("[data-bg]").some(x=>x.dataset.bg===bg)){
-    $("#bgColor").value=bg;
-    $("#bgColor").closest(".bg-tile").classList.add("selected");
+    if(bg.startsWith("#") && $("#bgColor")){
+      $("#bgColor").value=bg;
+      $("#bgColor").closest(".bg-tile")?.classList.add("selected");
+    }
   }
 }
 
@@ -303,13 +305,30 @@ if(!validType && !validName){
 function showProcessing(title,sub){processing.classList.remove("hidden");processingText.textContent=title;processingSub.textContent=sub}
 function hideProcessing(){processing.classList.add("hidden")}
 
+function fillCanvasBackground(context, value, width, height){
+  if(!value || value==="transparent") return;
+  if(typeof value === "string" && value.startsWith("linear-gradient")){
+    const m=value.match(/linear-gradient\(\s*([0-9]+)deg\s*,\s*([^,]+)\s*,\s*([^\)]+)\)/i);
+    if(m){
+      const deg=(Number(m[1])-90)*Math.PI/180;
+      const cx=width/2, cy=height/2;
+      const len=Math.sqrt(width*width+height*height)/2;
+      const x1=cx-Math.cos(deg)*len, y1=cy-Math.sin(deg)*len;
+      const x2=cx+Math.cos(deg)*len, y2=cy+Math.sin(deg)*len;
+      const g=context.createLinearGradient(x1,y1,x2,y2); g.addColorStop(0,m[2].trim()); g.addColorStop(1,m[3].trim());
+      context.fillStyle=g; context.fillRect(0,0,width,height); return;
+    }
+  }
+  context.fillStyle=value; context.fillRect(0,0,width,height);
+}
+
 function render(){
   if(!current)return;
   const w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   const portrait=rotation%180!==0;
   canvas.width=portrait?h:w; canvas.height=portrait?w:h;
   ctx.clearRect(0,0,canvas.width,canvas.height);
-  if(bg!=="transparent"){ctx.fillStyle=bg==="white"?"#fff":bg==="black"?"#000":bg;ctx.fillRect(0,0,canvas.width,canvas.height)}
+  if(bg!=="transparent") fillCanvasBackground(ctx,bg,canvas.width,canvas.height);
   ctx.save();
   ctx.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;
   ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);
@@ -331,7 +350,7 @@ function render(){
     canvas.style.backgroundPosition="0 0,0 12px,12px -12px,-12px 0";
   }else{
     canvas.style.backgroundImage="none";
-    canvas.style.backgroundColor=bg==="white" ? "#fff" : bg==="black" ? "#000" : bg;
+    canvas.style.backgroundColor=(typeof bg==="string" && bg.startsWith("#")) ? bg : "transparent";
   }
   canvasWrap?.style.setProperty("--image-ratio", `${canvas.width}/${canvas.height}`);
 }
@@ -351,7 +370,12 @@ $("#bgColor").addEventListener("input",e=>{
   render();
 });
 $$("[data-scale]").forEach(b=>b.addEventListener("click",()=>{scale=+b.dataset.scale;$$("[data-scale]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
-$$("[data-format]").forEach(b=>b.addEventListener("click",()=>{format=b.dataset.format;$$("[data-format]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
+$$("[data-format]").forEach(b=>b.addEventListener("click",()=>{format=b.dataset.format;$$("[data-format]").forEach(x=>x.classList.remove("selected"));$$("[data-format]").filter(x=>x.dataset.format===format).forEach(x=>x.classList.add("selected"));}));
+$$("[data-bg-group]").forEach(tab=>tab.addEventListener("click",()=>{
+  const group=tab.dataset.bgGroup;
+  $$('[data-bg-group]').forEach(x=>x.classList.toggle('active',x.dataset.bgGroup===group));
+  $$('[data-bg-group-panel]').forEach(x=>x.classList.toggle('active',x.dataset.bgGroupPanel===group));
+}));
 
 $("#rotateLeft").addEventListener("click",()=>{rotation=(rotation+270)%360;render();saveActiveToRecent()});
 $("#rotateRight").addEventListener("click",()=>{rotation=(rotation+90)%360;render();saveActiveToRecent()});
@@ -535,7 +559,7 @@ $("#downloadBtn").addEventListener("click",()=>{
   if(!current)return;
   const c=document.createElement("canvas"),w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   c.width=rotation%180?h:w;c.height=rotation%180?w:h;const x=c.getContext("2d");
-  if(format==="jpg"){x.fillStyle=bg==="transparent"?"#fff":bg;x.fillRect(0,0,c.width,c.height)}
+  if(format==="jpg"){fillCanvasBackground(x,bg==="transparent"?"#ffffff":bg,c.width,c.height)} else if(bg!=="transparent"){fillCanvasBackground(x,bg,c.width,c.height)}
   x.save();x.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(current,-w/2,-h/2,w,h);x.restore();x.filter="none";
   const a=document.createElement("a");a.href=c.toDataURL(format==="jpg"?"image/jpeg":"image/png",.95);a.download=`palia-image-studio-edited.${format}`;document.body.appendChild(a);a.click();a.remove();
 });

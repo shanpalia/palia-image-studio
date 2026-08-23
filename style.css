@@ -413,12 +413,6 @@ body[data-page="enhance"] .editor-toolbar .zoom-top-label{display:inline-flex!im
 .single-tool-card .mode-card{width:100%!important;max-width:620px!important}
 .header-mode-btn{ text-decoration:none!important; }
 
-body[data-page="remove"] .editor-tab[data-panel="effects"],
-body[data-page="remove"] .editor-tab[data-panel="adjust"],
-body[data-page="remove"] .editor-tab[data-panel="design"],
-body[data-page="remove"] .panel[data-panel-content="effects"],
-body[data-page="remove"] .panel[data-panel-content="adjust"],
-body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
 body[data-page="enhance"] .editor-tab[data-panel="cutout"],
 body[data-page="enhance"] .editor-tab[data-panel="background"],
 body[data-page="enhance"] .panel[data-panel-content="cutout"],
@@ -489,12 +483,6 @@ body[data-page="remove"] .drop-hint{font-size:10px!important;color:#9aa19e!impor
 body[data-page="remove"] .upload-card.drag{border:2px solid #159b78!important;background:#effaf6!important;box-shadow:0 0 0 5px rgba(21,155,120,.10)!important}
 
 /* ===== FINAL BACKGROUND REMOVER EDITOR ===== */
-body[data-page="remove"] .editor-tab[data-panel="effects"],
-body[data-page="remove"] .editor-tab[data-panel="adjust"],
-body[data-page="remove"] .editor-tab[data-panel="design"],
-body[data-page="remove"] .panel[data-panel-content="effects"],
-body[data-page="remove"] .panel[data-panel-content="adjust"],
-body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
 body[data-page="remove"] .editor-toolbar{justify-content:flex-start!important}
 body[data-page="remove"] .editor-toolbar::before{content:"Background Remover";font-size:13px;font-weight:900;color:#252a28;padding:0 14px 0 3px;margin-right:4px;border-right:1px solid #e5e9e7}
 body[data-page="remove"] .zoom-top-separator,
@@ -547,12 +535,6 @@ body[data-page="remove"] .recent-dock{height:105px!important}
 }
 .remove-bg-landing .upload-btn{font-size:18px!important;padding:15px 40px!important}
 .landing-hint{font-size:11px;color:#909894;margin-top:12px}
-body[data-page="remove"] .editor-tab[data-panel="effects"],
-body[data-page="remove"] .editor-tab[data-panel="adjust"],
-body[data-page="remove"] .editor-tab[data-panel="design"],
-body[data-page="remove"] .panel[data-panel-content="effects"],
-body[data-page="remove"] .panel[data-panel-content="adjust"],
-body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
 body[data-page="enhance"] .editor-tab[data-panel="cutout"],
 body[data-page="enhance"] .editor-tab[data-panel="background"],
 body[data-page="enhance"] .panel[data-panel-content="cutout"],
@@ -612,3 +594,45 @@ body.editor-mode .landing,
 body.editor-mode .landing-hint{
   display:none!important;
 }
+
+/* Final editor header: Home + only the selected tool */
+body.editor-mode > .topbar, body.editor-mode > header.topbar{
+  display:flex!important; position:sticky!important; top:0!important; z-index:100!important;
+  height:58px!important; padding:0 22px!important;
+}
+body.editor-mode .topbar .header-mode-btn{display:none!important}
+body.editor-mode[data-page="remove"] .topbar .header-mode-btn[href="./index.html"],
+body.editor-mode[data-page="remove"] .topbar .header-mode-btn[href="./background-remover.html"]{display:inline-flex!important}
+body.editor-mode[data-page="enhance"] .topbar .header-mode-btn[href="./enhance.html"]{display:inline-flex!important}
+body.editor-mode .topbar nav{margin-left:auto!important}
+body.editor-mode .editor-home-link{display:inline-flex!important;align-items:center;font-size:11px;color:#555;text-decoration:none;padding:8px 10px;border:1px solid #e2e8e5;border-radius:9px;background:#fff;cursor:pointer}
+body.editor-mode .topbar nav #aboutBtn{display:none!important}
+body.editor-mode .editor-toolbar{position:sticky!important;top:58px!important}
+body.editor-mode .toolbar-format{display:flex!important;gap:4px;margin-left:6px}
+.toolbar-format{display:flex;gap:4px;align-items:center}
+.toolbar-format-btn{height:30px;padding:0 9px;border:1px solid #dfe5e2;background:#fff;border-radius:7px;font-size:9px;font-weight:800;color:#5d6964;cursor:pointer}
+.toolbar-format-btn.selected{background:#eaf8f3;border-color:#9bd6c7;color:#11765e}
+body.editor-mode .editor-body{min-height:calc(100vh - 116px)!important}
+.background-tabs{display:grid;grid-template-columns:repeat(3,1fr);gap:5px;margin-bottom:10px;padding:4px;background:#f3f5f4;border-radius:10px}
+.background-tab{border:0;background:transparent;border-radius:8px;padding:9px 4px;font-size:10px;font-weight:800;color:#717b77;cursor:pointer}
+.background-tab.active{background:#fff;color:#202624;box-shadow:0 1px 5px rgba(0,0,0,.06)}
+.bg-group{display:none}
+.bg-group.active{display:block}
+.bg-palette-large{grid-template-columns:repeat(3,1fr)!important;max-height:360px!important;overflow:auto!important}
+.bg-palette-large .bg-tile{min-height:70px!important}
+.bg-palette-large .bg-tile>span:not(.checker-mini):not(.custom-swatch){background:var(--tile)!important}
+@media(max-width:900px){
+ body.editor-mode > .topbar{height:auto!important;min-height:58px!important;flex-wrap:wrap}
+ body.editor-mode .editor-toolbar{top:58px!important}
+ .toolbar-format{display:none!important}
+}
+
+/* Dedicated page header: Home + current tool only */
+body[data-page="remove"]:not(.editor-mode) .header-mode-btn[href="./enhance.html"],
+body[data-page="remove"].editor-mode .header-mode-btn[href="./enhance.html"]{display:none!important}
+body[data-page="enhance"] .header-mode-btn[href="./index.html"],
+body[data-page="enhance"] .header-mode-btn[href="./background-remover.html"]{display:none!important}
+body[data-page="remove"] .editor-home-link{display:none!important}
+body[data-page="enhance"] .editor-home-link{display:inline-flex!important}
+body.editor-mode[data-page="remove"] .editor-home-link{display:inline-flex!important}
+body.editor-mode[data-page="enhance"] .editor-home-link{display:inline-flex!important}
