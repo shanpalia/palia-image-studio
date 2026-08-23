@@ -75,7 +75,7 @@ function snapshotImage(img, done){
 }
 
 function addRecentItem(file, img){
-  const item={id:makeId(),name:file?.name||"Edited image",originalSrc:"",currentSrc:"",adjustments:{...adjustments},bg,rotation,scale};
+  const item={id:makeId(),name:file?.name||"Edited image",originalSrc:"",currentSrc:"",adjustments:{...adjustments},bg,rotation,scale,processing:true};
   snapshotImage(img, src=>{
     item.originalSrc=src; item.currentSrc=src;
     recentItems.unshift(item);
@@ -90,6 +90,7 @@ function saveActiveToRecent(){
   if(!item) return;
   snapshotImage(current, src=>{
     item.currentSrc=src;
+    item.processing=false;
     item.adjustments={...adjustments};
     item.bg=bg; item.rotation=rotation; item.scale=scale;
     renderRecent();
@@ -99,8 +100,8 @@ function saveActiveToRecent(){
 function renderRecent(){
   const section=$("#recentSection"), strip=$("#recentStrip");
   if(!section||!strip) return;
-  section.classList.toggle("hidden", recentItems.length===0);
-  $("#recentCount").textContent=`${recentItems.length} ${recentItems.length===1?"item":"items"}`;
+  section.classList.toggle("hidden", false);
+  const countEl=$("#recentCount"); if(countEl) countEl.textContent=`${recentItems.length} ${recentItems.length===1?"item":"items"}`;
   strip.innerHTML="";
   const newCard=document.createElement("button");
   newCard.type="button"; newCard.className="recent-card new-image-card"; newCard.id="newImageCard";
@@ -114,7 +115,7 @@ function renderRecent(){
     card.type="button";
     card.className="recent-card"+(item.id===activeRecentId?" active":"");
     card.title="Open "+item.name;
-    card.innerHTML=`<div class="recent-thumb"><img alt=""></div><div class="recent-name"></div><div class="recent-meta">Click to edit</div>`;
+    card.innerHTML=`<div class="recent-thumb"><img alt=""><span class="recent-processing ${item.processing?"show":""}">Processing…</span></div><div class="recent-name"></div><div class="recent-meta">${item.processing?"AI background removal":"Click to edit"}</div>`;
     card.querySelector("img").src=item.currentSrc; card.querySelector("img").style.objectFit="contain"; card.querySelector("img").style.objectPosition="center";
     card.querySelector(".recent-name").textContent=item.name;
     card.addEventListener("click",()=>openRecent(item.id));
@@ -184,13 +185,18 @@ if(!validType && !validName){
       syncAdjustmentUI();
       // Show a clean processing state first; the editor appears after AI removal.
       workspace.classList.remove("hidden");
+      workspace.scrollIntoView({behavior:"smooth",block:"start"});
+      // Show the uploaded image immediately in the center while AI processing starts.
+      statusEl.textContent="Preparing image…";
+      render();
+      requestAnimationFrame(()=>requestAnimationFrame(()=>{
+        const center=$("#canvasWrap");
+        if(center) center.scrollIntoView({behavior:"smooth",block:"center"});
+      }));
       showProcessing("Removing background…","AI is making the background transparent");
       addRecentItem(file,im);
-      render();
-      statusEl.textContent="Preparing image…";
       try{
         await removeBackground();
-        workspace.scrollIntoView({behavior:"smooth",block:"start"});
       }catch(err){
         console.error(err);
         hideProcessing();
