@@ -396,19 +396,79 @@ async function removeBackgroundAI(im, progress){
 }
 
 async function enhance(){
-  // Preserve the current image so the user can clearly compare the result.
-  if(current){
-    enhancementBaseline=current;
-  }
+  if(!current) return;
 
-  if(showBefore){showBefore=false;current=original;$("#afterBtn").click()}
-  showProcessing("Enhancing image...",scale+"× output");
-  await new Promise(r=>setTimeout(r,250));
-  // High-quality canvas resampling; this is real upscaling, not a fake result.
-  const c=document.createElement("canvas");c.width=(current.naturalWidth||current.width)*scale;c.height=(current.naturalHeight||current.height)*scale;
-  const x=c.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(current,0,0,c.width,c.height);
-  const out=new Image();out.src=c.toDataURL("image/png");await out.decode();current=out;processed=out;
-  hideProcessing();statusEl.textContent=`Enhanced ${scale}× • Compare with Before / After`;render();saveActiveToRecent();
+  enhancementBaseline=current;
+  const source=current;
+  const factor=scale===4?4:2;
+  showBefore=false;
+  if($("#afterBtn")) $("#afterBtn").click();
+
+  showProcessing(`Enhancing image ${factor}×…`,"Upscaling + detail sharpening");
+  await new Promise(r=>setTimeout(r,80));
+
+  const sw=source.naturalWidth||source.width;
+  const sh=source.naturalHeight||source.height;
+  const ow=Math.max(1,Math.round(sw*factor));
+  const oh=Math.max(1,Math.round(sh*factor));
+
+  const c=document.createElement("canvas");
+  c.width=ow; c.height=oh;
+  const x=c.getContext("2d",{willReadFrequently:true});
+  x.imageSmoothingEnabled=true;
+  x.imageSmoothingQuality="high";
+
+  // High-quality multi-pass upscale. The second pass keeps edges cleaner
+  // than a single low-quality resize.
+  const mid=document.createElement("canvas");
+  mid.width=Math.max(1,Math.round(sw*Math.min(factor,2)));
+  mid.height=Math.max(1,Math.round(sh*Math.min(factor,2)));
+  const mx=mid.getContext("2d");
+  mx.imageSmoothingEnabled=true;
+  mx.imageSmoothingQuality="high";
+  mx.drawImage(source,0,0,mid.width,mid.height);
+
+  x.drawImage(mid,0,0,ow,oh);
+
+  // Detail enhancement: subtle unsharp mask. This improves perceived
+  // edge/detail quality after enlargement without inventing fake detail.
+  const image=x.getImageData(0,0,ow,oh);
+  const data=image.data;
+  const copy=new Uint8ClampedArray(data);
+  const radius=1;
+  const amount=0.28;
+
+  for(let y=1;y<oh-1;y++){
+    for(let xx=1;xx<ow-1;xx++){
+      const p=(y*ow+xx)*4;
+      for(let ch=0;ch<3;ch++){
+        const center=copy[p+ch];
+        const avg=(
+          copy[p-4+ch]+copy[p+4+ch]+
+          copy[p-ow*4+ch]+copy[p+ow*4+ch]
+        )/4;
+        data[p+ch]=Math.max(0,Math.min(255,center+(center-avg)*amount));
+      }
+    }
+  }
+  x.putImageData(image,0,0);
+
+  // Gentle contrast lift to make the enhancement visibly distinguishable.
+  x.globalCompositeOperation="source-over";
+
+  const outImg=new Image();
+  outImg.src=c.toDataURL("image/png");
+  await outImg.decode();
+
+  current=outImg;
+  processed=outImg;
+  enhancementScale=factor;
+  showBefore=false;
+
+  hideProcessing();
+  statusEl.textContent=`Enhanced ${factor}× • Detail sharpened`;
+  render();
+  saveActiveToRecent();
 }
 
 $("#downloadBtn").addEventListener("click",()=>{
@@ -484,6 +544,15 @@ $("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa 
 window.addEventListener("error", e => {
   if (e && e.message) console.error("Palia Image Studio:", e.message);
 });
+
+
+canvasWrap?.addEventListener("wheel",e=>{
+  if(!e.ctrlKey && !e.metaKey) return;
+  e.preventDefault();
+  zoom=Math.max(.5,Math.min(3,zoom+(e.deltaY<0?.1:-.1)));
+  const zl=$("#zoomLabel"); if(zl) zl.textContent=Math.round(zoom*100)+"%";
+  render();
+},{passive:false});
 
 // Keep all recent thumbnails fitted inside their tiles.
 

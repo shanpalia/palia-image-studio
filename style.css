@@ -71,3 +71,9 @@ body.editor-mode .workspace.hidden{display:block!important}
 
 .upload-card.drag{border-color:#159b78!important;background:#effaf6!important;box-shadow:0 0 0 4px rgba(21,155,120,.10)}
 .editor-canvas-area.drop-active{outline:3px solid #159b78!important;outline-offset:-8px;background:#eefaf6!important}
+
+.zoom-top-separator{height:22px;width:1px;background:#e2e8e5;margin:0 4px 0 8px}
+.zoom-top-btn{width:30px;height:30px;border:1px solid #dce6e2;background:#fff;border-radius:7px;color:#485751;font-size:18px;line-height:1;cursor:pointer;margin-left:3px}
+.zoom-top-btn:hover{border-color:#159b78;color:#159b78;background:#effaf6}
+.zoom-top-label{min-width:42px;text-align:center;font-size:10px;font-weight:700;color:#5d6a66}
+.enhance-quality-note{font-size:9px;color:#7a8883;margin:8px 0}

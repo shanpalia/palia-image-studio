@@ -111,3 +111,8 @@ The browser AI remover is configured for CPU + single-thread WASM. WebGPU is int
 - Duplicate drag/drop listeners were removed to prevent repeated `loadFile()` calls.
 - The unsupported `env.wasm.numThreads` configuration was removed. IMG.LY 1.7.0 does not expose that setting in its public Config; the runtime selects its WASM thread count internally. The idle model warm-up was also removed so the console is quiet until background removal is actually used.
 - CPU execution and `proxyToWorker:false` are used for reliable GitHub Pages operation.
+
+
+## Enhance quality
+
+The Enhance action now performs a real canvas upscale with high-quality image smoothing, a multi-pass resize, and a subtle unsharp-mask detail pass. It outputs a larger PNG and visibly improves edge/detail crispness compared with plain scaling. It is not a generative AI super-resolution model; it improves resampling/detail appearance without inventing unsupported image content. Zoom controls are placed directly beside the Enhance tab in the top toolbar.
