@@ -103,3 +103,11 @@ Zoom controls are now placed directly beside the Enhance controls. The Enhance f
 ## GitHub Pages compatibility
 
 The browser AI remover is configured for CPU + single-thread WASM. WebGPU is intentionally not requested because ordinary GitHub Pages is not cross-origin isolated and many browsers/devices have no WebGPU adapter. This removes the `No available adapters` and `env.wasm.numThreads` warnings while keeping the background remover functional. The small quantized model and 1024px input remain enabled for speed.
+
+
+## Final drag & drop / WASM fix
+
+- First-page and editor drag/drop are handled by one capture-phase file-drop handler, preventing the browser from opening the dropped image as a new page.
+- Duplicate drag/drop listeners were removed to prevent repeated `loadFile()` calls.
+- The unsupported `env.wasm.numThreads` configuration was removed. IMG.LY 1.7.0 does not expose that setting in its public Config; the runtime selects its WASM thread count internally. The idle model warm-up was also removed so the console is quiet until background removal is actually used.
+- CPU execution and `proxyToWorker:false` are used for reliable GitHub Pages operation.

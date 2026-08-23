@@ -1,33 +1,6 @@
 import { removeBackground as imglyRemoveBackground } from "https://esm.sh/@imgly/background-removal@1.7.0?target=es2022";
 
 
-let aiWarmupPromise=null;
-let aiWarmupDone=false;
-
-async function warmupAI(){
-  if(aiWarmupPromise) return aiWarmupPromise;
-  aiWarmupPromise=(async()=>{
-    try{
-      const c=document.createElement("canvas");
-      c.width=32;c.height=32;
-      const x=c.getContext("2d");
-      x.fillStyle="#fff";x.fillRect(0,0,32,32);
-      const blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error("warmup blob failed")),"image/png"));
-      await imglyRemoveBackground(blob,{
-        publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
-        model:"isnet_quint8",
-        device:"cpu",
-        output:{format:"image/png",quality:0.9,type:"foreground"},
-    env:{wasm:{numThreads:1}},
-        debug:false
-      });
-      aiWarmupDone=true;
-    }catch(e){
-      console.warn("AI warm-up skipped; upload will initialize the CPU model on demand.",e);
-    }
-  })();
-  return aiWarmupPromise;
-}
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -43,88 +16,54 @@ let enhancementScale=1;
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
-// Robust drag & drop support for desktop browsers and GitHub Pages.
-let dragDepth = 0;
-
-function hasFiles(e){
-  return e.dataTransfer && e.dataTransfer.types &&
-    Array.from(e.dataTransfer.types).includes("Files");
+// Reliable drag & drop for the landing page and editor canvas.
+// We handle external file drops in capture phase so the browser never navigates
+// to the dropped image.
+let dragDepth=0;
+function isImageFile(file){
+  return !!file && (
+    /^image\/(jpeg|png|webp)$/i.test(file.type) ||
+    /\.(jpe?g|png|webp)$/i.test(file.name||"")
+  );
 }
-
-document.addEventListener("dragenter", e => {
-  if(!hasFiles(e)) return;
+function hasFileDrag(e){
+  return !!(e.dataTransfer && Array.from(e.dataTransfer.types||[]).includes("Files"));
+}
+function clearDragUI(){
+  dropZone?.classList.remove("drag");
+  canvasWrap?.classList.remove("drop-active");
+  dragDepth=0;
+}
+document.addEventListener("dragenter",e=>{
+  if(!hasFileDrag(e))return;
   e.preventDefault();
   dragDepth++;
-  dropZone.classList.add("drag");
-});
-
-document.addEventListener("dragover", e => {
-  if(!hasFiles(e)) return;
-  e.preventDefault();
-  e.dataTransfer.dropEffect = "copy";
-  dropZone.classList.add("drag");
-});
-
-document.addEventListener("dragleave", e => {
-  if(!hasFiles(e)) return;
-  e.preventDefault();
-  dragDepth = Math.max(0, dragDepth - 1);
-  if(dragDepth === 0) dropZone.classList.remove("drag");
-});
-
-document.addEventListener("drop", e => {
-  if(!hasFiles(e)) return;
-  e.preventDefault();
-  dragDepth = 0;
-  dropZone.classList.remove("drag");
-
-  const files = e.dataTransfer.files;
-  if(files && files.length){
-    loadFile(files[0]);
-  }
-});
-
-// Also support dropping directly on the upload card.
-dropZone.addEventListener("drop", e => {
+  if(document.body.classList.contains("editor-mode")) canvasWrap?.classList.add("drop-active");
+  else dropZone?.classList.add("drag");
+},true);
+document.addEventListener("dragover",e=>{
+  if(!hasFileDrag(e))return;
   e.preventDefault();
   e.stopPropagation();
-  dragDepth = 0;
-  dropZone.classList.remove("drag");
-  if(e.dataTransfer.files && e.dataTransfer.files.length){
-    loadFile(e.dataTransfer.files[0]);
-  }
-});
-
-// Once the editor is open, the center canvas itself becomes the drop target.
-// Dropping a new image here replaces the current image and starts the same
-// automatic AI background-removal flow.
-if(canvasWrap){
-  canvasWrap.addEventListener("dragenter",e=>{
-    if(!hasFiles(e))return;
-    e.preventDefault();
-    canvasWrap.classList.add("drop-active");
-  });
-  canvasWrap.addEventListener("dragover",e=>{
-    if(!hasFiles(e))return;
-    e.preventDefault();
-    e.dataTransfer.dropEffect="copy";
-    canvasWrap.classList.add("drop-active");
-  });
-  canvasWrap.addEventListener("dragleave",e=>{
-    if(!hasFiles(e))return;
-    e.preventDefault();
-    canvasWrap.classList.remove("drop-active");
-  });
-  canvasWrap.addEventListener("drop",e=>{
-    if(!hasFiles(e))return;
-    e.preventDefault();
-    e.stopPropagation();
-    canvasWrap.classList.remove("drop-active");
-    const file=e.dataTransfer.files?.[0];
-    if(file) loadFile(file);
-  });
-}
-
+  try{e.dataTransfer.dropEffect="copy"}catch(_){}
+  if(document.body.classList.contains("editor-mode")) canvasWrap?.classList.add("drop-active");
+  else dropZone?.classList.add("drag");
+},true);
+document.addEventListener("dragleave",e=>{
+  if(!hasFileDrag(e))return;
+  e.preventDefault();
+  dragDepth=Math.max(0,dragDepth-1);
+  if(dragDepth===0)clearDragUI();
+},true);
+document.addEventListener("drop",e=>{
+  if(!hasFileDrag(e))return;
+  e.preventDefault();
+  e.stopPropagation();
+  const file=e.dataTransfer.files?.[0];
+  clearDragUI();
+  if(isImageFile(file)) loadFile(file);
+  else alert("Please drop a JPG, PNG or WEBP image.");
+},true);
 
 function makeId(){ return "img_"+Date.now()+"_"+Math.random().toString(36).slice(2,8); }
 
@@ -376,11 +315,6 @@ $$(".tool").forEach(b=>b.addEventListener("click",async()=>{
 
 async function removeBackground(){
   if(!original) return;
-  // If the model is already warming up, reuse that initialization instead of
-  // downloading/loading it again during the customer's upload.
-  if(aiWarmupPromise && !aiWarmupDone){
-    try{ await aiWarmupPromise; }catch(e){}
-  }
   showProcessing("Loading AI background remover...","First use may download the AI model");
   try{
     const resultBlob = await removeBackgroundAI(original, (current,total)=>{
@@ -441,9 +375,7 @@ async function removeBackgroundAI(im, progress){
     publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
     model:"isnet_quint8",
     output:{format:"image/png",quality:0.9,type:"foreground"},
-    env:{wasm:{numThreads:1}},
     debug:false,
-        env:{wasm:{numThreads:1}},
     progress:(key,current,total)=>{
       if(progress) progress(current,total);
     }
@@ -559,15 +491,3 @@ window.addEventListener("error", e => {
 workspace.classList.add("hidden");
 
 
-// Warm the AI model in the background after the landing/editor UI is ready.
-// This shifts the model download away from the customer's upload action.
-const startAIWarmup=()=>{
-  if("requestIdleCallback" in window) requestIdleCallback(()=>warmupAI(),{timeout:2500});
-  else setTimeout(()=>warmupAI(),1200);
-};
-if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",startAIWarmup,{once:true});
-else startAIWarmup();
-
-warmupAI().then(()=>{
-  if(aiWarmupDone && typeof statusEl!=="undefined" && statusEl) statusEl.textContent="AI ready";
-}).catch(()=>{});
