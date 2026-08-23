@@ -1,0 +1,6 @@
+{
+  "name": "Palia Image Studio",
+  "description": "Browser-based AI background removal and image enhancement tool by Hafsa Traders, compatible with GitHub Pages.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}
