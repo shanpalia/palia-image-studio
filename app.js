@@ -13,6 +13,29 @@ let adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
 let viewMode="fit";
 let enhancementBaseline=null;
 let enhancementScale=1;
+let landingMode="remove";
+
+function setLandingMode(mode){
+  landingMode=mode;
+  const removeBtn=$("#modeRemove"), enhanceBtn=$("#modeEnhance");
+  removeBtn?.classList.toggle("active",mode==="remove");
+  enhanceBtn?.classList.toggle("active",mode==="enhance");
+  removeBtn?.setAttribute("aria-selected",String(mode==="remove"));
+  enhanceBtn?.setAttribute("aria-selected",String(mode==="enhance"));
+  const title=$("#landingTitle"), desc=$("#landingDescription"), status=$("#uploadStatus");
+  if(mode==="enhance"){
+    title.innerHTML="Enhance Your<br>Image";
+    desc.textContent="Improve image quality with fast 2× and 4× enhancement.";
+    if(status) status.textContent="Fast image enhancement";
+  }else{
+    title.innerHTML="Remove Image<br>Background";
+    desc.textContent="Remove backgrounds automatically with fast AI.";
+    if(status) status.textContent="Fast automatic background removal";
+  }
+}
+$("#modeRemove")?.addEventListener("click",()=>setLandingMode("remove"));
+$("#modeEnhance")?.addEventListener("click",()=>setLandingMode("enhance"));
+setLandingMode("remove");
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
@@ -241,14 +264,24 @@ if(!validType && !validName){
         const center=$("#canvasWrap");
         if(center) center.scrollIntoView({behavior:"smooth",block:"center"});
       }));
-      showProcessing("Removing background…","Fast AI mode • first use downloads a small model");
       addRecentItem(file,im);
-      try{
-        await removeBackground();
-      }catch(err){
-        console.error(err);
+      if(landingMode==="enhance"){
+        processed=im;
+        current=im;
         hideProcessing();
-        statusEl.textContent="Could not remove background";
+        statusEl.textContent="Image ready • Choose 2× or 4× Enhance";
+        const active=recentItems.find(x=>x.id===activeRecentId); if(active) active.processing=false;
+        render();
+        saveActiveToRecent();
+      }else{
+        showProcessing("Removing background…","Fast AI mode • first use downloads a small model");
+        try{
+          await removeBackground();
+        }catch(err){
+          console.error(err);
+          hideProcessing();
+          statusEl.textContent="Could not remove background";
+        }
       }
     };
     im.onerror=()=>alert("The selected image could not be opened.");

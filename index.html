@@ -20,13 +20,20 @@
 
 <main>
   <section class="landing" id="editor">
-    <div class="landing-visual">
-      <div class="demo-cutout">
-        <div class="demo-head"></div><div class="demo-body"></div>
-        <div class="demo-leaf l1"></div><div class="demo-leaf l2"></div><div class="demo-leaf l3"></div>
+    <div class="landing-intro">
+      <div class="landing-brand">Palia Image Studio</div>
+      <h1 id="landingTitle">Remove Image<br>Background</h1>
+      <p id="landingDescription">Remove backgrounds automatically with fast AI.</p>
+      <div class="mode-switch" role="tablist" aria-label="Choose image tool">
+        <button class="mode-card active" id="modeRemove" data-mode="remove" type="button" role="tab" aria-selected="true">
+          <div class="mode-card-image"><img src="./assets/background-remover.png" alt="Background remover preview"></div>
+          <div class="mode-card-copy"><span class="mode-icon">✂</span><div><b>Background Remover</b><small>AI cutout · Transparent PNG</small></div></div>
+        </button>
+        <button class="mode-card" id="modeEnhance" data-mode="enhance" type="button" role="tab" aria-selected="false">
+          <div class="mode-card-image"><img src="./assets/image-enhancer.png" alt="Image enhancer preview"></div>
+          <div class="mode-card-copy"><span class="mode-icon">✦</span><div><b>Image Enhancer</b><small>2× / 4× quality enhancement</small></div></div>
+        </button>
       </div>
-      <h1>Remove Image<br>Background</h1>
-      <p><b>100% Automatically</b> and <span>Free</span></p>
     </div>
     <div class="upload-card" id="dropZone">
       <div class="upload-cloud">↑</div>
