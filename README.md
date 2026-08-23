@@ -88,3 +88,8 @@ The interface now uses a clean upload landing screen and a compact editor with C
 ## Upload flow
 
 Dropping/selecting an image on the first screen immediately switches to the editor and hides the landing/upload screen. The center canvas is the new drop target: a new JPG/PNG/WEBP can be dropped directly over the current image, replacing it and starting the same automatic processing flow. The canvas is sized from the actual image dimensions and only scales down when necessary to fit the available viewport, so there is no artificial fixed-height image area.
+
+
+## Fastest background-removal mode
+
+The small quantized `isnet_quint8` model is used with a maximum 1024px AI input. The app also warms the model in the browser during idle time after page load, so the model download/initialization happens before the user uploads an image when possible. WebGPU is attempted first with CPU fallback. This reduces perceived upload-to-result latency; actual speed still depends on device/browser/network.

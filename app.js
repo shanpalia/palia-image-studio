@@ -1,4 +1,32 @@
 import { removeBackground as imglyRemoveBackground } from "https://esm.sh/@imgly/background-removal@1.7.0?target=es2022";
+
+
+let aiWarmupPromise=null;
+let aiWarmupDone=false;
+
+async function warmupAI(){
+  if(aiWarmupPromise) return aiWarmupPromise;
+  aiWarmupPromise=(async()=>{
+    try{
+      const c=document.createElement("canvas");
+      c.width=32;c.height=32;
+      const x=c.getContext("2d");
+      x.fillStyle="#fff";x.fillRect(0,0,32,32);
+      const blob=await new Promise((resolve,reject)=>c.toBlob(b=>b?resolve(b):reject(new Error("warmup blob failed")),"image/png"));
+      await imglyRemoveBackground(blob,{
+        publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
+        model:"isnet_quint8",
+        device:"gpu",
+        output:{format:"image/png",quality:0.9,type:"foreground"},
+        debug:false
+      });
+      aiWarmupDone=true;
+    }catch(e){
+      console.warn("AI warm-up skipped; upload will use normal loading.",e);
+    }
+  })();
+  return aiWarmupPromise;
+}
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -287,7 +315,7 @@ $$("[data-format]").forEach(b=>b.addEventListener("click",()=>{format=b.dataset.
 
 $("#rotateLeft").addEventListener("click",()=>{rotation=(rotation+270)%360;render();saveActiveToRecent()});
 $("#rotateRight").addEventListener("click",()=>{rotation=(rotation+90)%360;render();saveActiveToRecent()});
-$("#resetRotate").addEventListener("click",()=>{rotation=0;zoom=1;$("#zoomLabel").textContent="100%";render();saveActiveToRecent()});
+$("#resetRotate").addEventListener("click",()=>{rotation=0;zoom=1;const zl=$("#zoomLabel"); if(zl) zl.textContent="100%";render();saveActiveToRecent()});
 $("#zoomIn").addEventListener("click",()=>{zoom=Math.min(2,zoom+.1);$("#zoomLabel").textContent=Math.round(zoom*100)+"%";render()});
 $("#zoomOut").addEventListener("click",()=>{zoom=Math.max(.5,zoom-.1);$("#zoomLabel").textContent=Math.round(zoom*100)+"%";render()});
 
@@ -303,6 +331,11 @@ $$(".tool").forEach(b=>b.addEventListener("click",async()=>{
 
 async function removeBackground(){
   if(!original) return;
+  // If the model is already warming up, reuse that initialization instead of
+  // downloading/loading it again during the customer's upload.
+  if(aiWarmupPromise && !aiWarmupDone){
+    try{ await aiWarmupPromise; }catch(e){}
+  }
   showProcessing("Loading AI background remover...","First use may download the AI model");
   try{
     const resultBlob = await removeBackgroundAI(original, (current,total)=>{
@@ -345,7 +378,7 @@ async function removeBackgroundAI(im, progress){
   // Convert the HTMLImageElement to a real PNG Blob before passing it
   // to the neural-network library. This avoids input-type incompatibilities.
   const sourceCanvas=document.createElement("canvas");
-  const maxSide=1280;
+  const maxSide=1024;
   const ratio=Math.min(1,maxSide/Math.max(im.naturalWidth,im.naturalHeight));
   sourceCanvas.width=Math.max(1,Math.round(im.naturalWidth*ratio));
   sourceCanvas.height=Math.max(1,Math.round(im.naturalHeight*ratio));
@@ -472,3 +505,17 @@ window.addEventListener("error", e => {
 
 // Initial state: show the upload screen and keep the editor/recent area hidden.
 workspace.classList.add("hidden");
+
+
+// Warm the AI model in the background after the landing/editor UI is ready.
+// This shifts the model download away from the customer's upload action.
+const startAIWarmup=()=>{
+  if("requestIdleCallback" in window) requestIdleCallback(()=>warmupAI(),{timeout:2500});
+  else setTimeout(()=>warmupAI(),1200);
+};
+if(document.readyState==="loading") document.addEventListener("DOMContentLoaded",startAIWarmup,{once:true});
+else startAIWarmup();
+
+warmupAI().then(()=>{
+  if(aiWarmupDone && typeof statusEl!=="undefined" && statusEl) statusEl.textContent="AI ready";
+}).catch(()=>{});

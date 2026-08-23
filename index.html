@@ -41,11 +41,11 @@
   <section class="workspace hidden" id="workspace">
     <div class="editor-shell">
       <div class="editor-toolbar">
-        <button class="editor-tab active" data-panel="cutout"><span>✣</span>Cutout</button>
-        <button class="editor-tab" data-panel="background"><span>◈</span>Background</button>
-        <button class="editor-tab" data-panel="effects"><span>●</span>Effects</button>
-        <button class="editor-tab" data-panel="adjust"><span>◐</span>Adjust</button>
-        <button class="editor-tab" data-panel="design"><span>▣</span>Design</button>
+        <button class="editor-tab active" data-panel="cutout"><span>✣</span><span class="nav-icon">✂</span>Cutout</button>
+        <button class="editor-tab" data-panel="background"><span>◈</span><span class="nav-icon">◈</span>Background</button>
+        <button class="editor-tab" data-panel="effects"><span>●</span><span class="nav-icon">✦</span>Effects</button>
+        <button class="editor-tab" data-panel="adjust"><span>◐</span><span class="nav-icon">◐</span>Adjust</button>
+        <button class="editor-tab" data-panel="design"><span>▣</span><span class="nav-icon">✧</span>Enhance</button>
         <span class="toolbar-spacer"></span>
         <button class="toolbar-icon" id="undoBtn" title="Undo">↶</button>
         <button class="toolbar-icon" id="redoBtn" title="Redo">↷</button>
@@ -102,11 +102,11 @@
           </div>
 
           <div class="panel hidden" data-panel-content="design">
-            <h3>Design</h3>
-            <div class="design-actions"><button id="enhance2" class="design-btn">2× Enhance</button><button id="enhance4" class="design-btn">4× Enhance</button></div>
+            <h3>Enhance</h3>
+            <div class="design-actions"><button id="enhance2" class="design-btn"><span>✦</span> 2× Enhance</button><button id="enhance4" class="design-btn"><span>✦</span> 4× Enhance</button></div>
             <div class="design-actions"><button id="rotateLeft" class="design-btn">↶ Rotate</button><button id="rotateRight" class="design-btn">↷ Rotate</button></div>
             <label class="format-label">Download format</label>
-            <div class="format"><button data-format="png" class="selected">PNG</button><button data-format="jpg">JPG</button></div>
+            <div class="format"><button data-format="png" class="selected"><span>▣</span> PNG</button><button data-format="jpg"><span>▧</span> JPG</button></div>
           </div>
         </aside>
       </div>

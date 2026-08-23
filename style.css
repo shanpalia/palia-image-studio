@@ -46,3 +46,18 @@ body.editor-mode .workspace.hidden{display:block!important}
   .editor-canvas-area{height:calc(100vh - 105px)!important;padding:12px!important}
   .canvas-stage canvas{max-width:calc(100vw - 30px)!important;max-height:calc(100vh - 170px)!important}
 }
+
+/* Screenshot-inspired toolbar polish */
+.nav-icon{display:inline-grid;place-items:center;margin-right:7px;font-size:12px;color:#7d8784}
+.fit-controls .nav-icon{margin-right:4px}
+.zoom-panel{border:1px solid #e4ebe8;border-radius:12px;background:#fbfdfc;padding:9px 10px;margin-bottom:14px}
+.zoom-title{display:block;font-size:10px;color:#8a9692;text-transform:uppercase;letter-spacing:.05em;margin-bottom:7px;font-weight:700}
+.zoom-controls{display:grid;grid-template-columns:40px 1fr 40px;align-items:center;gap:5px}
+.zoom-controls button{height:34px;border:1px solid #d9e4e0;background:#fff;border-radius:8px;font-size:20px;line-height:1;color:#465651;cursor:pointer}
+.zoom-controls button:hover{border-color:#159b78;color:#159b78;background:#effaf6}
+.zoom-controls #zoomLabel{text-align:center;font-size:11px;font-weight:700;color:#55645f}
+.action-btn b,.format button span,.fit-controls button span{display:inline-block}
+.export-card .action-btn span{font-size:10px}
+
+/* Fast AI status */
+.ai-ready{color:#159b78;font-weight:700}
