@@ -32,7 +32,7 @@
 @media(max-width:800px){.home-tools{grid-template-columns:1fr}.home-title{font-size:42px}.home-tool img{height:230px}}
 </style>
 </head>
-<body class="home-page">
+<body class="home-page" data-default-tool="remove">
 <header class="home-nav">
   <div class="home-nav-inner">
     <a class="home-nav-brand" href="./index.html"><img src="./assets/palia-image-studio-icon.svg" alt="">Palia Image Studio</a>
@@ -47,10 +47,10 @@
   <h1 class="home-title">Choose your image tool.</h1>
   <p class="home-sub">One studio, two focused workflows. Pick a tool first, then drop your image into a dedicated editor.</p>
   <section class="home-tools">
-    <a class="home-tool" href="./background-remover.html">
+    <a class="home-tool home-tool-default" href="./background-remover.html">
       <img src="./assets/background-remover.png" alt="Background Remover">
       <div class="home-tool-body">
-        <div class="home-tool-title">✂ Background Remover</div>
+        <div class="home-tool-title">✂ Background Remover <span class="default-tool-badge">Default</span></div>
         <div class="home-tool-desc">Fast AI cutout with transparent and color background tools.</div>
         <span class="home-tool-cta">Open Background Remover →</span>
       </div>
