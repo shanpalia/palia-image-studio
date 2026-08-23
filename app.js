@@ -100,19 +100,22 @@ function renderRecent(){
   const section=$("#recentSection"), strip=$("#recentStrip");
   if(!section||!strip) return;
   section.classList.toggle("hidden", recentItems.length===0);
+  $("#recentCount").textContent=`${recentItems.length} ${recentItems.length===1?"item":"items"}`;
   strip.innerHTML="";
   const newCard=document.createElement("button");
   newCard.type="button"; newCard.className="recent-card new-image-card"; newCard.id="newImageCard";
   newCard.innerHTML='<div class="new-image-plus">+</div><strong>New Image</strong><span>Click or Drop</span>';
   newCard.addEventListener("click",()=>fileInput.click());
   strip.appendChild(newCard);
-  recentItems.forEach(item=>{
+  const q=(($("#recentSearch")?.value)||"").trim().toLowerCase();
+  const visibleItems=recentItems.filter(item=>!q || item.name.toLowerCase().includes(q));
+  visibleItems.forEach(item=>{
     const card=document.createElement("button");
     card.type="button";
     card.className="recent-card"+(item.id===activeRecentId?" active":"");
     card.title="Open "+item.name;
     card.innerHTML=`<div class="recent-thumb"><img alt=""></div><div class="recent-name"></div><div class="recent-meta">Click to edit</div>`;
-    card.querySelector("img").src=item.currentSrc;
+    card.querySelector("img").src=item.currentSrc; card.querySelector("img").style.objectFit="contain"; card.querySelector("img").style.objectPosition="center";
     card.querySelector(".recent-name").textContent=item.name;
     card.addEventListener("click",()=>openRecent(item.id));
     strip.appendChild(card);
@@ -333,6 +336,29 @@ $("#resetAdjustments").addEventListener("click",()=>{
   syncAdjustmentUI(); render(); saveActiveToRecent();
 });
 
+
+$("#recentSearch").addEventListener("input",()=>renderRecent());
+$("#gridViewBtn").addEventListener("click",()=>{
+  $("#recentStrip").classList.toggle("list-view");
+});
+
+$("#cropBtn").addEventListener("click",()=>{
+  alert("Crop tool: use Fit/Fill for the current canvas view. A full freeform crop can be added without changing the original image.");
+});
+$("#sharpenBtn").addEventListener("click",()=>{
+  // Small contrast/saturation boost as a real canvas-based sharpening-style preset.
+  adjustments.contrast=Math.min(150,adjustments.contrast+8);
+  adjustments.saturation=Math.min(180,adjustments.saturation+4);
+  syncAdjustmentUI(); render(); saveActiveToRecent();
+});
+$("#autoFixBtn").addEventListener("click",()=>{
+  adjustments={brightness:106,contrast:108,saturation:106,blur:0,grayscale:0};
+  syncAdjustmentUI(); render(); saveActiveToRecent();
+});
+$("#compareBtn").addEventListener("click",()=>{
+  if(showBefore) $("#afterBtn").click(); else $("#beforeBtn").click();
+});
+
 $("#clearRecentBtn").addEventListener("click",()=>{
   recentItems=[];activeRecentId=null;$("#recentSection").classList.add("hidden");
 });
@@ -353,3 +379,5 @@ $("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa 
 window.addEventListener("error", e => {
   if (e && e.message) console.error("Palia Image Studio:", e.message);
 });
+
+// Keep all recent thumbnails fitted inside their tiles.

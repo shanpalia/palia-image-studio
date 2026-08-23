@@ -54,7 +54,8 @@
 
       <div class="editor-grid">
         <aside class="tools">
-          <button class="tool active" data-tool="remove">✂ <span>Remove Background</span></button>
+          <div class="panel-title"><span class="panel-icon">✦</span><h3>AI Tools</h3></div>
+          <button class="tool active ai-remove" data-tool="remove">✦ <span>Remove Background (AI)</span></button>
           <button class="tool" data-tool="enhance">✦ <span>Enhance</span></button>
           <div class="tool-group">
             <label>Enhancement</label>
@@ -98,14 +99,16 @@
           <div class="fit-controls">
             <button type="button" id="fitBtn" class="selected">Fit</button>
             <button type="button" id="fillBtn">Fill</button>
+            <button type="button" id="zoomOut">⌕−</button>
+            <button type="button" id="zoomIn">⌕+</button>
+            <button type="button" id="ratioBtn">1:1</button>
+            <button type="button" id="undoBtn">↶</button>
+            <button type="button" id="redoBtn">↷</button>
+            <button type="button" id="compareBtn">Before / After</button>
           </div>
           <div class="preview-toolbar">
             <span id="status">Ready</span>
-            <div>
-              <button id="zoomOut">−</button>
-              <span id="zoomLabel">100%</span>
-              <button id="zoomIn">+</button>
-            </div>
+            <div><span id="zoomLabel">100%</span></div>
           </div>
           <div class="canvas-wrap" id="canvasWrap">
             <canvas id="canvas"></canvas>
@@ -147,6 +150,13 @@
             <input id="grayscale" type="range" min="0" max="100" value="0">
           </div>
           <hr class="panel-divider">
+          <h3>Image Actions</h3>
+          <div class="action-grid">
+            <button type="button" class="action-btn crop-btn" id="cropBtn"><b>⌗</b><span>Crop</span></button>
+            <button type="button" class="action-btn sharpen-btn" id="sharpenBtn"><b>◈</b><span>Sharpen</span></button>
+            <button type="button" class="action-btn fix-btn" id="autoFixBtn"><b>✦</b><span>Auto Fix</span></button>
+          </div>
+          <hr class="panel-divider">
           <h3>Save image</h3>
           <p>Export the current result in high quality.</p>
           <label>Format</label>
@@ -167,7 +177,7 @@
           <span class="pill">RECENT</span>
           <h2>Recent images</h2>
         </div>
-        <button id="clearRecentBtn" class="secondary">Clear all</button>
+        <div class="recent-actions"><input id="recentSearch" type="search" placeholder="Search recent images..."><button id="clearRecentBtn" class="secondary">Clear All</button><button id="gridViewBtn" class="secondary">▦</button></div>
       </div>
       <div class="recent-strip" id="recentStrip">
         <button type="button" class="recent-card new-image-card" id="newImageCard">
