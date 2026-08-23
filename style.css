@@ -436,3 +436,145 @@ body[data-page="remove"] .enhancer-hero-card,
 body[data-page="remove"] .image-enhancer-card{display:none!important}
 body[data-page="remove"] .remover-hero-card{display:block!important}
 .home-tool-default{border:2px solid #159b78!important}
+
+/* Dedicated Background Remover landing — clean remove.bg-style composition */
+.remove-home{
+  max-width:1120px!important;
+  grid-template-columns:minmax(0,1fr) 430px!important;
+  gap:64px!important;
+  min-height:600px!important;
+  padding-top:46px!important;
+}
+.remove-home .landing-intro{position:relative}
+.remove-home .landing-brand{
+  color:#159b78!important;
+  font-weight:900!important;
+  font-size:13px!important;
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+}
+.remove-home .landing-studio-icon{width:27px!important;height:27px!important}
+.remove-home h1{
+  font-size:58px!important;
+  line-height:1.02!important;
+  letter-spacing:-2.8px!important;
+  margin:18px 0 14px!important;
+  color:#252729!important;
+  font-weight:900!important;
+}
+.remove-home p{
+  font-size:16px!important;
+  color:#555f5c!important;
+  margin:0 0 18px!important;
+}
+.remove-free{
+  display:flex;
+  align-items:center;
+  gap:7px;
+  font-size:15px;
+  font-weight:800;
+  color:#343b39;
+}
+.remove-free b{
+  background:#287de1;
+  color:#fff;
+  padding:4px 10px;
+  border-radius:15px;
+  font-size:13px;
+}
+.remove-demo{
+  position:absolute;
+  right:25px;
+  top:4px;
+  width:260px;
+  height:165px;
+  pointer-events:none;
+  opacity:.98;
+}
+.demo-photo-card{
+  position:absolute;
+  left:0;
+  top:0;
+  width:178px;
+  height:145px;
+  overflow:hidden;
+  border-radius:16px;
+  background:#f1f4f3;
+  box-shadow:0 12px 28px rgba(20,40,35,.08);
+  transform:rotate(-4deg);
+  z-index:2;
+}
+.demo-photo-card img{
+  width:100%;
+  height:100%;
+  object-fit:cover;
+  object-position:center;
+}
+.demo-checker{
+  position:absolute;
+  right:2px;
+  top:28px;
+  width:125px;
+  height:112px;
+  border-radius:16px;
+  background-color:#fff;
+  background-image:
+    linear-gradient(45deg,#dfe4e5 25%,transparent 25%),
+    linear-gradient(-45deg,#dfe4e5 25%,transparent 25%),
+    linear-gradient(45deg,transparent 75%,#dfe4e5 75%),
+    linear-gradient(-45deg,transparent 75%,#dfe4e5 75%);
+  background-size:24px 24px;
+  background-position:0 0,0 12px,12px -12px,-12px 0;
+  box-shadow:0 12px 28px rgba(20,40,35,.07);
+  border:6px solid #fff;
+}
+.upload-column{display:flex;flex-direction:column;align-items:center}
+.remove-home .upload-card{
+  width:100%!important;
+  height:360px!important;
+  border-radius:28px!important;
+}
+.remove-home .upload-btn{
+  padding:15px 38px!important;
+  font-size:18px!important;
+}
+.landing-hint{
+  margin-top:12px;
+  color:#929a97;
+  font-size:10px;
+}
+body[data-page="remove"] .editor-tab[data-panel="effects"],
+body[data-page="remove"] .editor-tab[data-panel="adjust"],
+body[data-page="remove"] .editor-tab[data-panel="design"]{display:none!important}
+body[data-page="remove"] .panel[data-panel-content="effects"],
+body[data-page="remove"] .panel[data-panel-content="adjust"],
+body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
+body[data-page="remove"] .editor-toolbar{
+  justify-content:flex-start!important;
+}
+body[data-page="remove"] .editor-toolbar::before{
+  content:"Background Remover";
+  font-size:12px;
+  font-weight:900;
+  color:#252b29;
+  padding:0 12px 0 4px;
+  margin-right:4px;
+  border-right:1px solid #e7eae9;
+}
+body[data-page="remove"] .editor-toolbar .zoom-top-separator,
+body[data-page="remove"] .editor-toolbar .zoom-top-btn,
+body[data-page="remove"] .editor-toolbar .zoom-top-label{display:none!important}
+@media(max-width:900px){
+  .remove-home{
+    grid-template-columns:1fr!important;
+    gap:30px!important;
+  }
+  .remove-demo{
+    position:relative;
+    right:auto;
+    top:auto;
+    margin:0 auto 10px;
+  }
+  .remove-home h1{font-size:44px!important}
+}

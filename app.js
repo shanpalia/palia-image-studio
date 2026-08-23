@@ -44,7 +44,7 @@ $("#modeEnhanceTop")?.addEventListener("click",()=>setLandingMode("enhance"));
 
 $("#modeCardRemove")?.addEventListener("click",()=>setLandingMode("remove"));
 $("#modeCardEnhance")?.addEventListener("click",()=>setLandingMode("enhance"));
-setLandingMode("remove");
+setLandingMode(document.body.dataset.page==="enhance" ? "enhance" : "remove");
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));

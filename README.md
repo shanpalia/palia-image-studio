@@ -163,3 +163,8 @@ The dedicated Background Remover page is now a valid standalone HTML document. H
 ## Clean final page isolation
 
 `background-remover.html` is isolated to the Background Remover workflow and contains no Image Enhancer artwork reference. The Home page keeps Background Remover as the first/default option. `enhance.html` is the only dedicated Image Enhancer page.
+
+
+## Background Remover UI
+
+The dedicated Background Remover page now uses a remove.bg-inspired two-column landing layout: branding/demo on the left and a large Upload/drag-drop card on the right. After upload, the landing page switches to the editor. The remover editor shows only Cutout and Background tools; enhancer/effects/adjustment tools are hidden on this dedicated page.
