@@ -429,20 +429,10 @@ body[data-page="enhance"] .editor-tab[data-panel="design"]{display:flex!importan
 body[data-page="enhance"] .editor-toolbar::before{content:"Image Enhancer";font-weight:900;font-size:13px;padding:0 12px 0 3px;margin-right:4px;border-right:1px solid #e5e8e8}
 body[data-page="remove"] .editor-toolbar::before{content:"Background Remover";font-weight:900;font-size:13px;padding:0 12px 0 3px;margin-right:4px;border-right:1px solid #e5e8e8}
 
-/* Default tool: Background Remover */
-.home-tool-default{
-  border-color:#159b78!important;
-  box-shadow:0 0 0 2px rgba(21,155,120,.08),0 12px 40px rgba(20,40,35,.08)!important;
-}
-.default-tool-badge{
-  display:inline-flex;
-  vertical-align:middle;
-  margin-left:6px;
-  padding:3px 7px;
-  border-radius:999px;
-  background:#e7f7f1;
-  color:#11765e;
-  font-size:8px;
-  font-weight:900;
-  letter-spacing:.03em;
-}
+/* Hard isolation: Background Remover page can never display enhancer artwork. */
+body[data-page="remove"] img[src*="image-enhancer"],
+body[data-page="remove"] img[src*="smart-enhance"],
+body[data-page="remove"] .enhancer-hero-card,
+body[data-page="remove"] .image-enhancer-card{display:none!important}
+body[data-page="remove"] .remover-hero-card{display:block!important}
+.home-tool-default{border:2px solid #159b78!important}

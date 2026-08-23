@@ -160,6 +160,6 @@ The selected tool preview now uses `object-fit: contain`, so the complete suppli
 The dedicated Background Remover page is now a valid standalone HTML document. Header buttons use normal anchors, so clicking Background Remover from the Image Enhancer page opens `background-remover.html` correctly. `index.html` remains the Home/tool picker.
 
 
-## Default selection
+## Clean final page isolation
 
-Background Remover is the default tool on the homepage and is the first/selected option. Clicking it opens the standalone `background-remover.html` page. Image Enhancer is only opened when the user explicitly selects the Enhancer option.
+`background-remover.html` is isolated to the Background Remover workflow and contains no Image Enhancer artwork reference. The Home page keeps Background Remover as the first/default option. `enhance.html` is the only dedicated Image Enhancer page.

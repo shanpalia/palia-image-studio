@@ -13,7 +13,7 @@ let adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
 let viewMode="fit";
 let enhancementBaseline=null;
 let enhancementScale=1;
-let landingMode=document.body.dataset.page==="enhance" ? "enhance" : "remove";
+let landingMode=(document.body.dataset.page==="enhance") ? "enhance" : "remove";
 
 function setLandingMode(mode){
   landingMode=mode;
@@ -251,7 +251,7 @@ function enterEditor(){
 }
 
 function loadFile(file){
-  landingMode=document.body.dataset.page==="enhance" ? "enhance" : "remove";
+  landingMode=(document.body.dataset.page==="enhance") ? "enhance" : "remove";
   const validType = /^image\/(jpeg|png|webp)$/i.test(file.type);
 const validName = /\.(jpe?g|png|webp)$/i.test(file.name || "");
 if(!validType && !validName){
