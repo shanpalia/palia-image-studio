@@ -175,3 +175,12 @@ After an image is uploaded or dropped on the homepage, the landing view switches
 ## Final editor transition and backgrounds
 
 When an image is dropped on Background Remover, the complete landing/header UI is hidden and the full-screen editor opens, matching the Enhancer workflow. The selected Background color is applied directly to the canvas background so it is visible immediately and is also included in the downloaded PNG/JPG.
+
+
+## Complete fixes
+
+- Root homepage keeps Background Remover as the default tool and now visibly includes Image Enhancer in the header.
+- Before upload, both tool choices are visible. After upload/editor mode, the header shows Home + only the selected tool.
+- PNG/JPG format buttons are present directly in the editor toolbar, including Background Remover, so JPG download is not hidden inside the Enhance panel.
+- Background panel expanded to Magic / Photo / Color groups with many presets and Custom.
+- Background colors and gradients are rendered into the canvas and therefore export to PNG/JPG.

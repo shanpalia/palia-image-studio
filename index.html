@@ -21,10 +21,10 @@
   </a>
 
   <div class="header-mode-switch" aria-label="Choose image tool">
-    <a class="header-mode-btn active" href="./index.html">
-      <span class="header-tool-icon">✂</span><span>Background Remover</span>
+    <a class="header-mode-btn active" data-mode="remove" href="./index.html">
+      <span class="header-tool-icon">✂</span><span>Background Remover <em class="default-tool-badge">Default</em></span>
     </a>
-    <a class="header-mode-btn" href="./enhance.html">
+    <a class="header-mode-btn" data-mode="enhance" href="./enhance.html">
       <span class="header-tool-icon">✦</span><span>Image Enhancer</span>
     </a>
   </div>
@@ -76,6 +76,10 @@
         <span class="toolbar-spacer"></span>
         <button class="toolbar-icon" id="undoBtn" title="Undo">↶</button>
         <button class="toolbar-icon" id="redoBtn" title="Redo">↷</button>
+        <div class="toolbar-format" aria-label="Download format">
+          <button type="button" class="toolbar-format-btn selected" data-format="png">PNG</button>
+          <button type="button" class="toolbar-format-btn" data-format="jpg">JPG</button>
+        </div>
         <button class="download-top" id="downloadBtn">Download <span>⌄</span></button>
       </div>
 
@@ -101,17 +105,51 @@
           <div class="panel hidden" data-panel-content="background">
             <h3>Background</h3>
             <p class="panel-help">Choose a background for your cutout.</p>
-            <div class="bg-palette" id="bgPalette">
-              <button class="bg-tile transparent-tile selected" data-bg="transparent"><span class="checker-mini"></span><small>Transparent</small></button>
-              <button class="bg-tile" data-bg="#ffffff" style="--tile:#fff"><span></span><small>White</small></button>
-              <button class="bg-tile" data-bg="#000000" style="--tile:#000"><span></span><small>Black</small></button>
-              <button class="bg-tile" data-bg="#f2f4f5" style="--tile:#f2f4f5"><span></span><small>Gray</small></button>
-              <button class="bg-tile" data-bg="#e8f7f2" style="--tile:#e8f7f2"><span></span><small>Mint</small></button>
-              <button class="bg-tile" data-bg="#e6f0ff" style="--tile:#e6f0ff"><span></span><small>Blue</small></button>
-              <button class="bg-tile" data-bg="#fff0e5" style="--tile:#fff0e5"><span></span><small>Peach</small></button>
-              <button class="bg-tile" data-bg="#fde7ef" style="--tile:#fde7ef"><span></span><small>Pink</small></button>
-              <button class="bg-tile" data-bg="#eee8ff" style="--tile:#eee8ff"><span></span><small>Lavender</small></button>
-              <label class="bg-tile custom-bg-tile"><input id="bgColor" type="color" value="#e8f7f2"><span class="custom-swatch">+</span><small>Custom</small></label>
+
+            <div class="background-tabs" role="tablist">
+              <button type="button" class="background-tab active" data-bg-group="magic">Magic</button>
+              <button type="button" class="background-tab" data-bg-group="photo">Photo</button>
+              <button type="button" class="background-tab" data-bg-group="color">Color</button>
+            </div>
+
+            <div class="bg-group active" data-bg-group-panel="magic">
+              <div class="bg-palette bg-palette-large">
+                <button class="bg-tile transparent-tile selected" data-bg="transparent"><span class="checker-mini"></span><small>Transparent</small></button>
+                <button class="bg-tile" data-bg="#ffffff" style="--tile:#ffffff"><span></span><small>White</small></button>
+                <button class="bg-tile" data-bg="#000000" style="--tile:#000000"><span></span><small>Black</small></button>
+                <button class="bg-tile" data-bg="#f2f4f5" style="--tile:#f2f4f5"><span></span><small>Light Gray</small></button>
+                <button class="bg-tile" data-bg="#222831" style="--tile:#222831"><span></span><small>Dark</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#5ee7df,#b490ca)" style="--tile:#75cfc6"><span></span><small>Mint Glow</small></button>
+              </div>
+            </div>
+
+            <div class="bg-group" data-bg-group-panel="photo">
+              <div class="bg-palette bg-palette-large">
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#87ceeb,#f6d365)" style="--tile:#9dd8e9"><span></span><small>Sky</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#134e5e,#71b280)" style="--tile:#4f9771"><span></span><small>Nature</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#ff9966,#ff5e62)" style="--tile:#ff7a64"><span></span><small>Sunset</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#42275a,#734b6d)" style="--tile:#5d4263"><span></span><small>Violet</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#232526,#414345)" style="--tile:#34383b"><span></span><small>Studio</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#fbc2eb,#a6c1ee)" style="--tile:#d3c2e8"><span></span><small>Rose</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#00c6ff,#0072ff)" style="--tile:#168be8"><span></span><small>Ocean</small></button>
+                <button class="bg-tile" data-bg="linear-gradient(135deg,#f7971e,#ffd200)" style="--tile:#f9bd1e"><span></span><small>Golden</small></button>
+              </div>
+            </div>
+
+            <div class="bg-group" data-bg-group-panel="color">
+              <div class="bg-palette bg-palette-large">
+                <button class="bg-tile" data-bg="#ff3b30" style="--tile:#ff3b30"><span></span><small>Red</small></button>
+                <button class="bg-tile" data-bg="#ff9500" style="--tile:#ff9500"><span></span><small>Orange</small></button>
+                <button class="bg-tile" data-bg="#ffd60a" style="--tile:#ffd60a"><span></span><small>Yellow</small></button>
+                <button class="bg-tile" data-bg="#34c759" style="--tile:#34c759"><span></span><small>Green</small></button>
+                <button class="bg-tile" data-bg="#00bcd4" style="--tile:#00bcd4"><span></span><small>Cyan</small></button>
+                <button class="bg-tile" data-bg="#007aff" style="--tile:#007aff"><span></span><small>Blue</small></button>
+                <button class="bg-tile" data-bg="#5856d6" style="--tile:#5856d6"><span></span><small>Indigo</small></button>
+                <button class="bg-tile" data-bg="#af52de" style="--tile:#af52de"><span></span><small>Purple</small></button>
+                <button class="bg-tile" data-bg="#ff2d55" style="--tile:#ff2d55"><span></span><small>Pink</small></button>
+                <button class="bg-tile" data-bg="#e8f7f2" style="--tile:#e8f7f2"><span></span><small>Mint</small></button>
+                <label class="bg-tile custom-bg-tile"><input id="bgColor" type="color" value="#e8f7f2"><span class="custom-swatch">+</span><small>Custom</small></label>
+              </div>
             </div>
           </div>
 

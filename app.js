@@ -370,7 +370,13 @@ $("#bgColor").addEventListener("input",e=>{
   render();
 });
 $$("[data-scale]").forEach(b=>b.addEventListener("click",()=>{scale=+b.dataset.scale;$$("[data-scale]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
-$$("[data-format]").forEach(b=>b.addEventListener("click",()=>{format=b.dataset.format;$$("[data-format]").forEach(x=>x.classList.remove("selected"));$$("[data-format]").filter(x=>x.dataset.format===format).forEach(x=>x.classList.add("selected"));}));
+$$("[data-format]").forEach(b=>b.addEventListener("click",()=>{
+  format=b.dataset.format;
+  $$("[data-format]").forEach(x=>x.classList.remove("selected"));
+  $$("[data-format]").filter(x=>x.dataset.format===format).forEach(x=>x.classList.add("selected"));
+  const dl=$("#downloadBtn");
+  if(dl) dl.title=`Download ${format.toUpperCase()}`;
+}));
 $$("[data-bg-group]").forEach(tab=>tab.addEventListener("click",()=>{
   const group=tab.dataset.bgGroup;
   $$('[data-bg-group]').forEach(x=>x.classList.toggle('active',x.dataset.bgGroup===group));

@@ -627,12 +627,59 @@ body.editor-mode .editor-body{min-height:calc(100vh - 116px)!important}
  .toolbar-format{display:none!important}
 }
 
-/* Dedicated page header: Home + current tool only */
-body[data-page="remove"]:not(.editor-mode) .header-mode-btn[href="./enhance.html"],
-body[data-page="remove"].editor-mode .header-mode-btn[href="./enhance.html"]{display:none!important}
-body[data-page="enhance"] .header-mode-btn[href="./index.html"],
-body[data-page="enhance"] .header-mode-btn[href="./background-remover.html"]{display:none!important}
+/* Header: both tools on landing; Home + selected tool after upload */
+body[data-page="remove"]:not(.editor-mode) .header-mode-btn,
+body[data-page="enhance"]:not(.editor-mode) .header-mode-btn{display:inline-flex!important}
+
+body.editor-mode[data-page="remove"] .header-mode-btn[href="./enhance.html"]{display:none!important}
+body.editor-mode[data-page="remove"] .header-mode-btn[href="./index.html"]{display:inline-flex!important}
+body.editor-mode[data-page="remove"] .header-mode-btn[href="./background-remover.html"]{display:inline-flex!important}
+body.editor-mode[data-page="enhance"] .header-mode-btn[href="./background-remover.html"]{display:none!important}
+body.editor-mode[data-page="enhance"] .header-mode-btn[href="./enhance.html"]{display:inline-flex!important}
 body[data-page="remove"] .editor-home-link{display:none!important}
 body[data-page="enhance"] .editor-home-link{display:inline-flex!important}
 body.editor-mode[data-page="remove"] .editor-home-link{display:inline-flex!important}
 body.editor-mode[data-page="enhance"] .editor-home-link{display:inline-flex!important}
+
+/* Final navigation + format controls */
+.header-mode-btn .default-tool-badge{
+  display:inline-flex;
+  margin-left:5px;
+  padding:2px 6px;
+  border-radius:999px;
+  background:#e7f7f1;
+  color:#11765e;
+  font-size:7px;
+  font-style:normal;
+  font-weight:900;
+}
+body.editor-mode .toolbar-format{
+  display:flex!important;
+  gap:5px;
+  align-items:center;
+}
+.toolbar-format-btn{
+  min-width:42px!important;
+  height:32px!important;
+  padding:0 10px!important;
+  border:1px solid #dfe5e2!important;
+  background:#fff!important;
+  border-radius:8px!important;
+  font-size:10px!important;
+  font-weight:900!important;
+  color:#5d6964!important;
+  cursor:pointer!important;
+}
+.toolbar-format-btn.selected{
+  background:#eaf8f3!important;
+  border-color:#8fcfbe!important;
+  color:#11765e!important;
+}
+body[data-page="remove"] .background-tabs{margin-bottom:12px}
+body[data-page="remove"] .bg-palette-large{max-height:390px!important;overflow-y:auto!important}
+body[data-page="remove"] .bg-palette-large .bg-tile{
+  min-height:68px!important;
+}
+@media(max-width:900px){
+  body.editor-mode .toolbar-format{display:flex!important}
+}
