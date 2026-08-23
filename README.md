@@ -140,3 +140,15 @@ npm run dev
 **Palia Image Studio**
 Engineered by **Hafsa Traders**
 All rights reserved.
+
+## GitHub Pages deployment
+
+This project is configured for GitHub Pages using GitHub Actions.
+
+1. Push the complete project to the `main` branch.
+2. Open **Settings → Pages** in the repository.
+3. Under **Build and deployment**, select **GitHub Actions**.
+4. Open the **Actions** tab and wait for **Deploy to GitHub Pages** to finish.
+5. Open the URL shown by the Pages deployment.
+
+The Vite base path is configured as `./` so the app works from a repository Pages URL.
