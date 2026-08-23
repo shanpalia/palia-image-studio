@@ -1,3 +1,4 @@
+import imglyRemoveBackground from "https://esm.sh/@imgly/background-removal@1.7.0";
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -56,31 +57,45 @@ $$(".tool").forEach(b=>b.addEventListener("click",async()=>{
 }));
 
 async function removeBackground(){
-  /*
-    Static GitHub Pages build: no secret API is embedded.
-    This implementation uses a deterministic local luminance/edge heuristic,
-    suitable as a client-side fallback. For production AI matting, replace
-    processBackground() with a browser model such as RMBG/MediaPipe or a
-    secure API endpoint.
-  */
-  showProcessing("Removing background...","Processing locally");
-  await new Promise(r=>setTimeout(r,250));
-  current=await processBackground(original);
-  showBefore=false; $("#afterBtn").classList.add("selected");$("#beforeBtn").classList.remove("selected");
-  hideProcessing();statusEl.textContent="Background processed";render();
+  if(!original) return;
+  showProcessing("Loading AI background remover...","The first run can take a little longer");
+  try{
+    const resultBlob = await removeBackgroundAI(original, (current,total)=>{
+      if(total){ const pct=Math.round(current/total*100); processingSub.textContent=`AI model ${pct}%`; }
+    });
+    const url = URL.createObjectURL(resultBlob);
+    const out = new Image();
+    out.onload = ()=>{
+      current=out;
+      showBefore=false;
+      $("#afterBtn").classList.add("selected");
+      $("#beforeBtn").classList.remove("selected");
+      hideProcessing();
+      statusEl.textContent="AI background removed";
+      render();
+    };
+    out.onerror=()=>{ throw new Error("The AI result could not be loaded."); };
+    out.src=url;
+  }catch(err){
+    console.error(err);
+    hideProcessing();
+    statusEl.textContent="Background removal failed";
+    alert("AI background removal could not be completed. Please try again or use a smaller image.");
+  }
 }
 
-async function processBackground(im){
-  const max=1600, ratio=Math.min(1,max/Math.max(im.naturalWidth,im.naturalHeight));
-  const w=Math.max(1,Math.round(im.naturalWidth*ratio)),h=Math.max(1,Math.round(im.naturalHeight*ratio));
-  const c=document.createElement("canvas");c.width=w;c.height=h;const x=c.getContext("2d");x.drawImage(im,0,0,w,h);
-  const d=x.getImageData(0,0,w,h), a=d.data;
-  const samples=[];
-  const points=[[0,0],[w-1,0],[0,h-1],[w-1,h-1],[Math.floor(w/2),0],[Math.floor(w/2),h-1],[0,Math.floor(h/2)],[w-1,Math.floor(h/2)]];
-  for(const [px,py] of points){const i=(py*w+px)*4;samples.push([a[i],a[i+1],a[i+2]])}
-  const bgc=samples.reduce((s,v)=>[s[0]+v[0],s[1]+v[1],s[2]+v[2]],[0,0,0]).map(v=>v/samples.length);
-  for(let y=0;y<h;y++)for(let xx=0;xx<w;xx++){const i=(y*w+xx)*4;const dist=Math.hypot(a[i]-bgc[0],a[i+1]-bgc[1],a[i+2]-bgc[2]);if(dist<38){a[i+3]=0}else if(dist<60){a[i+3]=Math.round((dist-38)/22*255)}}
-  x.putImageData(d,0,0);const out=new Image();out.src=c.toDataURL("image/png");await out.decode();return out;
+async function removeBackgroundAI(im, progress){
+  // @imgly/background-removal runs the neural network in the browser.
+  // The model/WASM assets are fetched from IMG.LY and cached by the browser.
+  const blob = await imglyRemoveBackground(im, {
+    model: "isnet_fp16",
+    device: "gpu",
+    output: { format: "image/png", type: "foreground" },
+    progress: (key,current,total)=>{
+      if(progress) progress(current,total);
+    }
+  });
+  return blob;
 }
 
 async function enhance(){
