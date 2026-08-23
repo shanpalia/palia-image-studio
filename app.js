@@ -8,6 +8,7 @@ const statusEl=$("#status"), processing=$("#processing"), processingText=$("#pro
 let original=null, current=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
 let recentItems=[], activeRecentId=null;
 let adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
+let viewMode="fit";
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
@@ -100,6 +101,11 @@ function renderRecent(){
   if(!section||!strip) return;
   section.classList.toggle("hidden", recentItems.length===0);
   strip.innerHTML="";
+  const newCard=document.createElement("button");
+  newCard.type="button"; newCard.className="recent-card new-image-card"; newCard.id="newImageCard";
+  newCard.innerHTML='<div class="new-image-plus">+</div><strong>New Image</strong><span>Click or Drop</span>';
+  newCard.addEventListener("click",()=>fileInput.click());
+  strip.appendChild(newCard);
   recentItems.forEach(item=>{
     const card=document.createElement("button");
     card.type="button";
@@ -149,6 +155,10 @@ function syncAdjustmentUI(){
 
 function syncBackgroundUI(){
   $$("[data-bg]").forEach(x=>x.classList.toggle("selected",x.dataset.bg===bg));
+  if(bg && bg!=="transparent" && !$$("[data-bg]").some(x=>x.dataset.bg===bg)){
+    $("#bgColor").value=bg;
+    $("#bgColor").closest(".bg-tile").classList.add("selected");
+  }
 }
 
 function syncScaleUI(){
@@ -163,7 +173,7 @@ if(!validType && !validName){
   return;
 }
   const r=new FileReader();
-  r.onload=()=>{const im=new Image();im.onload=()=>{original=im;current=im;rotation=0;zoom=1;adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};syncAdjustmentUI();workspace.classList.remove("hidden");addRecentItem(file,im);render();statusEl.textContent="Image loaded";workspace.scrollIntoView({behavior:"smooth"})};im.src=r.result};
+  r.onload=()=>{const im=new Image();im.onload=()=>{original=im;current=im;rotation=0;zoom=1;bg="transparent";viewMode="fit";adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};syncAdjustmentUI();workspace.classList.remove("hidden");addRecentItem(file,im);render();statusEl.textContent="Image loaded";workspace.scrollIntoView({behavior:"smooth"})};im.src=r.result};
   r.readAsDataURL(file);
 }
 
@@ -182,11 +192,28 @@ function render(){
   ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);
   ctx.drawImage(current,-w/2,-h/2,w,h);ctx.restore();
   ctx.filter="none";
+  if(viewMode==="fit"){
+    canvas.style.width="auto"; canvas.style.height="auto"; canvas.style.maxWidth="94%"; canvas.style.maxHeight="500px";
+  }else{
+    canvas.style.width="100%"; canvas.style.height="500px"; canvas.style.maxWidth="none"; canvas.style.maxHeight="none";
+  }
   canvas.style.transform=`scale(${zoom})`;
 }
 
-$$("[data-bg]").forEach(b=>b.addEventListener("click",()=>{bg=b.dataset.bg;saveActiveToRecent();$$("[data-bg]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");render()}));
-$("#bgColor").addEventListener("input",e=>{bg=e.target.value;saveActiveToRecent();$$("[data-bg]").forEach(x=>x.classList.remove("selected"));render()});
+$$("[data-bg]").forEach(b=>b.addEventListener("click",()=>{
+  bg=b.dataset.bg;
+  $$("[data-bg]").forEach(x=>x.classList.remove("selected"));
+  b.classList.add("selected");
+  saveActiveToRecent();
+  render();
+}));
+$("#bgColor").addEventListener("input",e=>{
+  bg=e.target.value;
+  $$("[data-bg]").forEach(x=>x.classList.remove("selected"));
+  $("#bgColor").closest(".bg-tile").classList.add("selected");
+  saveActiveToRecent();
+  render();
+});
 $$("[data-scale]").forEach(b=>b.addEventListener("click",()=>{scale=+b.dataset.scale;$$("[data-scale]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
 $$("[data-format]").forEach(b=>b.addEventListener("click",()=>{format=b.dataset.format;$$("[data-format]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
 
@@ -309,6 +336,15 @@ $("#resetAdjustments").addEventListener("click",()=>{
 $("#clearRecentBtn").addEventListener("click",()=>{
   recentItems=[];activeRecentId=null;$("#recentSection").classList.add("hidden");
 });
+
+
+$("#fitBtn").addEventListener("click",()=>{
+  viewMode="fit"; $("#fitBtn").classList.add("selected"); $("#fillBtn").classList.remove("selected"); render();
+});
+$("#fillBtn").addEventListener("click",()=>{
+  viewMode="fill"; $("#fillBtn").classList.add("selected"); $("#fitBtn").classList.remove("selected"); render();
+});
+$("#newImageCard").addEventListener("click",()=>fileInput.click());
 
 $("#resetBtn").addEventListener("click",()=>{workspace.classList.add("hidden");fileInput.value="";original=null;current=null});
 $("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa Traders\n\nA browser-based image editing studio."));

@@ -66,11 +66,22 @@
           </div>
           <div class="tool-group">
             <label>Background</label>
-            <div class="backgrounds">
-              <button data-bg="transparent" class="selected">Transparent</button>
-              <button data-bg="white">White</button>
-              <button data-bg="black">Black</button>
-              <label class="custom-color">Custom <input id="bgColor" type="color" value="#e8f5f1"></label>
+            <div class="bg-palette" id="bgPalette">
+              <button type="button" class="bg-tile transparent-tile selected" data-bg="transparent" aria-label="Transparent background">
+                <span class="checker-mini"></span><small>Transparent</small>
+              </button>
+              <button type="button" class="bg-tile" data-bg="#ffffff" aria-label="White background" style="--tile:#ffffff"><span></span><small>White</small></button>
+              <button type="button" class="bg-tile" data-bg="#000000" aria-label="Black background" style="--tile:#000000"><span></span><small>Black</small></button>
+              <button type="button" class="bg-tile" data-bg="#f3f4f6" aria-label="Light gray background" style="--tile:#f3f4f6"><span></span><small>Gray</small></button>
+              <button type="button" class="bg-tile" data-bg="#e8f5e9" aria-label="Light green background" style="--tile:#e8f5e9"><span></span><small>Mint</small></button>
+              <button type="button" class="bg-tile" data-bg="#e3f2fd" aria-label="Light blue background" style="--tile:#e3f2fd"><span></span><small>Blue</small></button>
+              <button type="button" class="bg-tile" data-bg="#fff3e0" aria-label="Light orange background" style="--tile:#fff3e0"><span></span><small>Peach</small></button>
+              <button type="button" class="bg-tile" data-bg="#fce4ec" aria-label="Light pink background" style="--tile:#fce4ec"><span></span><small>Pink</small></button>
+              <button type="button" class="bg-tile" data-bg="#ede7f6" aria-label="Light purple background" style="--tile:#ede7f6"><span></span><small>Lavender</small></button>
+              <label class="bg-tile custom-bg-tile" aria-label="Custom background">
+                <input id="bgColor" type="color" value="#dff5ee">
+                <span class="custom-swatch">+</span><small>Custom</small>
+              </label>
             </div>
           </div>
           <div class="tool-group">
@@ -84,6 +95,10 @@
         </aside>
 
         <section class="preview-card">
+          <div class="fit-controls">
+            <button type="button" id="fitBtn" class="selected">Fit</button>
+            <button type="button" id="fillBtn">Fill</button>
+          </div>
           <div class="preview-toolbar">
             <span id="status">Ready</span>
             <div>
@@ -154,7 +169,13 @@
         </div>
         <button id="clearRecentBtn" class="secondary">Clear all</button>
       </div>
-      <div class="recent-strip" id="recentStrip"></div>
+      <div class="recent-strip" id="recentStrip">
+        <button type="button" class="recent-card new-image-card" id="newImageCard">
+          <div class="new-image-plus">+</div>
+          <strong>New Image</strong>
+          <span>Click or Drop</span>
+        </button>
+      </div>
     </section>
 
     <section class="how" id="how">

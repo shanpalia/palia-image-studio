@@ -22,3 +22,21 @@
 .adjustment input[type=range]{width:100%;accent-color:#16836a;cursor:pointer}
 .panel-divider{border:0;border-top:1px solid #edf1ef;margin:15px 0}
 @media(max-width:900px){.recent-section{padding:0 15px 45px}.recent-card{flex-basis:112px}.recent-thumb{height:82px}}
+
+.bg-palette{display:grid;grid-template-columns:repeat(3,1fr);gap:7px}
+.bg-tile{position:relative;min-height:65px;border:1px solid #dce7e3;background:#fff;border-radius:9px;padding:5px;cursor:pointer;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:4px}
+.bg-tile>span:not(.checker-mini):not(.custom-swatch){width:31px;height:25px;border-radius:6px;background:var(--tile);border:1px solid rgba(0,0,0,.08)}
+.bg-tile small{font-size:9px;color:#667570}
+.bg-tile.selected{border:2px solid #16836a;background:#effaf7;padding:4px}
+.checker-mini{width:31px;height:25px;border-radius:6px;background-color:#f1f1f1;background-image:linear-gradient(45deg,#d6d6d6 25%,transparent 25%),linear-gradient(-45deg,#d6d6d6 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#d6d6d6 75%),linear-gradient(-45deg,transparent 75%,#d6d6d6 75%);background-size:10px 10px;background-position:0 0,0 5px,5px -5px,-5px 0;border:1px solid #d8dedc}
+.custom-bg-tile{overflow:hidden}
+.custom-bg-tile input{position:absolute;inset:0;width:100%;height:100%;opacity:0;cursor:pointer}
+.custom-swatch{width:31px;height:25px;border-radius:6px;background:linear-gradient(135deg,#e5f7f1,#b7e4d5);display:grid!important;place-items:center;color:#16785f;font-weight:800;font-size:16px;border:1px solid #b9dcd1}
+.fit-controls{height:44px;display:flex;gap:5px;align-items:center;padding:0 13px;border-bottom:1px solid #e9efed}
+.fit-controls button{border:1px solid #dce7e3;background:#fff;color:#53625e;border-radius:8px;padding:7px 14px;font-size:11px;cursor:pointer}
+.fit-controls button.selected{background:#e6f7f1;color:#14765f;border-color:#c9e9df}
+.new-image-card{border:1.5px dashed #b9d5cd!important;background:#fbfefd!important;display:flex;flex-direction:column;align-items:center;justify-content:center;min-height:140px}
+.new-image-plus{width:48px;height:48px;border-radius:50%;background:#e5f7f1;color:#16836a;display:grid;place-items:center;font-size:30px;line-height:1;margin-bottom:7px}
+.new-image-card strong{font-size:12px;color:#43524e}.new-image-card span{font-size:10px;color:#16836a;margin-top:3px}
+.recent-card{min-height:140px}
+.recent-thumb{height:95px}
