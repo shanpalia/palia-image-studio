@@ -1,5 +1,4 @@
-import * as Imgly from "https://esm.sh/@imgly/background-removal@1.7.0?target=es2022";
-const imglyRemoveBackground = Imgly.default || Imgly.removeBackground;
+import { removeBackground as imglyRemoveBackground } from "https://esm.sh/@imgly/background-removal@1.7.0?target=es2022";
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -112,10 +111,10 @@ $$(".tool").forEach(b=>b.addEventListener("click",async()=>{
 
 async function removeBackground(){
   if(!original) return;
-  showProcessing("Loading AI background remover...","The first run can take a little longer");
+  showProcessing("Loading AI background remover...","First use may download the AI model");
   try{
     const resultBlob = await removeBackgroundAI(original, (current,total)=>{
-      if(total){ const pct=Math.round(current/total*100); processingSub.textContent=`AI model ${pct}%`; }
+      if(total){ const pct=Math.round(current/total*100); processingSub.textContent=`AI model: ${pct}%`; }
     });
     const url = URL.createObjectURL(resultBlob);
     const out = new Image();
@@ -139,14 +138,36 @@ async function removeBackground(){
 }
 
 async function removeBackgroundAI(im, progress){
-  // @imgly/background-removal runs the neural network in the browser.
-  // The model/WASM assets are fetched from IMG.LY and cached by the browser.
-  if (typeof imglyRemoveBackground !== "function") throw new Error("IMG.LY background removal module failed to load.");
-  const blob = await imglyRemoveBackground(im, {
-    progress: (key,current,total)=>{
+  if(typeof imglyRemoveBackground !== "function"){
+    throw new Error("AI background-removal module did not load.");
+  }
+
+  // Convert the HTMLImageElement to a real PNG Blob before passing it
+  // to the neural-network library. This avoids input-type incompatibilities.
+  const sourceCanvas=document.createElement("canvas");
+  const maxSide=1800;
+  const ratio=Math.min(1,maxSide/Math.max(im.naturalWidth,im.naturalHeight));
+  sourceCanvas.width=Math.max(1,Math.round(im.naturalWidth*ratio));
+  sourceCanvas.height=Math.max(1,Math.round(im.naturalHeight*ratio));
+  const sourceCtx=sourceCanvas.getContext("2d",{willReadFrequently:false});
+  sourceCtx.drawImage(im,0,0,sourceCanvas.width,sourceCanvas.height);
+
+  const inputBlob=await new Promise((resolve,reject)=>{
+    sourceCanvas.toBlob(blob=>{
+      if(blob) resolve(blob);
+      else reject(new Error("Could not prepare image for AI processing."));
+    },"image/png");
+  });
+
+  const blob=await imglyRemoveBackground(inputBlob,{
+    progress:(key,current,total)=>{
       if(progress) progress(current,total);
     }
   });
+
+  if(!(blob instanceof Blob) || blob.size===0){
+    throw new Error("AI model returned an empty image.");
+  }
   return blob;
 }
 

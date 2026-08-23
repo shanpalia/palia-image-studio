@@ -41,3 +41,8 @@ The package is licensed under AGPL-3.0. Review the license and IMG.LY terms befo
 This is a plain static site. Keep `index.html`, `style.css`, `app.js`, and `assets/` in the repository root. Use GitHub Pages **Deploy from a branch → main → /(root)**.
 
 No `main.tsx`, React, Vite, Node server, or GitHub Actions is required.
+
+
+### AI input fix
+
+The AI remover receives a real PNG `Blob` generated from the uploaded image. This avoids browser input-type errors and keeps large images within a reasonable processing size before segmentation. The final output remains a transparent PNG.
