@@ -174,3 +174,7 @@ $("#downloadBtn").addEventListener("click",()=>{
 $("#resetBtn").addEventListener("click",()=>{workspace.classList.add("hidden");fileInput.value="";original=null;current=null});
 $("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa Traders\n\nA browser-based image editing studio."));
 
+
+window.addEventListener("error", e => {
+  if (e && e.message) console.error("Palia Image Studio:", e.message);
+});
