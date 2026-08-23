@@ -68,7 +68,7 @@
             <h3>Cutout</h3>
             <button class="big-action" id="removeBgTop">✦ <span><b>Remove background</b><small>Automatic AI cutout</small></span></button>
             <div class="panel-row"><button id="fitBtn" class="small-option active">Fit</button><button id="fillBtn" class="small-option">Fill</button></div>
-            <div class="panel-row"><button id="zoomOut" class="small-option">−</button><button id="zoomIn" class="small-option">+</button><button id="resetRotate" class="small-option">Reset</button></div>
+            <div class="panel-row"><button id="resetRotate" class="small-option">Reset</button></div>
           </div>
 
           <div class="panel hidden" data-panel-content="background">
@@ -103,6 +103,16 @@
 
           <div class="panel hidden" data-panel-content="design">
             <h3>Enhance</h3>
+          <div class="enhance-zoom-row"><button type="button" id="enhanceCompare" class="enhance-compare" title="Compare original and enhanced">Before / After</button>
+            <button type="button" id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+            <span id="zoomLabel">100%</span>
+            <button type="button" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+          </div>
+
+          <div class="enhance-zoom-row">
+            <span id="zoomLabel">100%</span>
+          </div>
+
             <div class="design-actions"><button id="enhance2" class="design-btn"><span>✦</span> 2× Enhance</button><button id="enhance4" class="design-btn"><span>✦</span> 4× Enhance</button></div>
             <div class="design-actions"><button id="rotateLeft" class="design-btn">↶ Rotate</button><button id="rotateRight" class="design-btn">↷ Rotate</button></div>
             <label class="format-label">Download format</label>

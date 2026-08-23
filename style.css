@@ -61,3 +61,10 @@ body.editor-mode .workspace.hidden{display:block!important}
 
 /* Fast AI status */
 .ai-ready{color:#159b78;font-weight:700}
+
+.enhance-zoom-row{display:grid;grid-template-columns:36px 1fr 36px;gap:5px;align-items:center;margin:9px 0 11px}
+.enhance-zoom-row button{height:34px;border:1px solid #dce7e3;background:#fff;border-radius:8px;color:#42524d;font-size:18px;cursor:pointer}
+.enhance-zoom-row button:hover{border-color:#159b78;color:#159b78;background:#effaf6}
+.enhance-zoom-row span{text-align:center;font-size:11px;font-weight:700;color:#586762}
+.enhance-compare{grid-column:1 / -1!important;height:32px!important;font-size:10px!important;background:#eaf8f3!important;color:#128265!important;border-color:#cce9df!important}
+.upload-card.drag{border-color:#159b78!important;background:#effaf6!important;box-shadow:0 0 0 4px rgba(21,155,120,.09)}

@@ -37,6 +37,8 @@ let original=null, current=null, processed=null, zoom=1, rotation=0, bg="transpa
 let recentItems=[], activeRecentId=null;
 let adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
 let viewMode="fit";
+let enhancementBaseline=null;
+let enhancementScale=1;
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
@@ -228,6 +230,48 @@ function syncScaleUI(){
   $$("[data-scale]").forEach(x=>x.classList.toggle("selected",+x.dataset.scale===scale));
 }
 
+
+// First-page drag & drop: bind to the upload card, landing page, and document.
+// This prevents child elements or browser default navigation from swallowing the drop.
+function bindLandingDrop(){
+  const landing=document.querySelector(".landing");
+  const targets=[dropZone,landing,document].filter(Boolean);
+  targets.forEach(target=>{
+    target.addEventListener("dragover",e=>{
+      if(!e.dataTransfer || !Array.from(e.dataTransfer.types||[]).includes("Files")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      e.dataTransfer.dropEffect="copy";
+      dropZone?.classList.add("drag");
+    }, true);
+    target.addEventListener("dragenter",e=>{
+      if(!e.dataTransfer || !Array.from(e.dataTransfer.types||[]).includes("Files")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone?.classList.add("drag");
+    }, true);
+    target.addEventListener("dragleave",e=>{
+      if(!e.dataTransfer || !Array.from(e.dataTransfer.types||[]).includes("Files")) return;
+      e.preventDefault();
+      e.stopPropagation();
+      if(dropZone && !dropZone.contains(e.relatedTarget)) dropZone.classList.remove("drag");
+    }, true);
+    target.addEventListener("drop",e=>{
+      if(!e.dataTransfer || !e.dataTransfer.files?.length) return;
+      e.preventDefault();
+      e.stopPropagation();
+      dropZone?.classList.remove("drag");
+      const file=e.dataTransfer.files[0];
+      if(file && (/^image\\//i.test(file.type) || /\\.(jpe?g|png|webp)$/i.test(file.name||""))){
+        loadFile(file);
+      }else{
+        alert("Please drop a JPG, PNG or WEBP image.");
+      }
+    }, true);
+  });
+}
+bindLandingDrop();
+
 function enterEditor(){
   document.body.classList.add("editor-mode");
   workspace.classList.remove("hidden");
@@ -417,6 +461,11 @@ async function removeBackgroundAI(im, progress){
 }
 
 async function enhance(){
+  // Preserve the current image so the user can clearly compare the result.
+  if(current){
+    enhancementBaseline=current;
+  }
+
   if(showBefore){showBefore=false;current=original;$("#afterBtn").click()}
   showProcessing("Enhancing image...",scale+"× output");
   await new Promise(r=>setTimeout(r,250));
@@ -424,7 +473,7 @@ async function enhance(){
   const c=document.createElement("canvas");c.width=(current.naturalWidth||current.width)*scale;c.height=(current.naturalHeight||current.height)*scale;
   const x=c.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(current,0,0,c.width,c.height);
   const out=new Image();out.src=c.toDataURL("image/png");await out.decode();current=out;processed=out;
-  hideProcessing();statusEl.textContent=`Enhanced ${scale}×`;render();saveActiveToRecent();
+  hideProcessing();statusEl.textContent=`Enhanced ${scale}× • Compare with Before / After`;render();saveActiveToRecent();
 }
 
 $("#downloadBtn").addEventListener("click",()=>{

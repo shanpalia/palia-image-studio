@@ -93,3 +93,8 @@ Dropping/selecting an image on the first screen immediately switches to the edit
 ## Fastest background-removal mode
 
 The small quantized `isnet_quint8` model is used with a maximum 1024px AI input. The app also warms the model in the browser during idle time after page load, so the model download/initialization happens before the user uploads an image when possible. WebGPU is attempted first with CPU fallback. This reduces perceived upload-to-result latency; actual speed still depends on device/browser/network.
+
+
+## Final flow updates
+
+Zoom controls are now placed directly beside the Enhance controls. The Enhance flow preserves the pre-enhancement image and provides a Before/After comparison so the user can see the difference. First-page drag & drop is bound to the upload card, landing page, and document to prevent browser navigation and reliably load dropped image files.
