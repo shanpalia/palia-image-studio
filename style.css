@@ -412,3 +412,109 @@ body[data-page="enhance"] .editor-toolbar .zoom-top-label{display:inline-flex!im
 .single-tool-card{display:block!important}
 .single-tool-card .mode-card{width:100%!important;max-width:620px!important}
 .header-mode-btn{ text-decoration:none!important; }
+
+/* Dedicated workflows */
+body[data-page="remove"] .editor-tab[data-panel="effects"],
+body[data-page="remove"] .editor-tab[data-panel="adjust"],
+body[data-page="remove"] .editor-tab[data-panel="design"],
+body[data-page="remove"] .panel[data-panel-content="effects"],
+body[data-page="remove"] .panel[data-panel-content="adjust"],
+body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
+
+body[data-page="enhance"] .editor-tab[data-panel="cutout"],
+body[data-page="enhance"] .editor-tab[data-panel="background"],
+body[data-page="enhance"] .panel[data-panel-content="cutout"],
+body[data-page="enhance"] .panel[data-panel-content="background"]{display:none!important}
+
+body[data-page="enhance"] .editor-tab[data-panel="effects"],
+body[data-page="enhance"] .editor-tab[data-panel="adjust"],
+body[data-page="enhance"] .editor-tab[data-panel="design"]{display:flex!important}
+
+body[data-page="enhance"] .editor-toolbar{
+  background:linear-gradient(180deg,#fff,#fbfcfc);
+}
+body[data-page="enhance"] .editor-toolbar::before{
+  content:"Image Enhancer";
+  font-weight:900;
+  font-size:13px;
+  color:#202426;
+  padding:0 13px 0 3px;
+  margin-right:4px;
+  border-right:1px solid #e5e8e8;
+}
+body[data-page="remove"] .editor-toolbar::before{
+  content:"Background Remover";
+  font-weight:900;
+  font-size:13px;
+  color:#202426;
+  padding:0 13px 0 3px;
+  margin-right:4px;
+  border-right:1px solid #e5e8e8;
+}
+
+/* CapCut-inspired enhancer workspace */
+body[data-page="enhance"] .editor-shell{
+  border-radius:16px;
+  box-shadow:0 8px 35px rgba(20,30,35,.08);
+}
+body[data-page="enhance"] .editor-canvas-area{
+  background:
+    radial-gradient(circle at 50% 45%,#ffffff 0,#f7f8f8 45%,#f0f2f2 100%);
+}
+body[data-page="enhance"] .side-panel{
+  width:290px;
+}
+body[data-page="enhance"] .side-panel .panel{
+  animation:panelIn .18s ease;
+}
+@keyframes panelIn{from{opacity:0;transform:translateY(4px)}to{opacity:1;transform:none}}
+body[data-page="enhance"] .design-btn{
+  min-height:44px;
+  border-radius:10px;
+  font-weight:800;
+}
+body[data-page="enhance"] .effect-card{
+  padding:13px 0;
+  border-bottom:1px solid #eef0f0;
+}
+body[data-page="enhance"] .effect-card input[type="range"]{
+  width:100%;
+  accent-color:#159b78;
+}
+
+/* Dedicated landing cards */
+.tool-hero-card{
+  width:min(100%,620px);
+  border:1px solid #e2e9e6;
+  border-radius:18px;
+  overflow:hidden;
+  background:#fff;
+  box-shadow:0 8px 28px rgba(20,40,35,.07);
+}
+.tool-hero-card img{
+  display:block;
+  width:100%;
+  height:250px;
+  object-fit:contain;
+  background:#f7f9f8;
+}
+.tool-hero-card>div{
+  padding:13px 16px;
+  display:flex;
+  flex-direction:column;
+  gap:3px;
+}
+.tool-hero-card b{font-size:14px;font-weight:900}
+.tool-hero-card small{font-size:10px;color:#7c8682}
+.brand-home{text-decoration:none;color:inherit}
+.header-mode-btn{white-space:nowrap}
+.home-link{font-weight:800!important}
+@media(max-width:900px){
+  body[data-page="enhance"] .editor-toolbar::before,
+  body[data-page="remove"] .editor-toolbar::before{display:none}
+  body[data-page="enhance"] .side-panel{width:auto}
+  .tool-hero-card img{height:210px}
+}
+
+body[data-page="enhance"] .home-link,
+body[data-page="remove"] .home-link{font-weight:900!important}

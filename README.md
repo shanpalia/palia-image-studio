@@ -153,3 +153,17 @@ The selected tool preview now uses `object-fit: contain`, so the complete suppli
 - `index.html` is the dedicated **Background Remover** page. Its editor exposes Cutout + Background tools; upload automatically starts AI background removal.
 - `enhance.html` is the dedicated **Image Enhancer** page. Its editor exposes Enhance, Adjust and Effects tools; upload does not remove the background.
 - The header provides direct navigation between the two pages.
+
+
+## Final unique workflow
+
+- `home.html` = the Home/tool picker. It always shows both Background Remover and Image Enhancer choices.
+- `index.html` = dedicated Background Remover page. Uploading here starts background removal only.
+- `enhance.html` = dedicated Image Enhancer page. Uploading here NEVER calls background removal; it opens a CapCut-inspired enhancer workspace with Effects, Adjust, Enhance, Zoom and Download.
+- The logo/Home link returns to `home.html`, where both choices appear again.
+- The current page is detected in `app.js`, so the upload action cannot accidentally switch the workflow.
+
+
+## GitHub Pages root
+
+`index.html` is now the Home/tool picker, so opening `https://shanpalia.github.io/palia-image-studio/` shows both tool choices. The dedicated pages are `background-remover.html` and `enhance.html`.

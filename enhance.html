@@ -12,19 +12,19 @@
 </head>
 <body data-page="enhance">
 <header class="topbar">
-  <div class="brand">
+  <a class="brand brand-home" href="./index.html" aria-label="Palia Image Studio Home">
     <div class="brand-icon"><img src="./assets/palia-image-studio-icon.svg" alt="Palia Image Studio icon"></div>
     <div><div class="brand-title">Palia Image Studio</div><div class="brand-subtitle">By Hafsa Traders</div></div>
   </div>
   <div class="header-mode-switch" role="tablist" aria-label="Choose image tool">
-    <a class="header-mode-btn active" href="./index.html"><span class="header-tool-icon">✂</span><span>Background Remover</span></a>
+    <a class="header-mode-btn active" href="./background-remover.html"><span class="header-tool-icon">✂</span><span>Background Remover</span></a>
       <span class="header-tool-icon">✂</span><span>Background Remover</span>
     </a>
     <a class="header-mode-btn" href="./enhance.html"><span class="header-tool-icon">✦</span><span>Image Enhancer</span></a>
       <span class="header-tool-icon">✦</span><span>Image Enhancer</span>
     </a>
   </div>
-  <nav><a href="./index.html">Background Remover</a><a href="./enhance.html">Image Enhancer</a><button id="aboutBtn" class="nav-btn">About</button></nav>
+  <nav><a href="./background-remover.html">Background Remover</a><a href="./enhance.html">Image Enhancer</a><button id="aboutBtn" class="nav-btn">About</button></nav>
 </header>
 
 <main>
@@ -32,11 +32,11 @@
     <div class="landing-intro">
       <div class="landing-brand"><img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon"> Palia Image Studio</div>
       <h1 id="landingTitle">Enhance Your<br>Image</h1>
-      <p id="landingDescription" data-home-desc>Improve image quality with fast 2× and 4× enhancement.</p>
-      <div class="mode-cards single-tool-card"><button class="mode-card active" data-mode="enhance" id="modeCardEnhance" type="button">
-          <div class="mode-card-image"><img src="./assets/image-enhancer.png" alt="Image Enhancer preview"></div>
-          <div class="mode-card-copy"><span class="mode-icon">✦</span><span><b>Image Enhancer</b><small>2× / 4× quality enhancement</small></span></div>
-        </button></div>
+      <p id="landingDescription">Improve image quality with fast 2× and 4× enhancement.</p>
+      <div class="tool-hero-card enhancer-hero-card">
+        <img src="./assets/image-enhancer.png" alt="Image Enhancer">
+        <div><b>Image Enhancer</b><small>2× / 4× quality enhancement</small></div>
+      </div>
     </div>
     <div class="upload-card" id="dropZone">
       <div class="upload-cloud">↑</div>
