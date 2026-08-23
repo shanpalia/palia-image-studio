@@ -46,3 +46,8 @@ No `main.tsx`, React, Vite, Node server, or GitHub Actions is required.
 ### AI input fix
 
 The AI remover receives a real PNG `Blob` generated from the uploaded image. This avoids browser input-type errors and keeps large images within a reasonable processing size before segmentation. The final output remains a transparent PNG.
+
+
+## Editor additions
+
+Recent image tiles are clickable and reopen each image for editing. The right panel includes brightness, contrast, saturation, blur, and grayscale adjustments. Changes are stored in the current recent-image item until cleared.

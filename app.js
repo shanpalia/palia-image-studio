@@ -6,6 +6,8 @@ const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZon
 const workspace=$("#workspace"), canvas=$("#canvas"), ctx=canvas.getContext("2d");
 const statusEl=$("#status"), processing=$("#processing"), processingText=$("#processingText"), processingSub=$("#processingSub");
 let original=null, current=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
+let recentItems=[], activeRecentId=null;
+let adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
@@ -61,6 +63,98 @@ dropZone.addEventListener("drop", e => {
   }
 });
 
+
+function makeId(){ return "img_"+Date.now()+"_"+Math.random().toString(36).slice(2,8); }
+
+function snapshotImage(img, done){
+  const c=document.createElement("canvas");
+  c.width=img.naturalWidth||img.width; c.height=img.naturalHeight||img.height;
+  const x=c.getContext("2d"); x.drawImage(img,0,0,c.width,c.height);
+  done(c.toDataURL("image/png"));
+}
+
+function addRecentItem(file, img){
+  const item={id:makeId(),name:file?.name||"Edited image",originalSrc:"",currentSrc:"",adjustments:{...adjustments},bg,rotation,scale};
+  snapshotImage(img, src=>{
+    item.originalSrc=src; item.currentSrc=src;
+    recentItems.unshift(item);
+    activeRecentId=item.id;
+    renderRecent();
+  });
+}
+
+function saveActiveToRecent(){
+  if(!activeRecentId || !current) return;
+  const item=recentItems.find(x=>x.id===activeRecentId);
+  if(!item) return;
+  snapshotImage(current, src=>{
+    item.currentSrc=src;
+    item.adjustments={...adjustments};
+    item.bg=bg; item.rotation=rotation; item.scale=scale;
+    renderRecent();
+  });
+}
+
+function renderRecent(){
+  const section=$("#recentSection"), strip=$("#recentStrip");
+  if(!section||!strip) return;
+  section.classList.toggle("hidden", recentItems.length===0);
+  strip.innerHTML="";
+  recentItems.forEach(item=>{
+    const card=document.createElement("button");
+    card.type="button";
+    card.className="recent-card"+(item.id===activeRecentId?" active":"");
+    card.title="Open "+item.name;
+    card.innerHTML=`<div class="recent-thumb"><img alt=""></div><div class="recent-name"></div><div class="recent-meta">Click to edit</div>`;
+    card.querySelector("img").src=item.currentSrc;
+    card.querySelector(".recent-name").textContent=item.name;
+    card.addEventListener("click",()=>openRecent(item.id));
+    strip.appendChild(card);
+  });
+}
+
+function openRecent(id){
+  const item=recentItems.find(x=>x.id===id);
+  if(!item) return;
+  activeRecentId=id;
+  const im=new Image();
+  im.onload=()=>{
+    current=im;
+    const orig=new Image();
+    orig.onload=()=>{
+      original=orig;
+      adjustments={...item.adjustments};
+      bg=item.bg||"transparent"; rotation=item.rotation||0; scale=item.scale||2; zoom=1;
+      syncAdjustmentUI(); syncBackgroundUI(); syncScaleUI();
+      workspace.classList.remove("hidden");
+      $("#afterBtn").click();
+      renderRecent();
+      render();
+      workspace.scrollIntoView({behavior:"smooth",block:"start"});
+      statusEl.textContent="Editing "+item.name;
+    };
+    orig.src=item.originalSrc;
+  };
+  im.src=item.currentSrc;
+}
+
+function syncAdjustmentUI(){
+  ["brightness","contrast","saturation","blur","grayscale"].forEach(k=>{
+    const el=$("#"+k), out=$("#"+k+"Value");
+    if(!el||!out)return;
+    el.value=adjustments[k];
+    out.textContent=k==="blur"?adjustments[k]+"px":adjustments[k]+"%";
+  });
+}
+
+function syncBackgroundUI(){
+  $$("[data-bg]").forEach(x=>x.classList.toggle("selected",x.dataset.bg===bg));
+}
+
+function syncScaleUI(){
+  $$("[data-scale]").forEach(x=>x.classList.toggle("selected",+x.dataset.scale===scale));
+}
+
 function loadFile(file){
   const validType = /^image\/(jpeg|png|webp)$/i.test(file.type);
 const validName = /\.(jpe?g|png|webp)$/i.test(file.name || "");
@@ -69,7 +163,7 @@ if(!validType && !validName){
   return;
 }
   const r=new FileReader();
-  r.onload=()=>{const im=new Image();im.onload=()=>{original=im;current=im;rotation=0;zoom=1;workspace.classList.remove("hidden");render();statusEl.textContent="Image loaded";workspace.scrollIntoView({behavior:"smooth"})};im.src=r.result};
+  r.onload=()=>{const im=new Image();im.onload=()=>{original=im;current=im;rotation=0;zoom=1;adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};syncAdjustmentUI();workspace.classList.remove("hidden");addRecentItem(file,im);render();statusEl.textContent="Image loaded";workspace.scrollIntoView({behavior:"smooth"})};im.src=r.result};
   r.readAsDataURL(file);
 }
 
@@ -83,19 +177,22 @@ function render(){
   canvas.width=portrait?h:w; canvas.height=portrait?w:h;
   ctx.clearRect(0,0,canvas.width,canvas.height);
   if(bg!=="transparent"){ctx.fillStyle=bg==="white"?"#fff":bg==="black"?"#000":bg;ctx.fillRect(0,0,canvas.width,canvas.height)}
-  ctx.save();ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);
+  ctx.save();
+  ctx.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;
+  ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);
   ctx.drawImage(current,-w/2,-h/2,w,h);ctx.restore();
+  ctx.filter="none";
   canvas.style.transform=`scale(${zoom})`;
 }
 
-$$("[data-bg]").forEach(b=>b.addEventListener("click",()=>{bg=b.dataset.bg;$$("[data-bg]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");render()}));
-$("#bgColor").addEventListener("input",e=>{bg=e.target.value;$$("[data-bg]").forEach(x=>x.classList.remove("selected"));render()});
+$$("[data-bg]").forEach(b=>b.addEventListener("click",()=>{bg=b.dataset.bg;saveActiveToRecent();$$("[data-bg]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected");render()}));
+$("#bgColor").addEventListener("input",e=>{bg=e.target.value;saveActiveToRecent();$$("[data-bg]").forEach(x=>x.classList.remove("selected"));render()});
 $$("[data-scale]").forEach(b=>b.addEventListener("click",()=>{scale=+b.dataset.scale;$$("[data-scale]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
 $$("[data-format]").forEach(b=>b.addEventListener("click",()=>{format=b.dataset.format;$$("[data-format]").forEach(x=>x.classList.remove("selected"));b.classList.add("selected")}));
 
-$("#rotateLeft").addEventListener("click",()=>{rotation=(rotation+270)%360;render()});
-$("#rotateRight").addEventListener("click",()=>{rotation=(rotation+90)%360;render()});
-$("#resetRotate").addEventListener("click",()=>{rotation=0;zoom=1;$("#zoomLabel").textContent="100%";render()});
+$("#rotateLeft").addEventListener("click",()=>{rotation=(rotation+270)%360;render();saveActiveToRecent()});
+$("#rotateRight").addEventListener("click",()=>{rotation=(rotation+90)%360;render();saveActiveToRecent()});
+$("#resetRotate").addEventListener("click",()=>{rotation=0;zoom=1;$("#zoomLabel").textContent="100%";render();saveActiveToRecent()});
 $("#zoomIn").addEventListener("click",()=>{zoom=Math.min(2,zoom+.1);$("#zoomLabel").textContent=Math.round(zoom*100)+"%";render()});
 $("#zoomOut").addEventListener("click",()=>{zoom=Math.max(.5,zoom-.1);$("#zoomLabel").textContent=Math.round(zoom*100)+"%";render()});
 
@@ -179,7 +276,7 @@ async function enhance(){
   const c=document.createElement("canvas");c.width=(current.naturalWidth||current.width)*scale;c.height=(current.naturalHeight||current.height)*scale;
   const x=c.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(current,0,0,c.width,c.height);
   const out=new Image();out.src=c.toDataURL("image/png");await out.decode();current=out;
-  hideProcessing();statusEl.textContent=`Enhanced ${scale}×`;render();
+  hideProcessing();statusEl.textContent=`Enhanced ${scale}×`;render();saveActiveToRecent();
 }
 
 $("#downloadBtn").addEventListener("click",()=>{
@@ -187,8 +284,30 @@ $("#downloadBtn").addEventListener("click",()=>{
   const c=document.createElement("canvas"),w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   c.width=rotation%180?h:w;c.height=rotation%180?w:h;const x=c.getContext("2d");
   if(format==="jpg"){x.fillStyle=bg==="transparent"?"#fff":bg;x.fillRect(0,0,c.width,c.height)}
-  x.save();x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(current,-w/2,-h/2,w,h);x.restore();
+  x.save();x.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(current,-w/2,-h/2,w,h);x.restore();x.filter="none";
   const a=document.createElement("a");a.href=c.toDataURL(format==="jpg"?"image/jpeg":"image/png",.95);a.download=`palia-image-studio-edited.${format}`;document.body.appendChild(a);a.click();a.remove();
+});
+
+
+["brightness","contrast","saturation","blur","grayscale"].forEach(k=>{
+  const el=$("#"+k), out=$("#"+k+"Value");
+  if(!el)return;
+  el.addEventListener("input",()=>{
+    adjustments[k]=+el.value;
+    out.textContent=k==="blur"?adjustments[k]+"px":adjustments[k]+"%";
+    render();
+    clearTimeout(el._saveTimer);
+    el._saveTimer=setTimeout(saveActiveToRecent,250);
+  });
+});
+
+$("#resetAdjustments").addEventListener("click",()=>{
+  adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
+  syncAdjustmentUI(); render(); saveActiveToRecent();
+});
+
+$("#clearRecentBtn").addEventListener("click",()=>{
+  recentItems=[];activeRecentId=null;$("#recentSection").classList.add("hidden");
 });
 
 $("#resetBtn").addEventListener("click",()=>{workspace.classList.add("hidden");fileInput.value="";original=null;current=null});
