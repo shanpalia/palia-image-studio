@@ -163,3 +163,10 @@ The dedicated Background Remover page is now a valid standalone HTML document. H
 ## Clean final page isolation
 
 `background-remover.html` is isolated to the Background Remover workflow and contains no Image Enhancer artwork reference. The Home page keeps Background Remover as the first/default option. `enhance.html` is the only dedicated Image Enhancer page.
+
+
+## Canonical homepage behavior
+
+`index.html` is now the Background Remover homepage by default. It opens directly to the remove.bg-inspired upload landing page; no tool-selection cards are shown before it. The top bar contains exactly two tool choices: Background Remover (active/default) and Image Enhancer. Clicking Image Enhancer opens `enhance.html`. `background-remover.html` is an identical alias of the homepage remover page.
+
+After an image is uploaded or dropped on the homepage, the landing view switches to the Background Remover editor. It does not open the enhancer workflow.

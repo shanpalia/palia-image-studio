@@ -13,7 +13,7 @@
 <body data-page="remove" data-default-tool="remove">
 <header class="topbar">
   <a class="brand brand-home" href="./index.html" aria-label="Palia Image Studio Home">
-    <div class="brand-icon"><img src="./assets/palia-image-studio-icon.svg" alt="Palia Image Studio icon"></div>
+    <div class="brand-icon"><img src="./assets/palia-image-studio-icon.svg" alt="Palia Image Studio"></div>
     <div>
       <div class="brand-title">Palia Image Studio</div>
       <div class="brand-subtitle">By Hafsa Traders</div>
@@ -21,21 +21,26 @@
   </a>
 
   <div class="header-mode-switch" aria-label="Choose image tool">
-    <a class="header-mode-btn active" href="./background-remover.html"><span class="header-tool-icon">✂</span><span>Background Remover</span></a>
-    <a class="header-mode-btn" href="./enhance.html"><span class="header-tool-icon">✦</span><span>Image Enhancer</span></a>
+    <a class="header-mode-btn active" href="./index.html">
+      <span class="header-tool-icon">✂</span><span>Background Remover</span>
+    </a>
+    <a class="header-mode-btn" href="./enhance.html">
+      <span class="header-tool-icon">✦</span><span>Image Enhancer</span>
+    </a>
   </div>
+
   <nav>
-    <a class="home-link" href="./index.html">Home</a>
-    <a href="./background-remover.html">Background Remover</a>
-    <a href="./enhance.html">Image Enhancer</a>
-    <button id="aboutBtn" class="nav-btn">About</button>
+    <button id="aboutBtn" class="nav-btn" type="button">About</button>
   </nav>
 </header>
 
 <main>
   <section class="landing remove-bg-landing" id="editor">
     <div class="remove-left">
-      <div class="landing-brand"><img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon"> <span>Palia Image Studio</span></div>
+      <div class="landing-brand">
+        <img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon">
+        <span>Palia Image Studio</span>
+      </div>
       <h1 id="landingTitle">Remove Image<br>Background</h1>
       <p id="landingDescription">Remove backgrounds automatically with fast AI.</p>
       <div class="remove-free"><span>100% Automatically and</span><b>Free</b></div>
@@ -52,7 +57,7 @@
         <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
         <div class="upload-status" id="uploadStatus">Fast automatic background removal</div>
       </div>
-      <div class="drop-hint">or drag &amp; drop an image here</div>
+      <div class="landing-hint">Drop your image here or click Upload Image</div>
     </div>
   </section>
 

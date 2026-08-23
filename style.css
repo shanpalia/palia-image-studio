@@ -513,3 +513,57 @@ body[data-page="remove"] .recent-dock{height:105px!important}
   body[data-page="remove"] .remove-preview{max-height:260px!important}
   body[data-page="remove"] .remove-upload-wrap .upload-card{height:310px!important;min-height:310px!important}
 }
+
+/* Canonical homepage = Background Remover */
+.topbar{position:sticky;top:0;z-index:1000}
+.header-mode-switch{display:flex!important;align-items:center;gap:8px;margin-left:auto;margin-right:20px}
+.header-mode-btn{display:inline-flex!important;align-items:center;gap:8px;text-decoration:none!important;white-space:nowrap}
+.topbar nav{display:flex!important;align-items:center!important}
+.remove-bg-landing{
+  max-width:1120px!important;
+  grid-template-columns:minmax(0,1fr) 470px!important;
+  gap:60px!important;
+  min-height:620px!important;
+  padding:50px 30px 70px!important;
+}
+.remove-left{min-width:0}
+.remove-left .landing-brand{
+  display:flex!important;align-items:center!important;gap:8px!important;
+  color:#159b78!important;font-weight:900!important;font-size:14px!important;
+}
+.remove-left .landing-studio-icon{width:30px!important;height:30px!important}
+.remove-left #landingTitle{
+  font-size:64px!important;line-height:1.01!important;letter-spacing:-3px!important;
+  margin:18px 0 14px!important;font-weight:950!important;color:#242728!important;
+}
+.remove-left #landingDescription{font-size:17px!important;color:#69736f!important;margin:0 0 17px!important}
+.remove-free{display:flex;align-items:center;gap:7px;font-weight:800;color:#353b39}
+.remove-free b{background:#287de1;color:white;border-radius:15px;padding:4px 10px;font-size:13px}
+.remove-preview-wrap{width:min(100%,560px);height:245px;margin-top:24px;overflow:hidden;border-radius:22px;background:#f7f9f8}
+.remove-preview{width:100%;height:100%;object-fit:contain;display:block}
+.remove-upload-wrap{display:flex;flex-direction:column;align-items:center;justify-content:center}
+.remove-bg-landing .upload-card{
+  width:100%!important;height:360px!important;border-radius:28px!important;
+}
+.remove-bg-landing .upload-btn{font-size:18px!important;padding:15px 40px!important}
+.landing-hint{font-size:11px;color:#909894;margin-top:12px}
+body[data-page="remove"] .editor-tab[data-panel="effects"],
+body[data-page="remove"] .editor-tab[data-panel="adjust"],
+body[data-page="remove"] .editor-tab[data-panel="design"],
+body[data-page="remove"] .panel[data-panel-content="effects"],
+body[data-page="remove"] .panel[data-panel-content="adjust"],
+body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
+body[data-page="enhance"] .editor-tab[data-panel="cutout"],
+body[data-page="enhance"] .editor-tab[data-panel="background"],
+body[data-page="enhance"] .panel[data-panel-content="cutout"],
+body[data-page="enhance"] .panel[data-panel-content="background"]{display:none!important}
+body[data-page="enhance"] .editor-tab[data-panel="effects"],
+body[data-page="enhance"] .editor-tab[data-panel="adjust"],
+body[data-page="enhance"] .editor-tab[data-panel="design"]{display:flex!important}
+@media(max-width:900px){
+ .header-mode-switch{order:3;width:100%;justify-content:center;margin:8px 0}
+ .topbar{flex-wrap:wrap;padding-bottom:8px}
+ .remove-bg-landing{grid-template-columns:1fr!important;gap:30px!important}
+ .remove-left #landingTitle{font-size:46px!important}
+ .remove-preview-wrap{height:200px}
+}
