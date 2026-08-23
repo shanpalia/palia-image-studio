@@ -5,7 +5,7 @@ const $$ = s => [...document.querySelectorAll(s)];
 const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZone");
 const workspace=$("#workspace"), canvas=$("#canvas"), ctx=canvas.getContext("2d");
 const statusEl=$("#status"), processing=$("#processing"), processingText=$("#processingText"), processingSub=$("#processingSub");
-let original=null, current=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
+let original=null, current=null, processed=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
 let recentItems=[], activeRecentId=null;
 let adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
 let viewMode="fit";
@@ -103,11 +103,6 @@ function renderRecent(){
   section.classList.toggle("hidden", false);
   const countEl=$("#recentCount"); if(countEl) countEl.textContent=`${recentItems.length} ${recentItems.length===1?"item":"items"}`;
   strip.innerHTML="";
-  const newCard=document.createElement("button");
-  newCard.type="button"; newCard.className="recent-card new-image-card"; newCard.id="newImageCard";
-  newCard.innerHTML='<div class="new-image-plus">+</div><strong>New Image</strong><span>Click or Drop</span>';
-  newCard.addEventListener("click",()=>fileInput.click());
-  strip.appendChild(newCard);
   const q=(($("#recentSearch")?.value)||"").trim().toLowerCase();
   const visibleItems=recentItems.filter(item=>!q || item.name.toLowerCase().includes(q));
   visibleItems.forEach(item=>{
@@ -133,6 +128,7 @@ function openRecent(id){
   const im=new Image();
   im.onload=()=>{
     current=im;
+    processed=im;
     bg=item.bg || "transparent";
     viewMode="fit"; zoom=1;
     const orig=new Image();
@@ -185,7 +181,7 @@ if(!validType && !validName){
   r.onload=async()=>{
     const im=new Image();
     im.onload=async()=>{
-      original=im; current=im; rotation=0; zoom=1; bg="transparent"; viewMode="fit";
+      original=im; current=im; processed=null; rotation=0; zoom=1; bg="transparent"; viewMode="fit";
       adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
       syncAdjustmentUI();
       // Show a clean processing state first; the editor appears after AI removal.
@@ -230,7 +226,7 @@ function render(){
   ctx.drawImage(current,-w/2,-h/2,w,h);ctx.restore();
   ctx.filter="none";
   if(viewMode==="fit"){
-    canvas.style.width="auto"; canvas.style.height="auto"; canvas.style.maxWidth="94%"; canvas.style.maxHeight="500px";
+    canvas.style.width="auto"; canvas.style.height="auto"; canvas.style.maxWidth="100%"; canvas.style.maxHeight="500px";
   }else{
     canvas.style.width="100%"; canvas.style.height="500px"; canvas.style.maxWidth="none"; canvas.style.maxHeight="none";
   }
@@ -261,7 +257,7 @@ $("#zoomIn").addEventListener("click",()=>{zoom=Math.min(2,zoom+.1);$("#zoomLabe
 $("#zoomOut").addEventListener("click",()=>{zoom=Math.max(.5,zoom-.1);$("#zoomLabel").textContent=Math.round(zoom*100)+"%";render()});
 
 $("#beforeBtn").addEventListener("click",()=>{showBefore=true;$("#beforeBtn").classList.add("selected");$("#afterBtn").classList.remove("selected");current=original;render()});
-$("#afterBtn").addEventListener("click",()=>{showBefore=false;$("#afterBtn").classList.add("selected");$("#beforeBtn").classList.remove("selected");current=original;render()});
+$("#afterBtn").addEventListener("click",()=>{showBefore=false;$("#afterBtn").classList.add("selected");$("#beforeBtn").classList.remove("selected");current=processed||original;render()});
 
 $$(".tool").forEach(b=>b.addEventListener("click",async()=>{
   $$(".tool").forEach(x=>x.classList.remove("active"));b.classList.add("active");
@@ -281,6 +277,7 @@ async function removeBackground(){
     const out = new Image();
     out.onload = ()=>{
       current=out;
+      processed=out;
       showBefore=false;
       $("#afterBtn").classList.add("selected");
       $("#beforeBtn").classList.remove("selected");
@@ -358,7 +355,7 @@ async function enhance(){
   // High-quality canvas resampling; this is real upscaling, not a fake result.
   const c=document.createElement("canvas");c.width=(current.naturalWidth||current.width)*scale;c.height=(current.naturalHeight||current.height)*scale;
   const x=c.getContext("2d");x.imageSmoothingEnabled=true;x.imageSmoothingQuality="high";x.drawImage(current,0,0,c.width,c.height);
-  const out=new Image();out.src=c.toDataURL("image/png");await out.decode();current=out;
+  const out=new Image();out.src=c.toDataURL("image/png");await out.decode();current=out;processed=out;
   hideProcessing();statusEl.textContent=`Enhanced ${scale}×`;render();saveActiveToRecent();
 }
 
@@ -390,48 +387,45 @@ $("#resetAdjustments").addEventListener("click",()=>{
 });
 
 
-$("#recentSearch").addEventListener("input",()=>renderRecent());
-$("#gridViewBtn").addEventListener("click",()=>{
-  $("#recentStrip").classList.toggle("list-view");
+
+// Top editor navigation: show the corresponding side panel.
+$$(".editor-tab").forEach(tab=>tab.addEventListener("click",()=>{
+  $$(".editor-tab").forEach(t=>t.classList.remove("active"));
+  tab.classList.add("active");
+  const target=tab.dataset.panel;
+  $$("[data-panel-content]").forEach(p=>p.classList.toggle("hidden",p.dataset.panelContent!==target));
+}));
+
+$("#removeBgTop").addEventListener("click",async()=>{
+  if(!original)return;
+  try{await removeBackground();}catch(e){}
+});
+$("#enhance2").addEventListener("click",async()=>{scale=2;await enhance()});
+$("#enhance4").addEventListener("click",async()=>{scale=4;await enhance()});
+
+$("#undoBtn").addEventListener("click",()=>{
+  if(!original)return;
+  current=original; showBefore=true;
+  $("#beforeBtn").classList.add("selected"); $("#afterBtn").classList.remove("selected");
+  statusEl.textContent="Showing original";
+  render();
+});
+$("#redoBtn").addEventListener("click",()=>{
+  if(!processed)return;
+  current=processed; showBefore=false;
+  $("#afterBtn").classList.add("selected"); $("#beforeBtn").classList.remove("selected");
+  statusEl.textContent="Showing edited result";
+  render();
 });
 
-$("#cropBtn").addEventListener("click",()=>{
-  alert("Crop tool: use Fit/Fill for the current canvas view. A full freeform crop can be added without changing the original image.");
-});
-$("#sharpenBtn").addEventListener("click",()=>{
-  // Small contrast/saturation boost as a real canvas-based sharpening-style preset.
-  adjustments.contrast=Math.min(150,adjustments.contrast+8);
-  adjustments.saturation=Math.min(180,adjustments.saturation+4);
-  syncAdjustmentUI(); render(); saveActiveToRecent();
-});
-$("#autoFixBtn").addEventListener("click",()=>{
-  adjustments={brightness:106,contrast:108,saturation:106,blur:0,grayscale:0};
-  syncAdjustmentUI(); render(); saveActiveToRecent();
-});
-$("#compareBtn").addEventListener("click",()=>{
-  if(showBefore) $("#afterBtn").click(); else $("#beforeBtn").click();
-});
-
-$("#clearRecentBtn").addEventListener("click",()=>{
-  recentItems=[];activeRecentId=null;$("#recentSection").classList.add("hidden");
-});
-
-
-$("#fitBtn").addEventListener("click",()=>{
-  viewMode="fit"; $("#fitBtn").classList.add("selected"); $("#fillBtn").classList.remove("selected"); render();
-});
-$("#fillBtn").addEventListener("click",()=>{
-  viewMode="fill"; $("#fillBtn").classList.add("selected"); $("#fitBtn").classList.remove("selected"); render();
+$("#recentStrip").addEventListener("click",e=>{
+  const card=e.target.closest(".recent-card");
+  if(!card)return;
 });
 $("#newImageCard").addEventListener("click",()=>fileInput.click());
 
-$("#resetBtn").addEventListener("click",()=>{
-  workspace.classList.add("hidden");
-  fileInput.value="";
-  original=null; current=null; activeRecentId=null;
-  $("#recentSection").classList.add("hidden");
-  window.scrollTo({top:0,behavior:"smooth"});
-});
+$("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa Traders\n\nAI background removal, background colors, adjustments and image enhancement."));
+
 $("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa Traders\n\nA browser-based image editing studio."));
 
 
@@ -443,4 +437,3 @@ window.addEventListener("error", e => {
 
 // Initial state: show the upload screen and keep the editor/recent area hidden.
 workspace.classList.add("hidden");
-if($("#recentSection")) $("#recentSection").classList.add("hidden");

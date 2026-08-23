@@ -1,204 +1,132 @@
 <!doctype html>
 <html lang="en">
 <head>
-  <meta charset="UTF-8">
-  <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <meta name="description" content="Palia Image Studio - Background remover and image enhancer by Hafsa Traders">
-  <meta name="theme-color" content="#ffffff">
-  <title>Palia Image Studio — By Hafsa Traders</title>
-  <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
-  <link rel="stylesheet" href="./style.css">
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1">
+<meta name="description" content="Palia Image Studio by Hafsa Traders">
+<meta name="theme-color" content="#ffffff">
+<title>Palia Image Studio — By Hafsa Traders</title>
+<link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="stylesheet" href="./style.css">
 </head>
 <body>
-  <header class="topbar">
-    <div class="brand">
-      <div class="brand-icon">PI</div>
-      <div>
-        <div class="brand-title">Palia Image Studio</div>
-        <div class="brand-subtitle">By Hafsa Traders</div>
+<header class="topbar">
+  <div class="brand">
+    <div class="brand-icon">PI</div>
+    <div><div class="brand-title">Palia Image Studio</div><div class="brand-subtitle">By Hafsa Traders</div></div>
+  </div>
+  <nav><a href="#editor">Editor</a><a href="#how">How it works</a><button id="aboutBtn" class="nav-btn">About</button></nav>
+</header>
+
+<main>
+  <section class="landing" id="editor">
+    <div class="landing-visual">
+      <div class="demo-cutout">
+        <div class="demo-head"></div><div class="demo-body"></div>
+        <div class="demo-leaf l1"></div><div class="demo-leaf l2"></div><div class="demo-leaf l3"></div>
       </div>
+      <h1>Remove Image<br>Background</h1>
+      <p><b>100% Automatically</b> and <span>Free</span></p>
     </div>
-    <nav>
-      <a href="#editor">Editor</a>
-      <a href="#how">How it works</a>
-      <button id="aboutBtn" class="nav-btn">About</button>
-    </nav>
-  </header>
+    <div class="upload-card" id="dropZone">
+      <div class="upload-cloud">↑</div>
+      <button id="chooseBtn" class="upload-btn">Upload Image</button>
+      <div class="drop-copy">or drop a file</div>
+      <div class="drop-sub">JPG, PNG or WEBP</div>
+      <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+      <div class="upload-status" id="uploadStatus">Fast automatic background removal</div>
+    </div>
+  </section>
 
-  <main>
-    <section class="hero" id="editor">
-      <div class="hero-copy">
-        <span class="pill">IMAGE STUDIO</span>
-        <h1>Remove background.<br><span>Enhance your image.</span></h1>
-        <p>Upload an image, remove its background, enhance it, and save the final result.</p>
+  <section class="workspace hidden" id="workspace">
+    <div class="editor-shell">
+      <div class="editor-toolbar">
+        <button class="editor-tab active" data-panel="cutout"><span>✣</span>Cutout</button>
+        <button class="editor-tab" data-panel="background"><span>◈</span>Background</button>
+        <button class="editor-tab" data-panel="effects"><span>●</span>Effects</button>
+        <button class="editor-tab" data-panel="adjust"><span>◐</span>Adjust</button>
+        <button class="editor-tab" data-panel="design"><span>▣</span>Design</button>
+        <span class="toolbar-spacer"></span>
+        <button class="toolbar-icon" id="undoBtn" title="Undo">↶</button>
+        <button class="toolbar-icon" id="redoBtn" title="Redo">↷</button>
+        <button class="download-top" id="downloadBtn">Download <span>⌄</span></button>
       </div>
 
-      <div class="upload-card" id="dropZone">
-        <div class="upload-icon">↑</div>
-        <h2>Upload an image</h2>
-        <p>Drag & drop or choose a JPG, PNG, or WEBP image</p>
-        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-        <button id="chooseBtn" class="primary">Choose Image</button>
-        <div class="hint">AI background removal runs in your browser. First use may download the AI model.</div>
-      </div>
-    </section>
-
-    <section class="workspace hidden" id="workspace">
-      <div class="workspace-head">
-        <div>
-          <span class="pill">EDITOR</span>
-          <h2>Your image</h2>
-        </div>
-        <button id="resetBtn" class="secondary">Start over</button>
-      </div>
-
-      <div class="editor-grid">
-        <aside class="tools">
-          <div class="panel-title"><span class="panel-icon">✦</span><h3>AI Tools</h3></div>
-          <button class="tool active ai-remove" data-tool="remove">✦ <span>Remove Background (AI)</span></button>
-          <button class="tool" data-tool="enhance">✦ <span>Enhance</span></button>
-          <div class="tool-group">
-            <label>Enhancement</label>
-            <div class="segmented">
-              <button data-scale="1">Original</button>
-              <button data-scale="2" class="selected">2×</button>
-              <button data-scale="4">4×</button>
-            </div>
-          </div>
-          <div class="tool-group">
-            <label>Background</label>
-            <div class="bg-palette" id="bgPalette">
-              <button type="button" class="bg-tile transparent-tile selected" data-bg="transparent" aria-label="Transparent background">
-                <span class="checker-mini"></span><small>Transparent</small>
-              </button>
-              <button type="button" class="bg-tile" data-bg="#ffffff" aria-label="White background" style="--tile:#ffffff"><span></span><small>White</small></button>
-              <button type="button" class="bg-tile" data-bg="#000000" aria-label="Black background" style="--tile:#000000"><span></span><small>Black</small></button>
-              <button type="button" class="bg-tile" data-bg="#f3f4f6" aria-label="Light gray background" style="--tile:#f3f4f6"><span></span><small>Gray</small></button>
-              <button type="button" class="bg-tile" data-bg="#e8f5e9" aria-label="Light green background" style="--tile:#e8f5e9"><span></span><small>Mint</small></button>
-              <button type="button" class="bg-tile" data-bg="#e3f2fd" aria-label="Light blue background" style="--tile:#e3f2fd"><span></span><small>Blue</small></button>
-              <button type="button" class="bg-tile" data-bg="#fff3e0" aria-label="Light orange background" style="--tile:#fff3e0"><span></span><small>Peach</small></button>
-              <button type="button" class="bg-tile" data-bg="#fce4ec" aria-label="Light pink background" style="--tile:#fce4ec"><span></span><small>Pink</small></button>
-              <button type="button" class="bg-tile" data-bg="#ede7f6" aria-label="Light purple background" style="--tile:#ede7f6"><span></span><small>Lavender</small></button>
-              <label class="bg-tile custom-bg-tile" aria-label="Custom background">
-                <input id="bgColor" type="color" value="#dff5ee">
-                <span class="custom-swatch">+</span><small>Custom</small>
-              </label>
-            </div>
-          </div>
-          <div class="tool-group">
-            <label>Rotate</label>
-            <div class="rotate-row">
-              <button id="rotateLeft">↶</button>
-              <button id="rotateRight">↷</button>
-              <button id="resetRotate">Reset</button>
-            </div>
-          </div>
-        </aside>
-
-        <section class="preview-card">
-          <div class="fit-controls">
-            <button type="button" id="fitBtn" class="selected">Fit</button>
-            <button type="button" id="fillBtn">Fill</button>
-            <button type="button" id="zoomOut">⌕−</button>
-            <button type="button" id="zoomIn">⌕+</button>
-            <button type="button" id="ratioBtn">1:1</button>
-            <button type="button" id="undoBtn">↶</button>
-            <button type="button" id="redoBtn">↷</button>
-            <button type="button" id="compareBtn">Before / After</button>
-          </div>
-          <div class="preview-toolbar">
-            <span id="status">Ready</span>
-            <div><span id="zoomLabel">100%</span></div>
-          </div>
-          <div class="canvas-wrap" id="canvasWrap">
+      <div class="editor-body">
+        <div class="editor-canvas-area" id="canvasWrap">
+          <div class="canvas-stage">
             <canvas id="canvas"></canvas>
             <div class="processing hidden" id="processing">
-              <div class="spinner"></div>
-              <strong id="processingText">Processing...</strong>
-              <span id="processingSub">Please wait</span>
+              <div class="spinner"></div><strong id="processingText">Removing background…</strong><span id="processingSub">Please wait</span>
             </div>
           </div>
-          <div class="compare-row">
-            <button id="beforeBtn">Before</button>
-            <button id="afterBtn" class="selected">After</button>
-          </div>
-        </section>
+          <div class="canvas-status"><span id="status">Ready</span><span id="zoomLabel">100%</span></div>
+        </div>
 
-        <aside class="export-card">
-          <div class="adjust-head">
-            <h3>Adjustments</h3>
-            <button id="resetAdjustments" class="mini-btn">Reset</button>
+        <aside class="side-panel" id="sidePanel">
+          <div class="panel panel-cutout" data-panel-content="cutout">
+            <h3>Cutout</h3>
+            <button class="big-action" id="removeBgTop">✦ <span><b>Remove background</b><small>Automatic AI cutout</small></span></button>
+            <div class="panel-row"><button id="fitBtn" class="small-option active">Fit</button><button id="fillBtn" class="small-option">Fill</button></div>
+            <div class="panel-row"><button id="zoomOut" class="small-option">−</button><button id="zoomIn" class="small-option">+</button><button id="resetRotate" class="small-option">Reset</button></div>
           </div>
-          <div class="adjustment">
-            <div><label for="brightness">Brightness</label><output id="brightnessValue">100%</output></div>
-            <input id="brightness" type="range" min="50" max="150" value="100">
+
+          <div class="panel hidden" data-panel-content="background">
+            <h3>Background</h3>
+            <p class="panel-help">Choose a background for your cutout.</p>
+            <div class="bg-palette" id="bgPalette">
+              <button class="bg-tile transparent-tile selected" data-bg="transparent"><span class="checker-mini"></span><small>Transparent</small></button>
+              <button class="bg-tile" data-bg="#ffffff" style="--tile:#fff"><span></span><small>White</small></button>
+              <button class="bg-tile" data-bg="#000000" style="--tile:#000"><span></span><small>Black</small></button>
+              <button class="bg-tile" data-bg="#f2f4f5" style="--tile:#f2f4f5"><span></span><small>Gray</small></button>
+              <button class="bg-tile" data-bg="#e8f7f2" style="--tile:#e8f7f2"><span></span><small>Mint</small></button>
+              <button class="bg-tile" data-bg="#e6f0ff" style="--tile:#e6f0ff"><span></span><small>Blue</small></button>
+              <button class="bg-tile" data-bg="#fff0e5" style="--tile:#fff0e5"><span></span><small>Peach</small></button>
+              <button class="bg-tile" data-bg="#fde7ef" style="--tile:#fde7ef"><span></span><small>Pink</small></button>
+              <button class="bg-tile" data-bg="#eee8ff" style="--tile:#eee8ff"><span></span><small>Lavender</small></button>
+              <label class="bg-tile custom-bg-tile"><input id="bgColor" type="color" value="#e8f7f2"><span class="custom-swatch">+</span><small>Custom</small></label>
+            </div>
           </div>
-          <div class="adjustment">
-            <div><label for="contrast">Contrast</label><output id="contrastValue">100%</output></div>
-            <input id="contrast" type="range" min="50" max="150" value="100">
+
+          <div class="panel hidden" data-panel-content="effects">
+            <h3>Effects</h3>
+            <div class="effect-card"><b>Blur</b><input id="blur" type="range" min="0" max="8" value="0"><output id="blurValue">0px</output></div>
+            <div class="effect-card"><b>Grayscale</b><input id="grayscale" type="range" min="0" max="100" value="0"><output id="grayscaleValue">0%</output></div>
           </div>
-          <div class="adjustment">
-            <div><label for="saturation">Saturation</label><output id="saturationValue">100%</output></div>
-            <input id="saturation" type="range" min="0" max="180" value="100">
+
+          <div class="panel hidden" data-panel-content="adjust">
+            <div class="panel-title-row"><h3>Adjust</h3><button id="resetAdjustments" class="reset-link">Reset</button></div>
+            <div class="effect-card"><b>Brightness</b><input id="brightness" type="range" min="50" max="150" value="100"><output id="brightnessValue">100%</output></div>
+            <div class="effect-card"><b>Contrast</b><input id="contrast" type="range" min="50" max="150" value="100"><output id="contrastValue">100%</output></div>
+            <div class="effect-card"><b>Saturation</b><input id="saturation" type="range" min="0" max="180" value="100"><output id="saturationValue">100%</output></div>
           </div>
-          <div class="adjustment">
-            <div><label for="blur">Blur</label><output id="blurValue">0px</output></div>
-            <input id="blur" type="range" min="0" max="8" value="0">
+
+          <div class="panel hidden" data-panel-content="design">
+            <h3>Design</h3>
+            <div class="design-actions"><button id="enhance2" class="design-btn">2× Enhance</button><button id="enhance4" class="design-btn">4× Enhance</button></div>
+            <div class="design-actions"><button id="rotateLeft" class="design-btn">↶ Rotate</button><button id="rotateRight" class="design-btn">↷ Rotate</button></div>
+            <label class="format-label">Download format</label>
+            <div class="format"><button data-format="png" class="selected">PNG</button><button data-format="jpg">JPG</button></div>
           </div>
-          <div class="adjustment">
-            <div><label for="grayscale">Grayscale</label><output id="grayscaleValue">0%</output></div>
-            <input id="grayscale" type="range" min="0" max="100" value="0">
-          </div>
-          <hr class="panel-divider">
-          <h3>Image Actions</h3>
-          <div class="action-grid">
-            <button type="button" class="action-btn crop-btn" id="cropBtn"><b>⌗</b><span>Crop</span></button>
-            <button type="button" class="action-btn sharpen-btn" id="sharpenBtn"><b>◈</b><span>Sharpen</span></button>
-            <button type="button" class="action-btn fix-btn" id="autoFixBtn"><b>✦</b><span>Auto Fix</span></button>
-          </div>
-          <hr class="panel-divider">
-          <h3>Save image</h3>
-          <p>Export the current result in high quality.</p>
-          <label>Format</label>
-          <div class="segmented format">
-            <button data-format="png" class="selected">PNG</button>
-            <button data-format="jpg">JPG</button>
-          </div>
-          <button id="downloadBtn" class="primary full">Download</button>
-          <div class="export-note">PNG preserves transparency. JPG uses the selected background.</div>
         </aside>
       </div>
-    </section>
 
+      <div class="before-after"><button id="beforeBtn">Before</button><button id="afterBtn" class="selected">After</button><span>•</span><button id="compareBtn">Compare</button></div>
 
-    <section class="recent-section hidden" id="recentSection">
-      <div class="recent-head">
-        <div>
-          <span class="pill">RECENT</span>
-          <h2>Recent images</h2>
-        </div>
-        <div class="recent-actions"><input id="recentSearch" type="search" placeholder="Search recent images..."><button id="clearRecentBtn" class="secondary">Clear All</button><button id="gridViewBtn" class="secondary">▦</button></div>
+      <div class="recent-dock" id="recentSection">
+        <button type="button" class="recent-new" id="newImageCard"><b>+</b><span>New</span></button>
+        <div class="recent-strip" id="recentStrip"></div>
       </div>
-      <div class="recent-strip" id="recentStrip">
-        <button type="button" class="recent-card new-image-card" id="newImageCard">
-          <div class="new-image-plus">+</div>
-          <strong>New Image</strong>
-          <span>Click or Drop</span>
-        </button>
-      </div>
-    </section>
+    </div>
+  </section>
 
-    <section class="how" id="how">
-      <div><span class="number">01</span><h3>Upload</h3><p>Choose an image from your device.</p></div>
-      <div><span class="number">02</span><h3>Remove & enhance</h3><p>Use the editor tools and preview the result.</p></div>
-      <div><span class="number">03</span><h3>Save</h3><p>Download PNG or JPG directly.</p></div>
-    </section>
-  </main>
-
-  <footer>
-    <strong>Palia Image Studio</strong> · By Hafsa Traders
-  </footer>
-
-  <script type="module" src="./app.js"></script>
+  <section class="how" id="how">
+    <div><span class="number">01</span><h3>Upload</h3><p>Choose or drop an image.</p></div>
+    <div><span class="number">02</span><h3>Remove & enhance</h3><p>AI removes the background automatically.</p></div>
+    <div><span class="number">03</span><h3>Save</h3><p>Download a transparent PNG or JPG.</p></div>
+  </section>
+</main>
+<footer><strong>Palia Image Studio</strong> · By Hafsa Traders</footer>
+<script type="module" src="./app.js"></script>
 </body>
 </html>

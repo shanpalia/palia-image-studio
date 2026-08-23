@@ -78,3 +78,8 @@ Background removal now uses IMG.LY's `isnet_quint8` small quantized model (about
 ## Recent image behavior
 
 Recent tiles now open the **latest processed image**. A tile cannot be opened while AI background removal is running, so the original upload is never reopened and processed again by mistake. The center preview uses a tight, responsive canvas so the image fits without an artificial fixed-height empty area.
+
+
+## Remove.bg-inspired editor UI
+
+The interface now uses a clean upload landing screen and a compact editor with Cutout, Background, Effects, Adjust, Design, undo/redo, Download, centered checkerboard canvas, and bottom recent thumbnails. The design is an original implementation inspired by common background-removal editor workflows.
