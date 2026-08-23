@@ -593,3 +593,21 @@ canvasWrap?.addEventListener("wheel",e=>{
 workspace.classList.add("hidden");
 
 
+
+document.querySelectorAll(".header-mode-btn").forEach(btn=>{
+  btn.addEventListener("click",()=>{
+    const mode=btn.dataset.mode;
+    document.querySelectorAll(".mode-card").forEach(c=>{
+      const active=c.dataset.mode===mode;
+      c.classList.toggle("active",active);
+      c.setAttribute("aria-selected",active?"true":"false");
+    });
+    document.querySelectorAll(".header-mode-btn").forEach(b=>{
+      const active=b.dataset.mode===mode;
+      b.classList.toggle("active",active);
+      b.setAttribute("aria-selected",active?"true":"false");
+    });
+    const card=document.querySelector(`.mode-card[data-mode="${mode}"]`);
+    if(card) card.click();
+  });
+});

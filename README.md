@@ -121,3 +121,8 @@ The Enhance action now performs a real canvas upscale with high-quality image sm
 ## Home UI polish
 
 Added two prominent Background Remover / Image Enhancer buttons in the marked top area, enlarged the two tool visuals, and made the Palia Image Studio header/navigation typography bolder and more polished.
+
+
+## Final home/header update
+
+The two Background Remover and Image Enhancer controls are now placed in the marked center area of the top header. A custom Palia Image Studio SVG logo is used in the header and as the browser favicon/apple-touch icon. The two home tool preview images are enlarged and kept as cover-style cards. The header title and navigation use stronger, more polished typography.

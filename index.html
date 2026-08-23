@@ -7,13 +7,22 @@
 <meta name="theme-color" content="#ffffff">
 <title>Palia Image Studio — By Hafsa Traders</title>
 <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
+<link rel="apple-touch-icon" href="./assets/palia-image-studio-icon.svg">
 <link rel="stylesheet" href="./style.css">
 </head>
 <body>
 <header class="topbar">
   <div class="brand">
-    <div class="brand-icon">PI</div>
+    <div class="brand-icon"><img src="./assets/palia-image-studio-icon.svg" alt="Palia Image Studio icon"></div>
     <div><div class="brand-title">Palia Image Studio</div><div class="brand-subtitle">By Hafsa Traders</div></div>
+  </div>
+  <div class="header-mode-switch" role="tablist" aria-label="Choose image tool">
+    <button class="header-mode-btn active" id="modeRemoveTop" data-mode="remove" type="button" role="tab" aria-selected="true">
+      <span class="header-tool-icon">✂</span><span>Background Remover</span>
+    </button>
+    <button class="header-mode-btn" id="modeEnhanceTop" data-mode="enhance" type="button" role="tab" aria-selected="false">
+      <span class="header-tool-icon">✦</span><span>Image Enhancer</span>
+    </button>
   </div>
   <nav><a href="#editor">Editor</a><a href="#how">How it works</a><button id="aboutBtn" class="nav-btn">About</button></nav>
 </header>
@@ -21,20 +30,9 @@
 <main>
   <section class="landing" id="editor">
     <div class="landing-intro">
-      <div class="landing-brand">Palia Image Studio</div>
+      <div class="landing-brand"><img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon"> Palia Image Studio</div>
       <h1 id="landingTitle">Remove Image<br>Background</h1>
-      <p id="landingDescription">Remove backgrounds automatically with fast AI.</p>
-      <div class="mode-switch" role="tablist" aria-label="Choose image tool">
-        <button class="mode-card active" id="modeRemove" data-mode="remove" type="button" role="tab" aria-selected="true">
-          <div class="mode-card-image large-mode-card-image"><img src="./assets/background-remover.png" alt="Background remover preview"></div>
-          <div class="mode-card-copy"><span class="mode-icon">✂</span><div><b>Background Remover</b><small>AI cutout · Transparent PNG</small></div></div>
-        </button>
-        <button class="mode-card" id="modeEnhance" data-mode="enhance" type="button" role="tab" aria-selected="false">
-          <div class="mode-card-image large-mode-card-image"><img src="./assets/image-enhancer.png" alt="Image enhancer preview"></div>
-          <div class="mode-card-copy"><span class="mode-icon">✦</span><div><b>Image Enhancer</b><small>2× / 4× quality enhancement</small></div></div>
-        </button>
-      </div>
-    </div>
+      <p id="landingDescription">Remove backgrounds automatically with fast AI.</p></div>
     <div class="upload-card" id="dropZone">
       <div class="upload-cloud">↑</div>
       <button id="chooseBtn" class="upload-btn">Upload Image</button>

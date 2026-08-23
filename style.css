@@ -175,3 +175,97 @@ nav a, nav button{
   object-fit:cover;
   border-radius:12px 12px 0 0;
 }
+
+/* Final home header: two marked tool buttons centered between brand and navigation. */
+.topbar{
+  position:relative;
+  height:64px!important;
+  padding:0 30px!important;
+}
+.brand-icon{
+  width:42px!important;height:42px!important;
+  border-radius:12px!important;
+  background:#e8f8f3!important;
+  overflow:hidden;
+}
+.brand-icon img{width:100%;height:100%;display:block}
+.brand-title{
+  font-weight:950!important;
+  font-size:18px!important;
+  letter-spacing:-.035em!important;
+}
+.brand-subtitle{
+  font-weight:650!important;
+  font-size:9px!important;
+}
+.header-mode-switch{
+  position:absolute;
+  left:50%;
+  transform:translateX(-50%);
+  display:flex;
+  align-items:center;
+  gap:7px;
+}
+.header-mode-btn{
+  height:40px;
+  padding:0 15px;
+  border:1px solid #dce8e4;
+  border-radius:10px;
+  background:#fff;
+  color:#5f6c68;
+  display:flex;
+  align-items:center;
+  gap:8px;
+  font-size:11px;
+  font-weight:850;
+  cursor:pointer;
+  transition:.18s ease;
+  white-space:nowrap;
+}
+.header-mode-btn:hover{border-color:#9bd5c5;transform:translateY(-1px)}
+.header-mode-btn.active{
+  color:#11755d;
+  border-color:#159b78;
+  background:#eaf8f3;
+  box-shadow:0 0 0 2px rgba(21,155,120,.07);
+}
+.header-tool-icon{
+  width:25px;height:25px;border-radius:7px;
+  display:grid;place-items:center;
+  background:#dff4ec;color:#128568;font-size:13px;
+}
+.landing-brand{
+  display:flex!important;
+  align-items:center!important;
+  gap:8px!important;
+  font-weight:900!important;
+}
+.landing-studio-icon{
+  width:25px;height:25px;border-radius:7px;
+}
+.mode-card{
+  min-width:0!important;
+}
+.mode-card-image.large-mode-card-image{
+  height:220px!important;
+  min-height:220px!important;
+}
+.mode-card-image img{
+  width:100%!important;height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+.mode-card-copy b{font-weight:900!important}
+@media(max-width:900px){
+  .header-mode-switch{
+    position:static;
+    transform:none;
+    margin-left:auto;
+    margin-right:10px;
+  }
+  .header-mode-btn{padding:0 10px;font-size:10px}
+  .header-mode-btn span:last-child{display:none}
+  .mode-card-image.large-mode-card-image{
+    height:180px!important;min-height:180px!important;
+  }
+}
