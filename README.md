@@ -136,3 +136,8 @@ The home page now shows only the selected tool's visual card. Background Remover
 ## Wide selected image
 
 Only the selected tool remains visible, but its preview now expands to the full visual/card width (up to 620px), matching the larger width the two previews previously occupied together.
+
+
+## Wide preview correction
+
+The selected Background Remover/Image Enhancer preview now spans the full available left-side home content width instead of retaining the old narrow card width. Only the selected image is shown, with a larger 300px desktop preview height.

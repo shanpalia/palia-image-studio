@@ -276,9 +276,7 @@ nav a, nav button{
 .mode-card.active{display:block!important}
 
 /* Selected tool visual: use the full two-card visual width while showing only one image. */
-.mode-card.active{
-  width:100%!important;
-  max-width:620px!important;
+.mode-card.active{width:100%!important;max-width:none!important;
   margin:0!important;
 }
 .mode-card.active .mode-card-image.large-mode-card-image{
@@ -304,5 +302,57 @@ nav a, nav button{
   .mode-card.active .mode-card-image.large-mode-card-image{
     height:190px!important;
     min-height:190px!important;
+  }
+}
+
+/* Wide selected tool preview */
+.landing .mode-card.active{
+  width:100%!important;
+  max-width:none!important;
+  margin:0!important;
+  box-sizing:border-box!important;
+}
+.landing .mode-card.active .mode-card-image.large-mode-card-image{
+  width:100%!important;
+  height:300px!important;
+  min-height:300px!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+}
+.landing .mode-card.active .mode-card-content{
+  width:100%!important;
+  box-sizing:border-box!important;
+}
+.landing .mode-card.active img{
+  width:100%!important;
+  height:100%!important;
+  object-fit:cover!important;
+  object-position:center!important;
+}
+
+/* If the home options live in a grid, let the selected card span it. */
+.landing .mode-card.active{
+  grid-column:1 / -1!important;
+}
+
+/* Keep the selected visual about as wide as the upload panel. */
+.landing .mode-card.active{
+  min-width:0!important;
+}
+@media (min-width:1100px){
+  .landing .mode-card.active{
+    width:100%!important;
+  }
+  .landing .mode-card.active .mode-card-image.large-mode-card-image{
+    height:300px!important;
+  }
+}
+@media (max-width:900px){
+  .landing .mode-card.active{
+    grid-column:1!important;
+  }
+  .landing .mode-card.active .mode-card-image.large-mode-card-image{
+    height:230px!important;
+    min-height:230px!important;
   }
 }
