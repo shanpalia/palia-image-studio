@@ -356,3 +356,39 @@ nav a, nav button{
     min-height:230px!important;
   }
 }
+
+/* Selected tool image: show the COMPLETE image, never crop it. */
+.landing .mode-card.active{
+  width:100%!important;
+  max-width:none!important;
+  box-sizing:border-box!important;
+  overflow:hidden!important;
+}
+.landing .mode-card.active .mode-card-image.large-mode-card-image{
+  width:100%!important;
+  height:300px!important;
+  min-height:300px!important;
+  background:#f6f8f7!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:hidden!important;
+  box-sizing:border-box!important;
+  padding:0!important;
+}
+.landing .mode-card.active .mode-card-image.large-mode-card-image img,
+.landing .mode-card.active img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+  display:block!important;
+}
+@media(max-width:900px){
+  .landing .mode-card.active .mode-card-image.large-mode-card-image{
+    height:240px!important;
+    min-height:240px!important;
+  }
+}
