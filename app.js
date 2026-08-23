@@ -635,7 +635,7 @@ function applyHomeMode(mode){
 document.querySelectorAll(".header-mode-btn").forEach(btn=>{
   btn.addEventListener("click",()=>applyHomeMode(btn.dataset.mode));
 });
-applyHomeMode("remove");
+applyHomeMode(document.body.dataset.page==="enhance" ? "enhance" : "remove");
 
 document.querySelectorAll(".mode-card").forEach(card=>{
   card.addEventListener("click",()=>{

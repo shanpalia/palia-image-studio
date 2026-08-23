@@ -146,3 +146,10 @@ The selected Background Remover/Image Enhancer preview now spans the full availa
 ## Full-fit image
 
 The selected tool preview now uses `object-fit: contain`, so the complete supplied image is visible inside the wide preview area without cropping or cutting off any part of the image.
+
+
+## Dedicated tool pages
+
+- `index.html` is the dedicated **Background Remover** page. Its editor exposes Cutout + Background tools; upload automatically starts AI background removal.
+- `enhance.html` is the dedicated **Image Enhancer** page. Its editor exposes Enhance, Adjust and Effects tools; upload does not remove the background.
+- The header provides direct navigation between the two pages.

@@ -392,3 +392,23 @@ nav a, nav button{
     min-height:240px!important;
   }
 }
+
+/* Dedicated pages */
+body[data-page="remove"] .editor-tab[data-panel="effects"],
+body[data-page="remove"] .editor-tab[data-panel="adjust"],
+body[data-page="remove"] .editor-tab[data-panel="design"]{display:none!important}
+body[data-page="remove"] .panel[data-panel-content="effects"],
+body[data-page="remove"] .panel[data-panel-content="adjust"],
+body[data-page="remove"] .panel[data-panel-content="design"]{display:none!important}
+
+body[data-page="enhance"] .editor-tab[data-panel="cutout"],
+body[data-page="enhance"] .editor-tab[data-panel="background"]{display:none!important}
+body[data-page="enhance"] .panel[data-panel-content="cutout"],
+body[data-page="enhance"] .panel[data-panel-content="background"]{display:none!important}
+body[data-page="enhance"] .editor-toolbar .editor-tab[data-panel="design"]{display:inline-flex!important}
+body[data-page="enhance"] .editor-toolbar .zoom-top-separator,
+body[data-page="enhance"] .editor-toolbar .zoom-top-btn,
+body[data-page="enhance"] .editor-toolbar .zoom-top-label{display:inline-flex!important}
+.single-tool-card{display:block!important}
+.single-tool-card .mode-card{width:100%!important;max-width:620px!important}
+.header-mode-btn{ text-decoration:none!important; }

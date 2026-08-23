@@ -3,14 +3,14 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width,initial-scale=1">
-<meta name="description" content="Palia Image Studio by Hafsa Traders">
+<meta name="description" content="Palia Image Studio — Image Enhancer by Hafsa Traders">
 <meta name="theme-color" content="#ffffff">
-<title>Palia Image Studio — By Hafsa Traders</title>
+<title>Palia Image Studio — Image Enhancer</title>
 <link rel="icon" href="./assets/favicon.svg" type="image/svg+xml">
 <link rel="apple-touch-icon" href="./assets/palia-image-studio-icon.svg">
 <link rel="stylesheet" href="./style.css">
 </head>
-<body data-page="remove">
+<body data-page="enhance">
 <header class="topbar">
   <div class="brand">
     <div class="brand-icon"><img src="./assets/palia-image-studio-icon.svg" alt="Palia Image Studio icon"></div>
@@ -31,11 +31,11 @@
   <section class="landing" id="editor">
     <div class="landing-intro">
       <div class="landing-brand"><img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon"> Palia Image Studio</div>
-      <h1 id="landingTitle">Remove Image<br>Background</h1>
-      <p id="landingDescription" data-home-desc>Remove backgrounds automatically with fast AI.</p>
-      <div class="mode-cards single-tool-card"><button class="mode-card active" data-mode="remove" id="modeCardRemove" type="button">
-          <div class="mode-card-image"><img src="./assets/background-remover.png" alt="Background Remover preview"></div>
-          <div class="mode-card-copy"><span class="mode-icon">✂</span><span><b>Background Remover</b><small>AI cutout • Transparent PNG</small></span></div>
+      <h1 id="landingTitle">Enhance Your<br>Image</h1>
+      <p id="landingDescription" data-home-desc>Improve image quality with fast 2× and 4× enhancement.</p>
+      <div class="mode-cards single-tool-card"><button class="mode-card active" data-mode="enhance" id="modeCardEnhance" type="button">
+          <div class="mode-card-image"><img src="./assets/image-enhancer.png" alt="Image Enhancer preview"></div>
+          <div class="mode-card-copy"><span class="mode-icon">✦</span><span><b>Image Enhancer</b><small>2× / 4× quality enhancement</small></span></div>
         </button></div>
     </div>
     <div class="upload-card" id="dropZone">
@@ -44,7 +44,7 @@
       <div class="drop-copy">or drop a file</div>
       <div class="drop-sub">JPG, PNG or WEBP</div>
       <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-      <div class="upload-status" id="uploadStatus">Fast automatic background removal</div>
+      <div class="upload-status" id="uploadStatus">Fast image enhancement</div>
     </div>
   </section>
 
