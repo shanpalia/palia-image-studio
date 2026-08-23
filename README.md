@@ -68,3 +68,13 @@ The browser AI remover uses the documented IMG.LY model-data host:
 `https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/`
 
 The app uses CPU execution for broader browser compatibility on GitHub Pages. The first removal can take a while because model/WASM assets are downloaded and cached by the browser. IMG.LY documents `publicPath`, model choices, output format, and first-run model loading in its package documentation.
+
+
+## Fast AI mode
+
+Background removal now uses IMG.LY's `isnet_quint8` small quantized model (about 40 MB) instead of the medium model (about 80 MB), downsizes AI input to a maximum 1280px side, and tries WebGPU first with CPU fallback. The package documentation lists `isnet_quint8` as the small model and notes that first-run downloads are cached. This reduces download and inference time, but browser hardware and network speed still affect actual timing.
+
+
+## Recent image behavior
+
+Recent tiles now open the **latest processed image**. A tile cannot be opened while AI background removal is running, so the original upload is never reopened and processed again by mistake. The center preview uses a tight, responsive canvas so the image fits without an artificial fixed-height empty area.

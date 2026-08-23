@@ -115,10 +115,13 @@ function renderRecent(){
     card.type="button";
     card.className="recent-card"+(item.id===activeRecentId?" active":"");
     card.title="Open "+item.name;
-    card.innerHTML=`<div class="recent-thumb"><img alt=""><span class="recent-processing ${item.processing?"show":""}">Processing…</span></div><div class="recent-name"></div><div class="recent-meta">${item.processing?"AI background removal":"Click to edit"}</div>`;
+    card.innerHTML=`<div class="recent-thumb"><img alt=""><span class="recent-processing ${item.processing?"show":""}">Processing…</span></div><div class="recent-name"></div><div class="recent-meta">${item.processing?"AI background removal":"Processed • Click to edit"}</div>`;
     card.querySelector("img").src=item.currentSrc; card.querySelector("img").style.objectFit="contain"; card.querySelector("img").style.objectPosition="center";
     card.querySelector(".recent-name").textContent=item.name;
-    card.addEventListener("click",()=>openRecent(item.id));
+    card.addEventListener("click",()=>{
+      if(item.processing){ statusEl.textContent="Please wait for background removal to finish"; return; }
+      openRecent(item.id);
+    });
     strip.appendChild(card);
   });
 }
@@ -130,6 +133,8 @@ function openRecent(id){
   const im=new Image();
   im.onload=()=>{
     current=im;
+    bg=item.bg || "transparent";
+    viewMode="fit"; zoom=1;
     const orig=new Image();
     orig.onload=()=>{
       original=orig;
@@ -193,7 +198,7 @@ if(!validType && !validName){
         const center=$("#canvasWrap");
         if(center) center.scrollIntoView({behavior:"smooth",block:"center"});
       }));
-      showProcessing("Removing background…","AI is making the background transparent");
+      showProcessing("Removing background…","Fast AI mode • first use downloads a small model");
       addRecentItem(file,im);
       try{
         await removeBackground();
@@ -281,6 +286,8 @@ async function removeBackground(){
       $("#beforeBtn").classList.remove("selected");
       hideProcessing();
       statusEl.textContent="Background removed";
+      const active=recentItems.find(x=>x.id===activeRecentId);
+      if(active) active.processing=false;
       render();
       if(typeof saveActiveToRecent==="function") saveActiveToRecent();
     };
@@ -290,6 +297,9 @@ async function removeBackground(){
     console.error(err);
     hideProcessing();
     statusEl.textContent="Background removal failed";
+    const active=recentItems.find(x=>x.id===activeRecentId);
+    if(active) active.processing=false;
+    renderRecent();
     alert("AI background removal could not be completed. Please try again or use a smaller image.");
     throw err;
   }
@@ -303,7 +313,7 @@ async function removeBackgroundAI(im, progress){
   // Convert the HTMLImageElement to a real PNG Blob before passing it
   // to the neural-network library. This avoids input-type incompatibilities.
   const sourceCanvas=document.createElement("canvas");
-  const maxSide=1800;
+  const maxSide=1280;
   const ratio=Math.min(1,maxSide/Math.max(im.naturalWidth,im.naturalHeight));
   sourceCanvas.width=Math.max(1,Math.round(im.naturalWidth*ratio));
   sourceCanvas.height=Math.max(1,Math.round(im.naturalHeight*ratio));
@@ -317,16 +327,23 @@ async function removeBackgroundAI(im, progress){
     },"image/png");
   });
 
-  const blob=await imglyRemoveBackground(inputBlob,{
+  const baseConfig={
     publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
-    model:"isnet_fp16",
-    device:"cpu",
-    output:{format:"image/png",quality:0.95,type:"foreground"},
-    debug:true,
+    model:"isnet_quint8",
+    output:{format:"image/png",quality:0.9,type:"foreground"},
+    debug:false,
     progress:(key,current,total)=>{
       if(progress) progress(current,total);
     }
-  });
+  };
+  let blob;
+  try{
+    // WebGPU can be much faster on supported browsers/devices.
+    blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"gpu"});
+  }catch(gpuError){
+    console.warn("GPU background removal unavailable, using CPU fallback.",gpuError);
+    blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"cpu"});
+  }
 
   if(!(blob instanceof Blob) || blob.size===0){
     throw new Error("AI model returned an empty image.");

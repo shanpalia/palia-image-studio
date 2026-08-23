@@ -110,3 +110,37 @@ footer{display:none}
 .recent-processing{display:none;position:absolute;left:6px;right:6px;bottom:6px;background:rgba(255,255,255,.94);border-radius:7px;padding:5px;text-align:center;font-size:9px;color:#16836a;font-weight:700}
 .recent-processing.show{display:block}
 #canvasWrap{scroll-margin-top:85px}
+
+/* Tight image canvas: no artificial empty space around the uploaded/processed image. */
+.canvas-wrap{
+  min-height:0!important;
+  height:auto!important;
+  padding:22px!important;
+  display:flex!important;
+  align-items:center!important;
+  justify-content:center!important;
+  overflow:auto!important;
+}
+.canvas-wrap canvas{
+  display:block!important;
+  width:auto!important;
+  height:auto!important;
+  max-width:min(100%,1100px)!important;
+  max-height:calc(100vh - 245px)!important;
+  margin:0 auto!important;
+  object-fit:contain!important;
+}
+@media(max-width:900px){
+  .canvas-wrap{padding:14px!important}
+  .canvas-wrap canvas{max-height:60vh!important}
+}
+/* Recent thumbnails always fit the whole image inside the tile. */
+.recent-thumb img{
+  width:100%!important;
+  height:100%!important;
+  max-width:100%!important;
+  max-height:100%!important;
+  object-fit:contain!important;
+  object-position:center!important;
+}
+.recent-card.processing{cursor:wait}
