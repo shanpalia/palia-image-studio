@@ -1,4 +1,5 @@
-import imglyRemoveBackground from "https://esm.sh/@imgly/background-removal@1.7.0";
+import * as Imgly from "https://esm.sh/@imgly/background-removal@1.7.0?target=es2022";
+const imglyRemoveBackground = Imgly.default || Imgly.removeBackground;
 const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
@@ -140,10 +141,8 @@ async function removeBackground(){
 async function removeBackgroundAI(im, progress){
   // @imgly/background-removal runs the neural network in the browser.
   // The model/WASM assets are fetched from IMG.LY and cached by the browser.
+  if (typeof imglyRemoveBackground !== "function") throw new Error("IMG.LY background removal module failed to load.");
   const blob = await imglyRemoveBackground(im, {
-    model: "isnet_fp16",
-    device: "gpu",
-    output: { format: "image/png", type: "foreground" },
     progress: (key,current,total)=>{
       if(progress) progress(current,total);
     }
