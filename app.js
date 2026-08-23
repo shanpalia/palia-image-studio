@@ -9,12 +9,65 @@ let original=null, current=null, zoom=1, rotation=0, bg="transparent", format="p
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
-["dragenter","dragover"].forEach(x=>dropZone.addEventListener(x,e=>{e.preventDefault();dropZone.classList.add("drag")}));
-["dragleave","drop"].forEach(x=>dropZone.addEventListener(x,e=>{e.preventDefault();dropZone.classList.remove("drag")}));
-dropZone.addEventListener("drop",e=>e.dataTransfer.files[0]&&loadFile(e.dataTransfer.files[0]));
+// Robust drag & drop support for desktop browsers and GitHub Pages.
+let dragDepth = 0;
+
+function hasFiles(e){
+  return e.dataTransfer && e.dataTransfer.types &&
+    Array.from(e.dataTransfer.types).includes("Files");
+}
+
+document.addEventListener("dragenter", e => {
+  if(!hasFiles(e)) return;
+  e.preventDefault();
+  dragDepth++;
+  dropZone.classList.add("drag");
+});
+
+document.addEventListener("dragover", e => {
+  if(!hasFiles(e)) return;
+  e.preventDefault();
+  e.dataTransfer.dropEffect = "copy";
+  dropZone.classList.add("drag");
+});
+
+document.addEventListener("dragleave", e => {
+  if(!hasFiles(e)) return;
+  e.preventDefault();
+  dragDepth = Math.max(0, dragDepth - 1);
+  if(dragDepth === 0) dropZone.classList.remove("drag");
+});
+
+document.addEventListener("drop", e => {
+  if(!hasFiles(e)) return;
+  e.preventDefault();
+  dragDepth = 0;
+  dropZone.classList.remove("drag");
+
+  const files = e.dataTransfer.files;
+  if(files && files.length){
+    loadFile(files[0]);
+  }
+});
+
+// Also support dropping directly on the upload card.
+dropZone.addEventListener("drop", e => {
+  e.preventDefault();
+  e.stopPropagation();
+  dragDepth = 0;
+  dropZone.classList.remove("drag");
+  if(e.dataTransfer.files && e.dataTransfer.files.length){
+    loadFile(e.dataTransfer.files[0]);
+  }
+});
 
 function loadFile(file){
-  if(!/^image\/(jpeg|png|webp)$/.test(file.type)){alert("Please choose a JPG, PNG or WEBP image.");return}
+  const validType = /^image\/(jpeg|png|webp)$/i.test(file.type);
+const validName = /\.(jpe?g|png|webp)$/i.test(file.name || "");
+if(!validType && !validName){
+  alert("Please choose a JPG, PNG or WEBP image.");
+  return;
+}
   const r=new FileReader();
   r.onload=()=>{const im=new Image();im.onload=()=>{original=im;current=im;rotation=0;zoom=1;workspace.classList.remove("hidden");render();statusEl.textContent="Image loaded";workspace.scrollIntoView({behavior:"smooth"})};im.src=r.result};
   r.readAsDataURL(file);
