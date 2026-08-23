@@ -603,20 +603,43 @@ workspace.classList.add("hidden");
 
 
 
+
+function applyHomeMode(mode){
+  document.querySelectorAll(".header-mode-btn").forEach(btn=>{
+    const active=btn.dataset.mode===mode;
+    btn.classList.toggle("active",active);
+    btn.setAttribute("aria-selected",active?"true":"false");
+  });
+  document.querySelectorAll(".mode-card").forEach(card=>{
+    const active=card.dataset.mode===mode;
+    card.classList.toggle("active",active);
+    card.setAttribute("aria-hidden",active?"false":"true");
+  });
+
+  const title=document.querySelector("[data-home-title]");
+  const desc=document.querySelector("[data-home-desc]");
+  const status=document.querySelector("[data-upload-status]");
+  const upload=document.querySelector(".upload-card");
+  if(mode==="enhance"){
+    if(title) title.textContent="Enhance Your Image";
+    if(desc) desc.textContent="Improve image quality with fast 2× and 4× enhancement.";
+    if(status) status.textContent="Fast image enhancement";
+    if(upload) upload.dataset.mode="enhance";
+  }else{
+    if(title) title.textContent="Remove Image Background";
+    if(desc) desc.textContent="Remove backgrounds automatically with fast AI.";
+    if(status) status.textContent="Fast automatic background removal";
+    if(upload) upload.dataset.mode="remove";
+  }
+}
 document.querySelectorAll(".header-mode-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>{
-    const mode=btn.dataset.mode;
-    document.querySelectorAll(".mode-card").forEach(c=>{
-      const active=c.dataset.mode===mode;
-      c.classList.toggle("active",active);
-      c.setAttribute("aria-selected",active?"true":"false");
-    });
-    document.querySelectorAll(".header-mode-btn").forEach(b=>{
-      const active=b.dataset.mode===mode;
-      b.classList.toggle("active",active);
-      b.setAttribute("aria-selected",active?"true":"false");
-    });
-    const card=document.querySelector(`.mode-card[data-mode="${mode}"]`);
-    if(card) card.click();
+  btn.addEventListener("click",()=>applyHomeMode(btn.dataset.mode));
+});
+applyHomeMode("remove");
+
+document.querySelectorAll(".mode-card").forEach(card=>{
+  card.addEventListener("click",()=>{
+    const mode=card.dataset.mode;
+    if(mode) applyHomeMode(mode);
   });
 });

@@ -126,3 +126,8 @@ Added two prominent Background Remover / Image Enhancer buttons in the marked to
 ## Final home/header update
 
 The two Background Remover and Image Enhancer controls are now placed in the marked center area of the top header. A custom Palia Image Studio SVG logo is used in the header and as the browser favicon/apple-touch icon. The two home tool preview images are enlarged and kept as cover-style cards. The header title and navigation use stronger, more polished typography.
+
+
+## Separate tool selection
+
+The home page now shows only the selected tool's visual card. Background Remover is selected by default. Clicking Image Enhancer hides the Background Remover card and shows only the Enhancer card; clicking Background Remover does the reverse. The heading, description, upload status, and selected header button update with the same click event.

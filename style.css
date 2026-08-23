@@ -271,3 +271,6 @@ nav a, nav button{
 }
 
 .mode-cards{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px;margin-top:24px;max-width:700px}.mode-card{border:1px solid #e3e9e7;background:#fff;border-radius:16px;padding:9px;text-align:left;cursor:pointer;transition:.18s;box-shadow:0 3px 15px rgba(20,40,35,.04);overflow:hidden}.mode-card:hover{border-color:#a8d8ca;transform:translateY(-2px)}.mode-card.active{border:2px solid #159b78;padding:8px;background:#f7fffc;box-shadow:0 7px 22px rgba(21,155,120,.12)}.mode-card-image{height:220px;border-radius:11px;overflow:hidden;background:#f3f6f5}.mode-card-image img{width:100%;height:100%;display:block;object-fit:cover;object-position:center}.mode-card-copy{display:flex;gap:9px;align-items:center;padding:10px 4px 5px}.mode-icon{width:32px;height:32px;border-radius:9px;background:#e7f7f1;color:#138b6b;display:grid;place-items:center;font-size:15px;flex:0 0 32px}.mode-card b{display:block;font-size:13px;color:#27332f;font-weight:900}.mode-card small{display:block;font-size:9px;color:#7d8884;margin-top:3px}.header-mode-btn{font-weight:900}.brand-title{font-weight:950!important}@media(max-width:900px){.mode-cards{grid-template-columns:1fr}.mode-card-image{height:180px}}
+
+.mode-card{display:none!important}
+.mode-card.active{display:block!important}
