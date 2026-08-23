@@ -131,3 +131,8 @@ The two Background Remover and Image Enhancer controls are now placed in the mar
 ## Separate tool selection
 
 The home page now shows only the selected tool's visual card. Background Remover is selected by default. Clicking Image Enhancer hides the Background Remover card and shows only the Enhancer card; clicking Background Remover does the reverse. The heading, description, upload status, and selected header button update with the same click event.
+
+
+## Wide selected image
+
+Only the selected tool remains visible, but its preview now expands to the full visual/card width (up to 620px), matching the larger width the two previews previously occupied together.
