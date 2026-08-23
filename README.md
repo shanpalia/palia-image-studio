@@ -167,3 +167,8 @@ The selected tool preview now uses `object-fit: contain`, so the complete suppli
 ## GitHub Pages root
 
 `index.html` is now the Home/tool picker, so opening `https://shanpalia.github.io/palia-image-studio/` shows both tool choices. The dedicated pages are `background-remover.html` and `enhance.html`.
+
+
+## Canonical homepage
+
+`index.html` is the only homepage. The old duplicate `home.html` file was removed. The homepage contains one Background Remover option and one Image Enhancer option; the Background Remover option opens `background-remover.html`.
