@@ -176,7 +176,30 @@ if(!validType && !validName){
   return;
 }
   const r=new FileReader();
-  r.onload=()=>{const im=new Image();im.onload=()=>{original=im;current=im;rotation=0;zoom=1;bg="transparent";viewMode="fit";adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};syncAdjustmentUI();workspace.classList.remove("hidden");addRecentItem(file,im);render();statusEl.textContent="Image loaded";workspace.scrollIntoView({behavior:"smooth"})};im.src=r.result};
+  r.onload=async()=>{
+    const im=new Image();
+    im.onload=async()=>{
+      original=im; current=im; rotation=0; zoom=1; bg="transparent"; viewMode="fit";
+      adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
+      syncAdjustmentUI();
+      // Show a clean processing state first; the editor appears after AI removal.
+      workspace.classList.remove("hidden");
+      showProcessing("Removing background…","AI is making the background transparent");
+      addRecentItem(file,im);
+      render();
+      statusEl.textContent="Preparing image…";
+      try{
+        await removeBackground();
+        workspace.scrollIntoView({behavior:"smooth",block:"start"});
+      }catch(err){
+        console.error(err);
+        hideProcessing();
+        statusEl.textContent="Could not remove background";
+      }
+    };
+    im.onerror=()=>alert("The selected image could not be opened.");
+    im.src=r.result;
+  };
   r.readAsDataURL(file);
 }
 
@@ -251,8 +274,9 @@ async function removeBackground(){
       $("#afterBtn").classList.add("selected");
       $("#beforeBtn").classList.remove("selected");
       hideProcessing();
-      statusEl.textContent="AI background removed";
+      statusEl.textContent="Background removed";
       render();
+      if(typeof saveActiveToRecent==="function") saveActiveToRecent();
     };
     out.onerror=()=>{ throw new Error("The AI result could not be loaded."); };
     out.src=url;
@@ -261,6 +285,7 @@ async function removeBackground(){
     hideProcessing();
     statusEl.textContent="Background removal failed";
     alert("AI background removal could not be completed. Please try again or use a smaller image.");
+    throw err;
   }
 }
 
@@ -287,6 +312,8 @@ async function removeBackgroundAI(im, progress){
   });
 
   const blob=await imglyRemoveBackground(inputBlob,{
+    publicPath:"https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+    model:"isnet_fp16",
     progress:(key,current,total)=>{
       if(progress) progress(current,total);
     }

@@ -99,3 +99,7 @@ nav{gap:24px}nav a,nav button{font-size:12px}
 footer{display:none}
 @media(max-width:1150px){.editor-grid{grid-template-columns:250px minmax(360px,1fr) 250px}.recent-strip{grid-template-columns:170px repeat(4,170px)}}
 @media(max-width:900px){.workspace{padding:12px}.editor-grid{grid-template-columns:1fr}.canvas-wrap{height:480px;min-height:480px}.recent-section{padding:8px 12px 35px}.recent-strip{grid-template-columns:160px repeat(5,160px)}.recent-actions input{width:160px}}
+
+.processing{z-index:20;backdrop-filter:blur(3px)}
+.processing strong{font-size:15px;color:#18332b}
+.processing span{font-size:11px;color:#688079}

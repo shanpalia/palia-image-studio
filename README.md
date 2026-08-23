@@ -55,3 +55,8 @@ Recent image tiles are clickable and reopen each image for editing. The right pa
 
 ## Initial screen
 The upload screen is visible on first load. The full editor appears after an image is selected or dropped.
+
+
+## Upload flow
+
+When a new image is selected or dropped, the editor immediately starts AI background removal. The image is displayed on the transparent checkerboard canvas after the AI result is ready, and the processed version is saved to Recent Images. The AI model resources are explicitly pointed at the jsDelivr package path for static GitHub Pages deployment.
