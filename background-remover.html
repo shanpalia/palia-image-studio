@@ -33,37 +33,30 @@
 </header>
 
 <main>
-  <section class="landing remove-home" id="editor">
-  <div class="landing-intro">
-    <div class="landing-brand">
-      <img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon">
-      <span>Palia Image Studio</span>
-    </div>
-    <div class="remove-demo">
-      <div class="demo-photo-card">
-        <img src="./assets/background-remover.png" alt="Background removal preview">
+  <section class="landing remove-bg-landing" id="editor">
+    <div class="remove-left">
+      <div class="landing-brand"><img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon"> <span>Palia Image Studio</span></div>
+      <h1 id="landingTitle">Remove Image<br>Background</h1>
+      <p id="landingDescription">Remove backgrounds automatically with fast AI.</p>
+      <div class="remove-free"><span>100% Automatically and</span><b>Free</b></div>
+      <div class="remove-preview-wrap">
+        <img class="remove-preview" src="./assets/background-remover.png" alt="Background Remover preview">
       </div>
-      <div class="demo-checker"></div>
     </div>
-    <h1 id="landingTitle">Remove Image<br>Background</h1>
-    <p id="landingDescription">Remove backgrounds automatically with fast AI.</p>
-    <div class="remove-free"><span>100% Automatically</span><b>Free</b></div>
-  </div>
-
-  <div class="upload-column">
-    <div class="upload-card" id="dropZone">
-      <div class="upload-cloud">↑</div>
-      <button id="chooseBtn" class="upload-btn" type="button">Upload Image</button>
-      <div class="drop-copy">or drop a file</div>
-      <div class="drop-sub">JPG, PNG or WEBP</div>
-      <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-      <div class="upload-status" id="uploadStatus">Fast automatic background removal</div>
+    <div class="remove-upload-wrap">
+      <div class="upload-card" id="dropZone">
+        <div class="upload-cloud">↑</div>
+        <button id="chooseBtn" class="upload-btn" type="button">Upload Image</button>
+        <div class="drop-copy">or drop a file</div>
+        <div class="drop-sub">JPG, PNG or WEBP</div>
+        <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
+        <div class="upload-status" id="uploadStatus">Fast automatic background removal</div>
+      </div>
+      <div class="drop-hint">or drag &amp; drop an image here</div>
     </div>
-    <div class="landing-hint">Drop your image here or click Upload Image</div>
-  </div>
-</section>
+  </section>
 
-<section class="workspace hidden" id="workspace">
+  <section class="workspace hidden" id="workspace">
     <div class="editor-shell">
       <div class="editor-toolbar">
         <button class="editor-tab active" data-panel="cutout"><span>✣</span><span class="nav-icon">✂</span>Cutout</button>

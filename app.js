@@ -44,7 +44,7 @@ $("#modeEnhanceTop")?.addEventListener("click",()=>setLandingMode("enhance"));
 
 $("#modeCardRemove")?.addEventListener("click",()=>setLandingMode("remove"));
 $("#modeCardEnhance")?.addEventListener("click",()=>setLandingMode("enhance"));
-setLandingMode(document.body.dataset.page==="enhance" ? "enhance" : "remove");
+setLandingMode("remove");
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
@@ -373,6 +373,9 @@ async function removeBackground(){
       $("#beforeBtn").classList.remove("selected");
       hideProcessing();
       statusEl.textContent="Background removed";
+      // Background Remover opens directly on the Background tools after the cutout is ready.
+      const bgTab=document.querySelector('.editor-tab[data-panel="background"]');
+      if(bgTab) bgTab.click();
       const active=recentItems.find(x=>x.id===activeRecentId);
       if(active) active.processing=false;
       render();
@@ -633,9 +636,7 @@ function applyHomeMode(mode){
     if(upload) upload.dataset.mode="remove";
   }
 }
-document.querySelectorAll(".header-mode-btn").forEach(btn=>{
-  btn.addEventListener("click",()=>applyHomeMode(btn.dataset.mode));
-});
+// Dedicated pages use normal links. The current page decides the workflow.
 applyHomeMode(document.body.dataset.page==="enhance" ? "enhance" : "remove");
 
 document.querySelectorAll(".mode-card").forEach(card=>{
