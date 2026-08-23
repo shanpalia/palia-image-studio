@@ -320,6 +320,19 @@ function render(){
   canvas.style.maxWidth="calc(100vw - 390px)";
   canvas.style.maxHeight="calc(100vh - 190px)";
   canvas.style.transform=`scale(${zoom})`;
+
+  // Keep the selected background visible behind the cutout as well as in
+  // the exported canvas. This makes every background tile immediately
+  // visible, even when the PNG contains transparent pixels.
+  if(bg==="transparent"){
+    canvas.style.backgroundColor="transparent";
+    canvas.style.backgroundImage="linear-gradient(45deg,#e2e5e7 25%,transparent 25%),linear-gradient(-45deg,#e2e5e7 25%,transparent 25%),linear-gradient(45deg,transparent 75%,#e2e5e7 75%),linear-gradient(-45deg,transparent 75%,#e2e5e7 75%)";
+    canvas.style.backgroundSize="24px 24px";
+    canvas.style.backgroundPosition="0 0,0 12px,12px -12px,-12px 0";
+  }else{
+    canvas.style.backgroundImage="none";
+    canvas.style.backgroundColor=bg==="white" ? "#fff" : bg==="black" ? "#000" : bg;
+  }
   canvasWrap?.style.setProperty("--image-ratio", `${canvas.width}/${canvas.height}`);
 }
 
@@ -373,6 +386,7 @@ async function removeBackground(){
       $("#beforeBtn").classList.remove("selected");
       hideProcessing();
       statusEl.textContent="Background removed";
+      bg="transparent";
       // Background Remover opens directly on the Background tools after the cutout is ready.
       const bgTab=document.querySelector('.editor-tab[data-panel="background"]');
       if(bgTab) bgTab.click();

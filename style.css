@@ -567,3 +567,48 @@ body[data-page="enhance"] .editor-tab[data-panel="design"]{display:flex!importan
  .remove-left #landingTitle{font-size:46px!important}
  .remove-preview-wrap{height:200px}
 }
+
+/* After an image is dropped, switch completely to the editor — same
+   full-screen behavior as the Image Enhancer editor. */
+body.editor-mode > .topbar,
+body.editor-mode > header.topbar{
+  display:none!important;
+}
+body.editor-mode main{
+  padding-top:0!important;
+}
+body.editor-mode .workspace{
+  padding:0!important;
+  margin:0!important;
+  min-height:100vh!important;
+}
+body.editor-mode .editor-shell{
+  max-width:none!important;
+  width:100vw!important;
+  min-height:100vh!important;
+  border:0!important;
+  border-radius:0!important;
+  box-shadow:none!important;
+}
+body.editor-mode .editor-toolbar{
+  position:sticky!important;
+  top:0!important;
+  z-index:30!important;
+  border-radius:0!important;
+}
+body.editor-mode .editor-body{
+  min-height:calc(100vh - 58px)!important;
+}
+
+/* The selected background is the actual canvas background, so color tiles
+   fill the complete image area, not just the transparent pixels. */
+body[data-page="remove"] #canvas{
+  background-clip:padding-box!important;
+}
+
+/* Keep the remover editor focused: no landing remnants after drop. */
+body.editor-mode .remove-bg-landing,
+body.editor-mode .landing,
+body.editor-mode .landing-hint{
+  display:none!important;
+}

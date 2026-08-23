@@ -170,3 +170,8 @@ The dedicated Background Remover page is now a valid standalone HTML document. H
 `index.html` is now the Background Remover homepage by default. It opens directly to the remove.bg-inspired upload landing page; no tool-selection cards are shown before it. The top bar contains exactly two tool choices: Background Remover (active/default) and Image Enhancer. Clicking Image Enhancer opens `enhance.html`. `background-remover.html` is an identical alias of the homepage remover page.
 
 After an image is uploaded or dropped on the homepage, the landing view switches to the Background Remover editor. It does not open the enhancer workflow.
+
+
+## Final editor transition and backgrounds
+
+When an image is dropped on Background Remover, the complete landing/header UI is hidden and the full-screen editor opens, matching the Enhancer workflow. The selected Background color is applied directly to the canvas background so it is visible immediately and is also included in the downloaded PNG/JPG.
