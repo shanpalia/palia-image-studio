@@ -83,3 +83,8 @@ Recent tiles now open the **latest processed image**. A tile cannot be opened wh
 ## Remove.bg-inspired editor UI
 
 The interface now uses a clean upload landing screen and a compact editor with Cutout, Background, Effects, Adjust, Design, undo/redo, Download, centered checkerboard canvas, and bottom recent thumbnails. The design is an original implementation inspired by common background-removal editor workflows.
+
+
+## Upload flow
+
+Dropping/selecting an image on the first screen immediately switches to the editor and hides the landing/upload screen. The center canvas is the new drop target: a new JPG/PNG/WEBP can be dropped directly over the current image, replacing it and starting the same automatic processing flow. The canvas is sized from the actual image dimensions and only scales down when necessary to fit the available viewport, so there is no artificial fixed-height image area.

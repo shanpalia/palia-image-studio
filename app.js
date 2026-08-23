@@ -3,7 +3,7 @@ const $ = s => document.querySelector(s);
 const $$ = s => [...document.querySelectorAll(s)];
 
 const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZone");
-const workspace=$("#workspace"), canvas=$("#canvas"), ctx=canvas.getContext("2d");
+const workspace=$("#workspace"), canvas=$("#canvas"), ctx=canvas.getContext("2d"), canvasWrap=$("#canvasWrap");
 const statusEl=$("#status"), processing=$("#processing"), processingText=$("#processingText"), processingSub=$("#processingSub");
 let original=null, current=null, processed=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
 let recentItems=[], activeRecentId=null;
@@ -63,6 +63,36 @@ dropZone.addEventListener("drop", e => {
     loadFile(e.dataTransfer.files[0]);
   }
 });
+
+// Once the editor is open, the center canvas itself becomes the drop target.
+// Dropping a new image here replaces the current image and starts the same
+// automatic AI background-removal flow.
+if(canvasWrap){
+  canvasWrap.addEventListener("dragenter",e=>{
+    if(!hasFiles(e))return;
+    e.preventDefault();
+    canvasWrap.classList.add("drop-active");
+  });
+  canvasWrap.addEventListener("dragover",e=>{
+    if(!hasFiles(e))return;
+    e.preventDefault();
+    e.dataTransfer.dropEffect="copy";
+    canvasWrap.classList.add("drop-active");
+  });
+  canvasWrap.addEventListener("dragleave",e=>{
+    if(!hasFiles(e))return;
+    e.preventDefault();
+    canvasWrap.classList.remove("drop-active");
+  });
+  canvasWrap.addEventListener("drop",e=>{
+    if(!hasFiles(e))return;
+    e.preventDefault();
+    e.stopPropagation();
+    canvasWrap.classList.remove("drop-active");
+    const file=e.dataTransfer.files?.[0];
+    if(file) loadFile(file);
+  });
+}
 
 
 function makeId(){ return "img_"+Date.now()+"_"+Math.random().toString(36).slice(2,8); }
@@ -137,7 +167,7 @@ function openRecent(id){
       adjustments={...item.adjustments};
       bg=item.bg||"transparent"; rotation=item.rotation||0; scale=item.scale||2; zoom=1;
       syncAdjustmentUI(); syncBackgroundUI(); syncScaleUI();
-      workspace.classList.remove("hidden");
+      enterEditor();
       $("#afterBtn").click();
       renderRecent();
       render();
@@ -170,6 +200,12 @@ function syncScaleUI(){
   $$("[data-scale]").forEach(x=>x.classList.toggle("selected",+x.dataset.scale===scale));
 }
 
+function enterEditor(){
+  document.body.classList.add("editor-mode");
+  workspace.classList.remove("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+}
+
 function loadFile(file){
   const validType = /^image\/(jpeg|png|webp)$/i.test(file.type);
 const validName = /\.(jpe?g|png|webp)$/i.test(file.name || "");
@@ -185,8 +221,7 @@ if(!validType && !validName){
       adjustments={brightness:100,contrast:100,saturation:100,blur:0,grayscale:0};
       syncAdjustmentUI();
       // Show a clean processing state first; the editor appears after AI removal.
-      workspace.classList.remove("hidden");
-      workspace.scrollIntoView({behavior:"smooth",block:"start"});
+      enterEditor();
       // Show the uploaded image immediately in the center while AI processing starts.
       statusEl.textContent="Preparing image…";
       render();
@@ -225,12 +260,12 @@ function render(){
   ctx.translate(canvas.width/2,canvas.height/2);ctx.rotate(rotation*Math.PI/180);
   ctx.drawImage(current,-w/2,-h/2,w,h);ctx.restore();
   ctx.filter="none";
-  if(viewMode==="fit"){
-    canvas.style.width="auto"; canvas.style.height="auto"; canvas.style.maxWidth="100%"; canvas.style.maxHeight="500px";
-  }else{
-    canvas.style.width="100%"; canvas.style.height="500px"; canvas.style.maxWidth="none"; canvas.style.maxHeight="none";
-  }
+  canvas.style.width=`${canvas.width}px`;
+  canvas.style.height=`${canvas.height}px`;
+  canvas.style.maxWidth="calc(100vw - 390px)";
+  canvas.style.maxHeight="calc(100vh - 190px)";
   canvas.style.transform=`scale(${zoom})`;
+  canvasWrap?.style.setProperty("--image-ratio", `${canvas.width}/${canvas.height}`);
 }
 
 $$("[data-bg]").forEach(b=>b.addEventListener("click",()=>{
