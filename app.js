@@ -318,8 +318,11 @@ async function removeBackgroundAI(im, progress){
   });
 
   const blob=await imglyRemoveBackground(inputBlob,{
-    publicPath:"https://cdn.jsdelivr.net/npm/@imgly/background-removal@1.7.0/dist/",
+    publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
     model:"isnet_fp16",
+    device:"cpu",
+    output:{format:"image/png",quality:0.95,type:"foreground"},
+    debug:true,
     progress:(key,current,total)=>{
       if(progress) progress(current,total);
     }

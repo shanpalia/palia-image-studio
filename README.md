@@ -60,3 +60,11 @@ The upload screen is visible on first load. The full editor appears after an ima
 ## Upload flow
 
 When a new image is selected or dropped, the editor immediately starts AI background removal. The image is displayed on the transparent checkerboard canvas after the AI result is ready, and the processed version is saved to Recent Images. The AI model resources are explicitly pointed at the jsDelivr package path for static GitHub Pages deployment.
+
+
+## AI model loading
+
+The browser AI remover uses the documented IMG.LY model-data host:
+`https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/`
+
+The app uses CPU execution for broader browser compatibility on GitHub Pages. The first removal can take a while because model/WASM assets are downloaded and cached by the browser. IMG.LY documents `publicPath`, model choices, output format, and first-run model loading in its package documentation.
