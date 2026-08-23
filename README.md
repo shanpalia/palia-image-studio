@@ -51,3 +51,7 @@ The AI remover receives a real PNG `Blob` generated from the uploaded image. Thi
 ## Editor additions
 
 Recent image tiles are clickable and reopen each image for editing. The right panel includes brightness, contrast, saturation, blur, and grayscale adjustments. Changes are stored in the current recent-image item until cleared.
+
+
+## Initial screen
+The upload screen is visible on first load. The full editor appears after an image is selected or dropped.

@@ -372,7 +372,13 @@ $("#fillBtn").addEventListener("click",()=>{
 });
 $("#newImageCard").addEventListener("click",()=>fileInput.click());
 
-$("#resetBtn").addEventListener("click",()=>{workspace.classList.add("hidden");fileInput.value="";original=null;current=null});
+$("#resetBtn").addEventListener("click",()=>{
+  workspace.classList.add("hidden");
+  fileInput.value="";
+  original=null; current=null; activeRecentId=null;
+  $("#recentSection").classList.add("hidden");
+  window.scrollTo({top:0,behavior:"smooth"});
+});
 $("#aboutBtn").addEventListener("click",()=>alert("Palia Image Studio\nBy Hafsa Traders\n\nA browser-based image editing studio."));
 
 
@@ -381,3 +387,7 @@ window.addEventListener("error", e => {
 });
 
 // Keep all recent thumbnails fitted inside their tiles.
+
+// Initial state: show the upload screen and keep the editor/recent area hidden.
+workspace.classList.add("hidden");
+if($("#recentSection")) $("#recentSection").classList.add("hidden");

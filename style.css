@@ -47,7 +47,14 @@ body{background:#f8fbfa;color:var(--text)}
 .brand-icon{width:40px;height:40px;border-radius:11px;background:#dff5ee;color:#13866a}
 .brand-title{font-size:18px}.brand-subtitle{font-size:10px}
 nav{gap:24px}nav a,nav button{font-size:12px}
-.hero{display:none}
+.hero{display:grid;max-width:1180px;margin:auto;padding:64px 24px 70px;grid-template-columns:1fr 1fr;gap:55px;align-items:center}
+.hero-copy{display:block}.hero-copy h1{font-size:clamp(38px,5vw,60px);line-height:1.02;letter-spacing:-.045em;margin:16px 0}.hero-copy h1 span{color:#159b78}.hero-copy p{max-width:500px;color:#71807b;line-height:1.7}
+.upload-card{min-height:390px;border:1.5px dashed #a9cec2;border-radius:22px;background:#fff;display:flex;flex-direction:column;align-items:center;justify-content:center;text-align:center;padding:30px;transition:.2s;box-shadow:0 8px 25px rgba(20,50,42,.04)}
+.upload-card.drag{border-color:#159b78;background:#f0fbf7;box-shadow:0 0 0 4px rgba(21,155,120,.08)}
+.upload-icon{width:68px;height:68px;border-radius:20px;background:#e5f7f1;color:#159b78;display:grid;place-items:center;font-size:30px;font-weight:700;margin-bottom:14px}
+.upload-card h2{margin:0 0 8px;font-size:22px}.upload-card p{color:#778782;margin:0 0 22px}
+.hint{font-size:11px;color:#99a7a3;margin-top:14px}
+@media(max-width:900px){.hero{grid-template-columns:1fr;gap:28px;padding:45px 18px 55px}}
 .workspace{max-width:1500px;padding:16px 26px 25px}
 .workspace-head{display:none}
 .editor-grid{grid-template-columns:300px minmax(420px,1fr) 300px;gap:14px;align-items:stretch}
