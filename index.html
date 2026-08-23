@@ -17,15 +17,15 @@
 .home-sub{font-size:16px;color:#747d7a;max-width:650px}
 .home-tools{display:grid;grid-template-columns:1fr 1fr;gap:22px;margin-top:40px}
 .home-tool{display:block;text-decoration:none;color:inherit;background:#fff;border:1px solid #e1e8e5;border-radius:22px;overflow:hidden;box-shadow:0 12px 40px rgba(20,40,35,.08);transition:.2s}
-.home-tool:hover{transform:translateY(-4px);border-color:#9ed5c6;box-shadow:0 18px 48px rgba(20,40,35,.12)}
+.home-tool:hover{transform:translateY(-4px);border-color:#9ed5c6}
 .home-tool img{display:block;width:100%;height:300px;object-fit:contain;background:#f5f8f7}
 .home-tool-body{padding:20px}
 .home-tool-title{font-size:19px;font-weight:950}
 .home-tool-desc{font-size:11px;color:#7b8581;margin-top:5px}
 .home-tool-cta{display:inline-flex;margin-top:15px;padding:10px 15px;border-radius:10px;background:#eaf8f3;color:#11765e;font-size:11px;font-weight:900}
-.home-nav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.9);backdrop-filter:blur(12px);border-bottom:1px solid #ecefed}
+.home-nav{position:sticky;top:0;z-index:5;background:rgba(255,255,255,.94);backdrop-filter:blur(12px);border-bottom:1px solid #ecefed}
 .home-nav-inner{max-width:1120px;margin:auto;height:62px;padding:0 30px;display:flex;align-items:center;justify-content:space-between}
-.home-nav-brand{display:flex;align-items:center;gap:9px;font-weight:950}
+.home-nav-brand{display:flex;align-items:center;gap:9px;font-weight:950;color:#202426;text-decoration:none}
 .home-nav-brand img{width:36px;height:36px}
 .home-nav-links{display:flex;gap:18px}
 .home-nav-links a{font-size:11px;font-weight:800;color:#5e6864;text-decoration:none}
@@ -36,21 +36,32 @@
 <header class="home-nav">
   <div class="home-nav-inner">
     <a class="home-nav-brand" href="./index.html"><img src="./assets/palia-image-studio-icon.svg" alt="">Palia Image Studio</a>
-    <div class="home-nav-links"><a href="./background-remover.html">Background Remover</a><a href="./enhance.html">Image Enhancer</a></div>
+    <div class="home-nav-links">
+      <a href="./background-remover.html">Background Remover</a>
+      <a href="./enhance.html">Image Enhancer</a>
+    </div>
   </div>
 </header>
 <main class="home-wrap">
-  <div class="home-brand"><img src="./assets/palia-image-studio-icon.svg" alt=""> By Hafsa Traders</div>
+  <div class="home-brand"><img src="./assets/palia-image-studio-icon.svg" alt="">By Hafsa Traders</div>
   <h1 class="home-title">Choose your image tool.</h1>
   <p class="home-sub">One studio, two focused workflows. Pick a tool first, then drop your image into a dedicated editor.</p>
   <section class="home-tools">
     <a class="home-tool" href="./background-remover.html">
       <img src="./assets/background-remover.png" alt="Background Remover">
-      <div class="home-tool-body"><div class="home-tool-title">✂ Background Remover</div><div class="home-tool-desc">Fast AI cutout with transparent and color background tools.</div><span class="home-tool-cta">Open Background Remover →</span></div>
+      <div class="home-tool-body">
+        <div class="home-tool-title">✂ Background Remover</div>
+        <div class="home-tool-desc">Fast AI cutout with transparent and color background tools.</div>
+        <span class="home-tool-cta">Open Background Remover →</span>
+      </div>
     </a>
     <a class="home-tool" href="./enhance.html">
       <img src="./assets/image-enhancer.png" alt="Image Enhancer">
-      <div class="home-tool-body"><div class="home-tool-title">✦ Image Enhancer</div><div class="home-tool-desc">CapCut-style editing with 2×/4× enhancement, adjustments and effects.</div><span class="home-tool-cta">Open Image Enhancer →</span></div>
+      <div class="home-tool-body">
+        <div class="home-tool-title">✦ Image Enhancer</div>
+        <div class="home-tool-desc">CapCut-style editing with 2×/4× enhancement, adjustments and effects.</div>
+        <span class="home-tool-cta">Open Image Enhancer →</span>
+      </div>
     </a>
   </section>
 </main>

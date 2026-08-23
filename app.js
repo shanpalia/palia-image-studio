@@ -44,7 +44,7 @@ $("#modeEnhanceTop")?.addEventListener("click",()=>setLandingMode("enhance"));
 
 $("#modeCardRemove")?.addEventListener("click",()=>setLandingMode("remove"));
 $("#modeCardEnhance")?.addEventListener("click",()=>setLandingMode("enhance"));
-setLandingMode(landingMode);
+setLandingMode("remove");
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
 fileInput.addEventListener("change",e=>e.target.files[0]&&loadFile(e.target.files[0]));
@@ -250,13 +250,6 @@ function enterEditor(){
   window.scrollTo({top:0,behavior:"smooth"});
 }
 
-
-function selectEnhancerDefaultPanel(){
-  if(document.body.dataset.page!=="enhance") return;
-  const tab=document.querySelector('.editor-tab[data-panel="design"]');
-  if(tab) tab.click();
-}
-
 function loadFile(file){
   landingMode=document.body.dataset.page==="enhance" ? "enhance" : "remove";
   const validType = /^image\/(jpeg|png|webp)$/i.test(file.type);
@@ -274,7 +267,6 @@ if(!validType && !validName){
       syncAdjustmentUI();
       // Show a clean processing state first; the editor appears after AI removal.
       enterEditor();
-      selectEnhancerDefaultPanel();
       // Show the uploaded image immediately in the center while AI processing starts.
       statusEl.textContent="Preparing image…";
       render();
