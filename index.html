@@ -32,7 +32,18 @@
     <div class="landing-intro">
       <div class="landing-brand"><img src="./assets/palia-image-studio-icon.svg" alt="" class="landing-studio-icon"> Palia Image Studio</div>
       <h1 id="landingTitle">Remove Image<br>Background</h1>
-      <p id="landingDescription">Remove backgrounds automatically with fast AI.</p></div>
+      <p id="landingDescription">Remove backgrounds automatically with fast AI.</p>
+      <div class="mode-cards" aria-label="Choose a tool">
+        <button class="mode-card active" data-mode="remove" id="modeCardRemove" type="button">
+          <div class="mode-card-image"><img src="./assets/background-remover.png" alt="Background Remover preview"></div>
+          <div class="mode-card-copy"><span class="mode-icon">✂</span><span><b>Background Remover</b><small>AI cutout • Transparent PNG</small></span></div>
+        </button>
+        <button class="mode-card" data-mode="enhance" id="modeCardEnhance" type="button">
+          <div class="mode-card-image"><img src="./assets/image-enhancer.png" alt="Image Enhancer preview"></div>
+          <div class="mode-card-copy"><span class="mode-icon">✦</span><span><b>Image Enhancer</b><small>2× / 4× quality enhancement</small></span></div>
+        </button>
+      </div>
+    </div>
     <div class="upload-card" id="dropZone">
       <div class="upload-cloud">↑</div>
       <button id="chooseBtn" class="upload-btn">Upload Image</button>

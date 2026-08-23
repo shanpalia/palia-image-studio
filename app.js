@@ -17,11 +17,17 @@ let landingMode="remove";
 
 function setLandingMode(mode){
   landingMode=mode;
-  const removeBtn=$("#modeRemove"), enhanceBtn=$("#modeEnhance");
+  const removeBtn=$("#modeRemoveTop"), enhanceBtn=$("#modeEnhanceTop");
   removeBtn?.classList.toggle("active",mode==="remove");
   enhanceBtn?.classList.toggle("active",mode==="enhance");
   removeBtn?.setAttribute("aria-selected",String(mode==="remove"));
   enhanceBtn?.setAttribute("aria-selected",String(mode==="enhance"));
+  $$(".mode-card").forEach(card=>card.classList.toggle("active",card.dataset.mode===mode));
+  $$(".header-mode-btn").forEach(btn=>{
+    const active=btn.dataset.mode===mode;
+    btn.classList.toggle("active",active);
+    btn.setAttribute("aria-selected",String(active));
+  });
   const title=$("#landingTitle"), desc=$("#landingDescription"), status=$("#uploadStatus");
   if(mode==="enhance"){
     title.innerHTML="Enhance Your<br>Image";
@@ -33,8 +39,11 @@ function setLandingMode(mode){
     if(status) status.textContent="Fast automatic background removal";
   }
 }
-$("#modeRemove")?.addEventListener("click",()=>setLandingMode("remove"));
-$("#modeEnhance")?.addEventListener("click",()=>setLandingMode("enhance"));
+$("#modeRemoveTop")?.addEventListener("click",()=>setLandingMode("remove"));
+$("#modeEnhanceTop")?.addEventListener("click",()=>setLandingMode("enhance"));
+
+$("#modeCardRemove")?.addEventListener("click",()=>setLandingMode("remove"));
+$("#modeCardEnhance")?.addEventListener("click",()=>setLandingMode("enhance"));
 setLandingMode("remove");
 
 chooseBtn.addEventListener("click",()=>fileInput.click());
@@ -416,7 +425,7 @@ async function removeBackgroundAI(im, progress){
   let blob;
   try{
     // WebGPU can be much faster on supported browsers/devices.
-    blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"gpu"});
+    blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"cpu"});
   }catch(gpuError){
     console.warn("AI warm-up/model initialization will use CPU mode.",gpuError);
     blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"cpu"});
