@@ -16,13 +16,14 @@ async function warmupAI(){
       await imglyRemoveBackground(blob,{
         publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
         model:"isnet_quint8",
-        device:"gpu",
+        device:"cpu",
         output:{format:"image/png",quality:0.9,type:"foreground"},
+    env:{wasm:{numThreads:1}},
         debug:false
       });
       aiWarmupDone=true;
     }catch(e){
-      console.warn("AI warm-up skipped; upload will use normal loading.",e);
+      console.warn("AI warm-up skipped; upload will initialize the CPU model on demand.",e);
     }
   })();
   return aiWarmupPromise;
@@ -440,7 +441,9 @@ async function removeBackgroundAI(im, progress){
     publicPath:"https://staticimgly.com/@imgly/background-removal-data/1.7.0/dist/",
     model:"isnet_quint8",
     output:{format:"image/png",quality:0.9,type:"foreground"},
+    env:{wasm:{numThreads:1}},
     debug:false,
+        env:{wasm:{numThreads:1}},
     progress:(key,current,total)=>{
       if(progress) progress(current,total);
     }
@@ -450,7 +453,7 @@ async function removeBackgroundAI(im, progress){
     // WebGPU can be much faster on supported browsers/devices.
     blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"gpu"});
   }catch(gpuError){
-    console.warn("GPU background removal unavailable, using CPU fallback.",gpuError);
+    console.warn("AI warm-up/model initialization will use CPU mode.",gpuError);
     blob=await imglyRemoveBackground(inputBlob,{...baseConfig,device:"cpu"});
   }
 

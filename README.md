@@ -98,3 +98,8 @@ The small quantized `isnet_quint8` model is used with a maximum 1024px AI input.
 ## Final flow updates
 
 Zoom controls are now placed directly beside the Enhance controls. The Enhance flow preserves the pre-enhancement image and provides a Before/After comparison so the user can see the difference. First-page drag & drop is bound to the upload card, landing page, and document to prevent browser navigation and reliably load dropped image files.
+
+
+## GitHub Pages compatibility
+
+The browser AI remover is configured for CPU + single-thread WASM. WebGPU is intentionally not requested because ordinary GitHub Pages is not cross-origin isolated and many browsers/devices have no WebGPU adapter. This removes the `No available adapters` and `env.wasm.numThreads` warnings while keeping the background remover functional. The small quantized model and 1024px input remain enabled for speed.
