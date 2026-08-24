@@ -184,3 +184,12 @@ When an image is dropped on Background Remover, the complete landing/header UI i
 - PNG/JPG format buttons are present directly in the editor toolbar, including Background Remover, so JPG download is not hidden inside the Enhance panel.
 - Background panel expanded to Magic / Photo / Color groups with many presets and Custom.
 - Background colors and gradients are rendered into the canvas and therefore export to PNG/JPG.
+
+
+## Background Remover Only
+The Image Enhancer page and navigation were removed. `index.html` is now the Background Remover homepage.
+
+
+## Remove.bg-inspired theme
+
+The Background Remover now uses a clean remove.bg-inspired white/green visual language: large upload card, soft borders, green primary action, clean editor toolbar, and icon-backed tool tabs. The design is inspired by the workflow, not a pixel-for-pixel copy.
