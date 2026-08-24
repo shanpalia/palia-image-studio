@@ -2,47 +2,6 @@ import { removeBackground as imglyRemoveBackground } from "https://esm.sh/@imgly
 
 
 const $ = s => document.querySelector(s);
-
-async function fastHdEnhance(source, scale=2){
-  const sw=source.naturalWidth||source.width, sh=source.naturalHeight||source.height;
-  const MAX_PIXELS=1800000;
-  const k=(sw*sh>MAX_PIXELS)?Math.sqrt(MAX_PIXELS/(sw*sh)):1;
-  const w=Math.max(1,Math.round(sw*k)), h=Math.max(1,Math.round(sh*k));
-
-  const base=document.createElement("canvas");
-  base.width=w; base.height=h;
-  const ctx=base.getContext("2d",{willReadFrequently:true});
-  ctx.imageSmoothingEnabled=true;
-  ctx.imageSmoothingQuality="high";
-  ctx.filter="contrast(1.08) saturate(1.05) brightness(1.01)";
-  ctx.drawImage(source,0,0,w,h);
-  ctx.filter="none";
-
-  // Lightweight unsharp mask for a real, visible detail/clarity change.
-  const im=ctx.getImageData(0,0,w,h), srcData=new Uint8ClampedArray(im.data), d=im.data;
-  for(let y=1;y<h-1;y++){
-    for(let x=1;x<w-1;x++){
-      const p=(y*w+x)*4;
-      for(let c=0;c<3;c++){
-        const avg=(srcData[p-4+c]+srcData[p+4+c]+srcData[p-w*4+c]+srcData[p+w*4+c])/4;
-        d[p+c]=Math.max(0,Math.min(255,srcData[p+c]+(srcData[p+c]-avg)*0.24));
-      }
-    }
-    if((y&63)===0) await new Promise(requestAnimationFrame);
-  }
-  ctx.putImageData(im,0,0);
-
-  const maxSide=4096;
-  const s=Math.min(scale,maxSide/Math.max(w,h));
-  const outW=Math.max(1,Math.round(w*s)), outH=Math.max(1,Math.round(h*s));
-  const out=document.createElement("canvas");
-  out.width=outW; out.height=outH;
-  const ox=out.getContext("2d");
-  ox.imageSmoothingEnabled=true;
-  ox.imageSmoothingQuality="high";
-  ox.drawImage(base,0,0,outW,outH);
-  return out;
-}
 const $$ = s => [...document.querySelectorAll(s)];
 
 const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZone");
@@ -526,81 +485,107 @@ async function removeBackgroundAI(im, progress){
   return blob;
 }
 
-async function enhance(){
-  if(!current) return;
+/* Real AI enhancement — Real-ESRGAN, preserving the existing UI. */
+const ESRGAN_MODEL_URL="https://huggingface.co/Heliosoph/realesrgan-onnx/resolve/main/realesr-general-x4v3.onnx";
+let esrganSession=null, esrganLoading=null, enhancementBusy=false;
 
-  enhancementBaseline=current;
-  const source=current;
-  const factor=scale===4?4:2;
-  showBefore=false;
-  if($("#afterBtn")) $("#afterBtn").click();
+async function getEsrganSession(){
+  if(esrganSession) return esrganSession;
+  if(esrganLoading) return esrganLoading;
+  if(!window.ort) throw new Error("AI engine did not load");
+  try{ ort.env.wasm.numThreads=1; ort.env.wasm.proxy=true; }catch(e){}
+  esrganLoading=(async()=>{
+    try{
+      esrganSession=await ort.InferenceSession.create(ESRGAN_MODEL_URL,{executionProviders:["webgpu","wasm"],graphOptimizationLevel:"all"});
+    }catch(e){
+      esrganSession=await ort.InferenceSession.create(ESRGAN_MODEL_URL,{executionProviders:["wasm"],graphOptimizationLevel:"all"});
+    }
+    return esrganSession;
+  })();
+  return esrganLoading;
+}
 
-  showProcessing(`Enhancing image ${factor}×…`,"Upscaling + detail sharpening");
-  await new Promise(r=>setTimeout(r,80));
+function canvasToTensor(c){
+  const d=c.getContext("2d",{willReadFrequently:true}).getImageData(0,0,c.width,c.height).data;
+  const n=c.width*c.height, a=new Float32Array(n*3);
+  for(let i=0;i<n;i++){a[i]=d[i*4]/255;a[n+i]=d[i*4+1]/255;a[n*2+i]=d[i*4+2]/255;}
+  return new ort.Tensor("float32",a,[1,3,c.height,c.width]);
+}
+function tensorToCanvas(out){
+  const d=out.data, dims=out.dims||[1,3,1,1], h=dims[dims.length-2], w=dims[dims.length-1], n=w*h;
+  const c=document.createElement("canvas"); c.width=w;c.height=h;
+  const im=c.getContext("2d").createImageData(w,h);
+  for(let i=0;i<n;i++){
+    im.data[i*4]=Math.max(0,Math.min(255,d[i]*255));
+    im.data[i*4+1]=Math.max(0,Math.min(255,d[n+i]*255));
+    im.data[i*4+2]=Math.max(0,Math.min(255,d[n*2+i]*255));
+    im.data[i*4+3]=255;
+  }
+  c.getContext("2d").putImageData(im,0,0); return c;
+}
 
-  const sw=source.naturalWidth||source.width;
-  const sh=source.naturalHeight||source.height;
-  const ow=Math.max(1,Math.round(sw*factor));
-  const oh=Math.max(1,Math.round(sh*factor));
+async function realEsrgan(source,wantedScale){
+  const session=await getEsrganSession();
+  const sw=source.naturalWidth||source.width, sh=source.naturalHeight||source.height;
+  // Keep the working image modest for speed/RAM. The AI model itself produces 4x.
+  const maxSide=1200, pre=Math.min(1,maxSide/Math.max(sw,sh));
+  const W=Math.max(1,Math.round(sw*pre)), H=Math.max(1,Math.round(sh*pre));
+  const input=document.createElement("canvas"); input.width=W;input.height=H;
+  const ix=input.getContext("2d"); ix.imageSmoothingEnabled=true;ix.imageSmoothingQuality="high";ix.drawImage(source,0,0,W,H);
 
-  const c=document.createElement("canvas");
-  c.width=ow; c.height=oh;
-  const x=c.getContext("2d",{willReadFrequently:true});
-  x.imageSmoothingEnabled=true;
-  x.imageSmoothingQuality="high";
-
-  // High-quality multi-pass upscale. The second pass keeps edges cleaner
-  // than a single low-quality resize.
-  const mid=document.createElement("canvas");
-  mid.width=Math.max(1,Math.round(sw*Math.min(factor,2)));
-  mid.height=Math.max(1,Math.round(sh*Math.min(factor,2)));
-  const mx=mid.getContext("2d");
-  mx.imageSmoothingEnabled=true;
-  mx.imageSmoothingQuality="high";
-  mx.drawImage(source,0,0,mid.width,mid.height);
-
-  x.drawImage(mid,0,0,ow,oh);
-
-  // Detail enhancement: subtle unsharp mask. This improves perceived
-  // edge/detail quality after enlargement without inventing fake detail.
-  const image=x.getImageData(0,0,ow,oh);
-  const data=image.data;
-  const copy=new Uint8ClampedArray(data);
-  const radius=1;
-  const amount=0.28;
-
-  for(let y=1;y<oh-1;y++){
-    for(let xx=1;xx<ow-1;xx++){
-      const p=(y*ow+xx)*4;
-      for(let ch=0;ch<3;ch++){
-        const center=copy[p+ch];
-        const avg=(
-          copy[p-4+ch]+copy[p+4+ch]+
-          copy[p-ow*4+ch]+copy[p+ow*4+ch]
-        )/4;
-        data[p+ch]=Math.max(0,Math.min(255,center+(center-avg)*amount));
-      }
+  const tile=256, overlap=16, stride=tile-overlap*2;
+  const out=document.createElement("canvas"); out.width=W*4;out.height=H*4;
+  const ox=out.getContext("2d");
+  let done=0,total=Math.ceil(W/stride)*Math.ceil(H/stride);
+  for(let y=0;y<H;y+=stride){
+    for(let x=0;x<W;x+=stride){
+      const tw=Math.min(tile,W-x), th=Math.min(tile,H-y);
+      const t=document.createElement("canvas"); t.width=tw;t.height=th;
+      t.getContext("2d").drawImage(input,x,y,tw,th,0,0,tw,th);
+      const result=await session.run({input:canvasToTensor(t)});
+      const name=session.outputNames?.[0]||Object.keys(result)[0];
+      const r=tensorToCanvas(result[name]);
+      const cl=x>0?overlap*4:0, ct=y>0?overlap*4:0, cr=x+tw<W?overlap*4:0, cb=y+th<H?overlap*4:0;
+      ox.drawImage(r,cl,ct,r.width-cl-cr,r.height-ct-cb,x*4+cl,y*4+ct,r.width-cl-cr,r.height-ct-cb);
+      done++;
+      if(processingSub) processingSub.textContent=`AI restoration ${done}/${total}`;
+      await new Promise(requestAnimationFrame);
     }
   }
-  x.putImageData(image,0,0);
-
-  // Gentle contrast lift to make the enhancement visibly distinguishable.
-  x.globalCompositeOperation="source-over";
-
-  const outImg=new Image();
-  outImg.src=c.toDataURL("image/png");
-  await outImg.decode();
-
-  current=outImg;
-  processed=outImg;
-  enhancementScale=factor;
-  showBefore=false;
-
-  hideProcessing();
-  statusEl.textContent=`Enhanced ${factor}× • Detail sharpened`;
-  render();
-  saveActiveToRecent();
+  if(wantedScale===4) return out;
+  const final=document.createElement("canvas"); final.width=Math.max(1,Math.round(sw*2));final.height=Math.max(1,Math.round(sh*2));
+  const fx=final.getContext("2d");fx.imageSmoothingEnabled=true;fx.imageSmoothingQuality="high";fx.drawImage(out,0,0,final.width,final.height);return final;
 }
+
+async function enhance(){
+  if(!current||enhancementBusy)return;
+  enhancementBusy=true;
+  const factor=scale===4?4:2;
+  enhancementBaseline=current; showBefore=false;
+  try{
+    showProcessing(`AI Enhancing ${factor}×…`,`Deblur + detail recovery + HD`);
+    await new Promise(requestAnimationFrame);
+    const out=await realEsrgan(current,factor);
+    const im=await canvasToImage(out);
+    current=im;processed=im;enhancementScale=factor;
+    hideProcessing();
+    statusEl.textContent=`AI Enhanced ${factor}× • HD detail restored`;
+    render();saveActiveToRecent();
+  }catch(e){
+    console.error("AI enhancement failed",e);
+    hideProcessing();
+    statusEl.textContent="AI unavailable — original image kept";
+  }finally{ enhancementBusy=false; }
+}
+
+// Warm the AI engine after the enhancer page is idle, so the customer does not
+// lose time waiting for model initialization after clicking Enhance.
+if(document.body.dataset.page==="enhance"){
+  const warm=()=>getEsrganSession().catch(()=>null);
+  if("requestIdleCallback" in window) requestIdleCallback(warm,{timeout:2500});
+  else setTimeout(warm,1200);
+}
+
 
 $("#downloadBtn").addEventListener("click",()=>{
   if(!current)return;
@@ -730,76 +715,3 @@ document.querySelectorAll(".mode-card").forEach(card=>{
     if(mode) applyHomeMode(mode);
   });
 });
-
-/* Final fast enhancer */
-document.addEventListener("click", async (e)=>{
-  const btn=e.target.closest("#aiEnhanceBtn,[data-ai-enhance]");
-  if(!btn || window.__paliaEnhancing) return;
-  if(typeof current==="undefined" || !current) return;
-  e.preventDefault();
-  window.__paliaEnhancing=true;
-  btn.disabled=true;
-  const status=document.querySelector("#uploadStatus");
-  const progress=document.querySelector("#enhanceProgress");
-  if(status) status.textContent="Enhancing HD…";
-  if(progress) progress.classList.add("active");
-  await new Promise(requestAnimationFrame);
-  try{
-    const canvas=await fastHdEnhance(current,2);
-    if(typeof canvasToImage==="function" && typeof renderCurrent==="function"){
-      current=await canvasToImage(canvas);
-      renderCurrent();
-    }
-    if(status) status.textContent=`HD Enhanced • ${canvas.width} × ${canvas.height}`;
-  }catch(err){
-    console.error("Fast enhance failed:",err);
-    if(status) status.textContent="Enhancement failed. Try a smaller image.";
-  }finally{
-    if(progress) progress.classList.remove("active");
-    btn.disabled=false;
-    window.__paliaEnhancing=false;
-  }
-});
-
-/* Final visible comparison zoom */
-(function(){
-  let zoom=1;
-  const min=.25,max=4;
-  function getStages(){
-    return [...document.querySelectorAll(
-      ".comparison-stage,.compare-stage,.enhance-comparison,.before-after-stage,.editor-canvas-area,.comparison"
-    )];
-  }
-  function paint(){
-    getStages().forEach(stage=>{
-      stage.querySelectorAll("canvas,img").forEach(el=>{
-        el.style.transformOrigin="center center";
-        el.style.transform=`scale(${zoom})`;
-        el.style.maxWidth="100%";
-        el.style.maxHeight="100%";
-        el.style.width="auto";
-        el.style.height="auto";
-        el.style.objectFit="contain";
-      });
-    });
-    document.querySelectorAll("#zoomValue,[data-zoom-value],.zoom-value").forEach(e=>e.textContent=Math.round(zoom*100)+"%");
-  }
-  function set(v){zoom=Math.max(min,Math.min(max,+v.toFixed(2)));paint();}
-  document.addEventListener("click",e=>{
-    const b=e.target.closest("#zoomInBtn,#zoomOutBtn,#zoomResetBtn,[data-zoom]");
-    if(!b)return;
-    e.preventDefault();
-    const a=b.dataset.zoom||b.id;
-    if(a==="in"||a==="zoomIn"||a==="zoomInBtn")set(zoom+.25);
-    else if(a==="out"||a==="zoomOut"||a==="zoomOutBtn")set(zoom-.25);
-    else set(1);
-  },true);
-  document.addEventListener("wheel",e=>{
-    const s=e.target.closest(".comparison-stage,.compare-stage,.enhance-comparison,.before-after-stage,.editor-canvas-area,.comparison");
-    if(!s || !e.ctrlKey)return;
-    e.preventDefault();
-    set(zoom+(e.deltaY<0?.1:-.1));
-  },{passive:false});
-  window.addEventListener("resize",paint);
-  setTimeout(paint,100); setTimeout(paint,600);
-})();

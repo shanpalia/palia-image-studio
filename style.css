@@ -683,32 +683,6 @@ body[data-page="remove"] .bg-palette-large .bg-tile{
 @media(max-width:900px){
   body.editor-mode .toolbar-format{display:flex!important}
 }
-
-/* Final enhancer comparison: never crop either image */
-.comparison-stage,.compare-stage,.enhance-comparison,.before-after-stage,.comparison{
-  overflow:hidden!important;
-  display:flex!important;
-  align-items:center!important;
-  justify-content:center!important;
-}
-.comparison-stage canvas,.comparison-stage img,
-.compare-stage canvas,.compare-stage img,
-.enhance-comparison canvas,.enhance-comparison img,
-.before-after-stage canvas,.before-after-stage img,
-.comparison canvas,.comparison img{
-  max-width:100%!important;
-  max-height:100%!important;
-  width:auto!important;
-  height:auto!important;
-  object-fit:contain!important;
-  object-position:center!important;
-}
-/* Keep zoom controls clickable */
-#zoomInBtn,#zoomOutBtn,#zoomResetBtn,[data-zoom]{
-  cursor:pointer!important;
-  user-select:none!important;
-}
-.enhance-progress{display:none;align-items:center;gap:8px;padding:7px 10px;border-radius:8px;background:#eaf8f3;color:#11765e;font-size:10px;font-weight:900}
-.enhance-progress.active{display:flex}
-.enhance-progress .spinner{width:12px;height:12px;border:2px solid #b9ddd1;border-top-color:#11765e;border-radius:50%;animation:paliaSpin .7s linear infinite}
-@keyframes paliaSpin{to{transform:rotate(360deg)}}
+/* Preserve full image in the existing editor; do not crop or stretch. */
+.canvas-stage{display:flex;align-items:center;justify-content:center;overflow:hidden}
+#canvas{object-fit:contain;object-position:center}
