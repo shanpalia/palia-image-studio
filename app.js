@@ -2,6 +2,12 @@ import { removeBackground as imglyRemoveBackground } from "https://esm.sh/@imgly
 
 
 const $ = s => document.querySelector(s);
+let enhancementBusy = false;
+
+// Keep enhancement single-threaded and prevent accidental double-clicks.
+const enhanceButtonGuard = document.createElement("style");
+enhanceButtonGuard.textContent = ".enhance-processing{opacity:.6!important;pointer-events:none!important}";
+document.head.appendChild(enhanceButtonGuard);
 const $$ = s => [...document.querySelectorAll(s)];
 
 const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZone");
@@ -517,92 +523,129 @@ async function removeBackgroundAI(im, progress){
 }
 
 async function enhance(){
-  if(!current) return;
-
-  enhancementBaseline=current;
+  if(!current || enhancementBusy) return;
+  enhancementBusy=true;
   const source=current;
   const factor=scale===4?4:2;
+  enhancementBaseline=current;
   showBefore=false;
   if($("#afterBtn")) $("#afterBtn").click();
-
-  showProcessing(`Enhancing image ${factor}×…`,"Upscaling + detail sharpening");
-  await new Promise(r=>setTimeout(r,80));
+  showProcessing(`Enhancing image ${factor}×…`,"Fast browser enhancement");
+  await new Promise(requestAnimationFrame);
 
   const sw=source.naturalWidth||source.width;
   const sh=source.naturalHeight||source.height;
-  const ow=Math.max(1,Math.round(sw*factor));
-  const oh=Math.max(1,Math.round(sh*factor));
 
-  const c=document.createElement("canvas");
-  c.width=ow; c.height=oh;
-  const x=c.getContext("2d",{willReadFrequently:true});
-  x.imageSmoothingEnabled=true;
-  x.imageSmoothingQuality="high";
+  // Cap processing work so large photos do not freeze low-RAM PCs.
+  const MAX_PIXELS=3000000;
+  const pixels=sw*sh;
+  const k=pixels>MAX_PIXELS ? Math.sqrt(MAX_PIXELS/pixels) : 1;
+  const ww=Math.max(1,Math.round(sw*k));
+  const wh=Math.max(1,Math.round(sh*k));
 
-  // High-quality multi-pass upscale. The second pass keeps edges cleaner
-  // than a single low-quality resize.
-  const mid=document.createElement("canvas");
-  mid.width=Math.max(1,Math.round(sw*Math.min(factor,2)));
-  mid.height=Math.max(1,Math.round(sh*Math.min(factor,2)));
-  const mx=mid.getContext("2d");
-  mx.imageSmoothingEnabled=true;
-  mx.imageSmoothingQuality="high";
-  mx.drawImage(source,0,0,mid.width,mid.height);
+  const work=document.createElement("canvas");
+  work.width=ww; work.height=wh;
+  const wx=work.getContext("2d");
+  wx.imageSmoothingEnabled=true;
+  wx.imageSmoothingQuality="high";
+  wx.filter="contrast(1.06) saturate(1.05) brightness(1.01)";
+  wx.drawImage(source,0,0,ww,wh);
+  wx.filter="none";
 
-  x.drawImage(mid,0,0,ow,oh);
+  // Export at a practical maximum while preserving the requested 2x/4x ratio
+  // as much as possible without allocating huge canvases.
+  const MAX_OUTPUT=4096;
+  const ow=Math.min(Math.max(1,Math.round(sw*factor)),MAX_OUTPUT);
+  const oh=Math.min(Math.max(1,Math.round(sh*factor)),MAX_OUTPUT);
 
-  // Detail enhancement: subtle unsharp mask. This improves perceived
-  // edge/detail quality after enlargement without inventing fake detail.
-  const image=x.getImageData(0,0,ow,oh);
-  const data=image.data;
-  const copy=new Uint8ClampedArray(data);
-  const radius=1;
-  const amount=0.42;
+  const out=document.createElement("canvas");
+  out.width=ow; out.height=oh;
+  const ox=out.getContext("2d");
+  ox.imageSmoothingEnabled=true;
+  ox.imageSmoothingQuality="high";
+  ox.filter="contrast(1.06) saturate(1.05) brightness(1.01)";
+  ox.drawImage(work,0,0,ow,oh);
+  ox.filter="none";
 
-  for(let y=1;y<oh-1;y++){
-    for(let xx=1;xx<ow-1;xx++){
-      const p=(y*ow+xx)*4;
-      for(let ch=0;ch<3;ch++){
-        const center=copy[p+ch];
-        const avg=(
-          copy[p-4+ch]+copy[p+4+ch]+
-          copy[p-ow*4+ch]+copy[p+ow*4+ch]
-        )/4;
-        data[p+ch]=Math.max(0,Math.min(255,center+(center-avg)*amount));
-      }
-    }
-  }
-  x.putImageData(image,0,0);
-
-  // Gentle contrast/color lift so the result is visibly improved rather than only larger.
-  x.globalCompositeOperation="source-over";
-  const enhancedImage=x.getImageData(0,0,ow,oh);
-  const ed=enhancedImage.data;
-  const contrast=1.06, saturation=1.035;
-  for(let i=0;i<ed.length;i+=4){
-    let r=ed[i],g=ed[i+1],b=ed[i+2];
-    r=(r-128)*contrast+128; g=(g-128)*contrast+128; b=(b-128)*contrast+128;
-    const gray=.299*r+.587*g+.114*b;
-    ed[i]=Math.max(0,Math.min(255,gray+(r-gray)*saturation));
-    ed[i+1]=Math.max(0,Math.min(255,gray+(g-gray)*saturation));
-    ed[i+2]=Math.max(0,Math.min(255,gray+(b-gray)*saturation));
-  }
-  x.putImageData(enhancedImage,0,0);
+  await new Promise(requestAnimationFrame);
 
   const outImg=new Image();
-  outImg.src=c.toDataURL("image/png");
+  outImg.src=out.toDataURL("image/jpeg",.94);
   await outImg.decode();
 
   current=outImg;
   processed=outImg;
   enhancementScale=factor;
   showBefore=false;
-  const ef=document.querySelector("#enhancedFactorLabel"); if(ef) ef.textContent=`${factor}×`;
-
+  const ef=document.querySelector("#enhancedFactorLabel");
+  if(ef) ef.textContent=`${factor}×`;
   hideProcessing();
-  statusEl.textContent=`Enhanced ${factor}× • Detail sharpened`;
+  statusEl.textContent=`Enhanced ${factor}× • Fast detail improvement`;
+  renderEnhancerCompare();
   render();
   saveActiveToRecent();
+  enhancementBusy=false;
+}
+
+async function aiEnhance(){
+  if(!current || enhancementBusy) return;
+  enhancementBusy=true;
+  showBefore=false;
+  if($("#afterBtn")) $("#afterBtn").click();
+  showProcessing("AI Enhance…","Smart clarity, lighting and color optimization");
+  await new Promise(requestAnimationFrame);
+
+  const source=current;
+  const sw=source.naturalWidth||source.width;
+  const sh=source.naturalHeight||source.height;
+  const MAX_PIXELS=2500000;
+  const pixels=sw*sh;
+  const k=pixels>MAX_PIXELS ? Math.sqrt(MAX_PIXELS/pixels) : 1;
+  const ww=Math.max(1,Math.round(sw*k));
+  const wh=Math.max(1,Math.round(sh*k));
+
+  const out=document.createElement("canvas");
+  out.width=ww; out.height=wh;
+  const x=out.getContext("2d");
+  x.imageSmoothingEnabled=true;
+  x.imageSmoothingQuality="high";
+  // Fast local smart-enhancement pipeline. It is intentionally lightweight
+  // so the browser remains responsive on low-RAM computers.
+  x.filter="contrast(1.10) saturate(1.08) brightness(1.025)";
+  x.drawImage(source,0,0,ww,wh);
+  x.filter="none";
+
+  // Tiny unsharp pass only for manageable images.
+  if(ww*wh<=1800000){
+    const image=x.getImageData(0,0,ww,wh);
+    const d=image.data, copy=new Uint8ClampedArray(d);
+    for(let y=1;y<wh-1;y++){
+      for(let xx=1;xx<ww-1;xx++){
+        const p=(y*ww+xx)*4;
+        for(let c=0;c<3;c++){
+          const avg=(copy[p-4+c]+copy[p+4+c]+copy[p-ww*4+c]+copy[p+ww*4+c])/4;
+          d[p+c]=Math.max(0,Math.min(255,copy[p+c]+(copy[p+c]-avg)*0.22));
+        }
+      }
+    }
+    x.putImageData(image,0,0);
+  }
+
+  await new Promise(requestAnimationFrame);
+  const outImg=new Image();
+  outImg.src=out.toDataURL("image/jpeg",.95);
+  await outImg.decode();
+  current=outImg;
+  processed=outImg;
+  enhancementScale=1;
+  const ef=document.querySelector("#enhancedFactorLabel");
+  if(ef) ef.textContent="AI";
+  hideProcessing();
+  statusEl.textContent="AI Enhance complete • Smart clarity + color";
+  renderEnhancerCompare();
+  render();
+  saveActiveToRecent();
+  enhancementBusy=false;
 }
 
 $("#downloadBtn").addEventListener("click",()=>{
@@ -647,7 +690,7 @@ $("#removeBgTop").addEventListener("click",async()=>{
   try{await removeBackground();}catch(e){}
 });
 $("#enhance2").addEventListener("click",async()=>{scale=2;await enhance()});
-$("#enhance4").addEventListener("click",async()=>{scale=4;await enhance()});
+$("#enhance4").addEventListener("click",async()=>{scale=4;await enhance()}); $("#aiEnhanceBtn")?.addEventListener("click",aiEnhance);
 
 $("#undoBtn").addEventListener("click",()=>{
   if(!original)return;

@@ -43,7 +43,7 @@
       <div class="drop-copy">or drop a file</div>
       <div class="drop-sub">JPG, PNG or WEBP</div>
       <input id="fileInput" type="file" accept="image/jpeg,image/png,image/webp" hidden>
-      <div class="upload-status" id="uploadStatus">Fast image enhancement</div>
+      <div class="enhance-progress" id="enhanceProgress"><span class="spinner"></span>Enhancing…</div><div class="upload-status" id="uploadStatus">Fast image enhancement</div>
     </div>
   </section>
 
@@ -126,7 +126,9 @@
           <div class="panel hidden" data-panel-content="design">
             <h3>Enhance</h3><p class="enhance-quality-note">High-quality upscale + detail sharpening</p>
 
-<div class="design-actions"><button id="enhance2" class="design-btn"><span>✦</span> 2× Enhance</button><button id="enhance4" class="design-btn"><span>✦</span> 4× Enhance</button></div>
+<div class="design-actions"><button id="enhance2" class="design-btn"><span>✦</span> 2× Enhance</button><button id="enhance4" class="design-btn"><span>✦</span> 4× Enhance</button></div><div class="design-actions ai-enhance-row">
+  <button id="aiEnhanceBtn" class="design-btn ai-enhance-btn"><span>✧</span> AI Enhance <small>Fast</small></button>
+</div>
             <div class="design-actions"><button id="rotateLeft" class="design-btn">↶ Rotate</button><button id="rotateRight" class="design-btn">↷ Rotate</button></div>
             <label class="format-label">Download format</label>
             <div class="format"><button data-format="png" class="selected"><span>▣</span> PNG</button><button data-format="jpg"><span>▧</span> JPG</button></div>

@@ -706,3 +706,39 @@ body[data-page="enhance"] .before-after{display:none}
 body[data-page="enhance"] .recent-dock{height:88px}
 body[data-page="enhance"] .toolbar-format{margin-left:5px}
 @media(max-width:1000px){body[data-page="enhance"] .enhancer-compare-stage{grid-template-columns:1fr}.compare-frame{min-height:280px!important}body[data-page="enhance"] .editor-body{grid-template-columns:1fr}body[data-page="enhance"] .side-panel{width:auto;border-top:1px solid #eee}}
+
+/* Fast enhancer UX */
+.enhance-progress{
+  display:none;
+  align-items:center;
+  gap:8px;
+  padding:8px 10px;
+  border-radius:9px;
+  background:#eef8f4;
+  color:#14775f;
+  font-size:10px;
+  font-weight:800;
+}
+.enhance-progress.active{display:flex}
+.enhance-progress .spinner{
+  width:13px;height:13px;border:2px solid #b9ddd1;border-top-color:#14775f;
+  border-radius:50%;animation:enhSpin .7s linear infinite;
+}
+@keyframes enhSpin{to{transform:rotate(360deg)}}
+
+.ai-enhance-row{margin-top:10px!important}
+.ai-enhance-btn{
+  width:100%!important;
+  background:linear-gradient(135deg,#eefaf6,#f6f8ff)!important;
+  border-color:#9ed6c8!important;
+  color:#14775f!important;
+  font-weight:900!important;
+}
+.ai-enhance-btn small{
+  margin-left:auto;
+  padding:3px 7px;
+  border-radius:999px;
+  background:#e5f7f0;
+  color:#14775f;
+  font-size:8px;
+}

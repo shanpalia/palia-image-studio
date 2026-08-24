@@ -189,3 +189,13 @@ When an image is dropped on Background Remover, the complete landing/header UI i
 
 - Background Remover keeps a single large center image with the editing tools on the right.
 - Image Enhancer uses a side-by-side Original / Enhanced comparison workspace, with the enhancement factor shown and the enhanced result rendered separately so the quality difference is visible.
+
+
+## Performance fix
+
+The Image Enhancer now uses a capped working resolution, browser-friendly image smoothing, a single lightweight enhancement pass, and a UI yield. It avoids creating huge 4x intermediate canvases that can freeze or hang low-RAM PCs. Enhancement is kept separate from background removal.
+
+
+## AI Enhance
+
+The Enhancer page now includes an `AI Enhance` option. It uses a fast local smart-enhancement pipeline (clarity, contrast, saturation, brightness and light sharpening) rather than a cloud API, so no API key is required and the page stays responsive on low-RAM PCs. The button is clearly marked Fast.
