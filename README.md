@@ -184,3 +184,8 @@ When an image is dropped on Background Remover, the complete landing/header UI i
 - PNG/JPG format buttons are present directly in the editor toolbar, including Background Remover, so JPG download is not hidden inside the Enhance panel.
 - Background panel expanded to Magic / Photo / Color groups with many presets and Custom.
 - Background colors and gradients are rendered into the canvas and therefore export to PNG/JPG.
+
+## Reference-matched editors
+
+- Background Remover keeps a single large center image with the editing tools on the right.
+- Image Enhancer uses a side-by-side Original / Enhanced comparison workspace, with the enhancement factor shown and the enhanced result rendered separately so the quality difference is visible.

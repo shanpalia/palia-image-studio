@@ -6,6 +6,8 @@ const $$ = s => [...document.querySelectorAll(s)];
 
 const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZone");
 const workspace=$("#workspace"), canvas=$("#canvas"), ctx=canvas.getContext("2d"), canvasWrap=$("#canvasWrap");
+const originalCompareCanvas=$("#originalCompareCanvas"), enhancedCompareCanvas=$("#enhancedCompareCanvas");
+const originalCompareCtx=originalCompareCanvas?.getContext("2d"), enhancedCompareCtx=enhancedCompareCanvas?.getContext("2d");
 const statusEl=$("#status"), processing=$("#processing"), processingText=$("#processingText"), processingSub=$("#processingSub");
 let original=null, current=null, processed=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
 let recentItems=[], activeRecentId=null;
@@ -269,6 +271,10 @@ if(!validType && !validName){
       syncAdjustmentUI();
       // Show a clean processing state first; the editor appears after AI removal.
       enterEditor();
+      if(landingMode==="enhance") {
+        const et=document.querySelector('.editor-tab[data-panel="design"]');
+        if(et) et.click();
+      }
       // Show the uploaded image immediately in the center while AI processing starts.
       statusEl.textContent="Preparing image…";
       render();
@@ -322,8 +328,33 @@ function fillCanvasBackground(context, value, width, height){
   context.fillStyle=value; context.fillRect(0,0,width,height);
 }
 
+function renderEnhancerCompare(){
+  if(document.body.dataset.page!=="enhance" || !originalCompareCanvas || !enhancedCompareCanvas || !original) return;
+  const left=original;
+  const right=current||original;
+  const draw=(c,im,enhanced=false)=>{
+    const w=im.naturalWidth||im.width, h=im.naturalHeight||im.height;
+    const maxW=520, maxH=500;
+    const ratio=Math.min(1,maxW/w,maxH/h);
+    c.width=Math.max(1,Math.round(w*ratio)); c.height=Math.max(1,Math.round(h*ratio));
+    const x=c.getContext("2d"); x.clearRect(0,0,c.width,c.height);
+    x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height);
+    x.save();
+    if(enhanced) x.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;
+    x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high";
+    x.drawImage(im,0,0,c.width,c.height); x.restore();
+  };
+  draw(originalCompareCanvas,left,false);
+  draw(enhancedCompareCanvas,right,true);
+  const factor=enhancementScale||1;
+  const fl=document.querySelector('#enhancedFactorLabel'); if(fl) fl.textContent=factor>1?`${factor}×`:'Preview';
+  const res=document.querySelector('#enhanceResolution');
+  if(res){ const w=right.naturalWidth||right.width,h=right.naturalHeight||right.height; res.textContent=`${w} × ${h}px`; }
+}
+
 function render(){
   if(!current)return;
+  renderEnhancerCompare();
   const w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   const portrait=rotation%180!==0;
   canvas.width=portrait?h:w; canvas.height=portrait?w:h;
@@ -526,7 +557,7 @@ async function enhance(){
   const data=image.data;
   const copy=new Uint8ClampedArray(data);
   const radius=1;
-  const amount=0.28;
+  const amount=0.42;
 
   for(let y=1;y<oh-1;y++){
     for(let xx=1;xx<ow-1;xx++){
@@ -543,8 +574,20 @@ async function enhance(){
   }
   x.putImageData(image,0,0);
 
-  // Gentle contrast lift to make the enhancement visibly distinguishable.
+  // Gentle contrast/color lift so the result is visibly improved rather than only larger.
   x.globalCompositeOperation="source-over";
+  const enhancedImage=x.getImageData(0,0,ow,oh);
+  const ed=enhancedImage.data;
+  const contrast=1.06, saturation=1.035;
+  for(let i=0;i<ed.length;i+=4){
+    let r=ed[i],g=ed[i+1],b=ed[i+2];
+    r=(r-128)*contrast+128; g=(g-128)*contrast+128; b=(b-128)*contrast+128;
+    const gray=.299*r+.587*g+.114*b;
+    ed[i]=Math.max(0,Math.min(255,gray+(r-gray)*saturation));
+    ed[i+1]=Math.max(0,Math.min(255,gray+(g-gray)*saturation));
+    ed[i+2]=Math.max(0,Math.min(255,gray+(b-gray)*saturation));
+  }
+  x.putImageData(enhancedImage,0,0);
 
   const outImg=new Image();
   outImg.src=c.toDataURL("image/png");
@@ -554,6 +597,7 @@ async function enhance(){
   processed=outImg;
   enhancementScale=factor;
   showBefore=false;
+  const ef=document.querySelector("#enhancedFactorLabel"); if(ef) ef.textContent=`${factor}×`;
 
   hideProcessing();
   statusEl.textContent=`Enhanced ${factor}× • Detail sharpened`;

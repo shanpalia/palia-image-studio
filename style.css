@@ -683,3 +683,26 @@ body[data-page="remove"] .bg-palette-large .bg-tile{
 @media(max-width:900px){
   body.editor-mode .toolbar-format{display:flex!important}
 }
+/* Reference-inspired comparison editor for Image Enhancer */
+body[data-page="enhance"] .topbar{height:58px}
+body[data-page="enhance"] .enhancer-toolbar{height:58px;background:#fff;border-bottom:1px solid #e8ebea}
+body[data-page="enhance"] .enhancer-toolbar .editor-tab{font-weight:700;color:#727a78}
+body[data-page="enhance"] .enhancer-toolbar .editor-tab.active{background:#eef8f4;color:#11765e}
+body[data-page="enhance"] .enhancer-canvas-area{background:#f5f6f6;padding:24px 28px;min-height:580px}
+body[data-page="enhance"] .enhancer-compare-stage{width:100%;height:100%;display:grid;grid-template-columns:1fr 1fr;gap:22px;align-items:center;justify-content:center}
+body[data-page="enhance"] .compare-pane{min-width:0;display:flex;flex-direction:column;align-items:center;gap:9px}
+body[data-page="enhance"] .compare-label{font-size:14px;font-weight:900;color:#202424;align-self:flex-start;margin-left:4px}
+body[data-page="enhance"] .enhanced-label{color:#11765e}
+body[data-page="enhance"] .enhanced-label span{display:inline-flex;margin-left:5px;padding:3px 7px;border-radius:999px;background:#e8f7f1;color:#11765e;font-size:9px}
+body[data-page="enhance"] .compare-frame{width:100%;min-height:420px;display:flex;align-items:center;justify-content:center;background:#fff;border:1px solid #d9dddc;border-radius:10px;overflow:hidden;box-shadow:0 1px 4px rgba(0,0,0,.04)}
+body[data-page="enhance"] .compare-frame canvas{display:block;max-width:100%;max-height:500px;object-fit:contain}
+body[data-page="enhance"] .enhancer-hidden-stage{display:none!important}
+body[data-page="enhance"] .side-panel{width:280px;padding:20px;background:#fff}
+body[data-page="enhance"] .side-panel .panel h3{font-size:18px;font-weight:900}
+body[data-page="enhance"] .side-panel .design-actions{gap:9px}
+body[data-page="enhance"] .side-panel .design-btn{min-height:48px;border-radius:10px;font-weight:800}
+body[data-page="enhance"] .side-panel .enhance-quality-note{font-size:10px;color:#8a9290;margin-top:-9px;margin-bottom:14px}
+body[data-page="enhance"] .before-after{display:none}
+body[data-page="enhance"] .recent-dock{height:88px}
+body[data-page="enhance"] .toolbar-format{margin-left:5px}
+@media(max-width:1000px){body[data-page="enhance"] .enhancer-compare-stage{grid-template-columns:1fr}.compare-frame{min-height:280px!important}body[data-page="enhance"] .editor-body{grid-template-columns:1fr}body[data-page="enhance"] .side-panel{width:auto;border-top:1px solid #eee}}

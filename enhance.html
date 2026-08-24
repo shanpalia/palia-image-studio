@@ -49,16 +49,14 @@
 
   <section class="workspace hidden" id="workspace">
     <div class="editor-shell">
-      <div class="editor-toolbar">
-        <button class="editor-tab active" data-panel="cutout"><span>✣</span><span class="nav-icon">✂</span>Cutout</button>
-        <button class="editor-tab" data-panel="background"><span>◈</span><span class="nav-icon">◈</span>Background</button>
-        <button class="editor-tab" data-panel="effects"><span>●</span><span class="nav-icon">✦</span>Effects</button>
-        <button class="editor-tab" data-panel="adjust"><span>◐</span><span class="nav-icon">◐</span>Adjust</button>
-        <button class="editor-tab" data-panel="design"><span>▣</span><span class="nav-icon">✧</span>Enhance</button>
+      <div class="editor-toolbar enhancer-toolbar">
+        <button class="editor-tab active" data-panel="design"><span>✦</span>Enhance</button>
+        <button class="editor-tab" data-panel="adjust"><span>◐</span>Adjust</button>
+        <button class="editor-tab" data-panel="effects"><span>●</span>Effects</button>
         <span class="zoom-top-separator"></span>
-        <button class="zoom-top-btn" id="zoomOut" title="Zoom out" aria-label="Zoom out">−</button>
+        <button class="zoom-top-btn" id="zoomOut" title="Zoom out">−</button>
         <span class="zoom-top-label" id="zoomLabel">100%</span>
-        <button class="zoom-top-btn" id="zoomIn" title="Zoom in" aria-label="Zoom in">+</button>
+        <button class="zoom-top-btn" id="zoomIn" title="Zoom in">+</button>
         <span class="toolbar-spacer"></span>
         <button class="toolbar-icon" id="undoBtn" title="Undo">↶</button>
         <button class="toolbar-icon" id="redoBtn" title="Redo">↷</button>
@@ -70,16 +68,23 @@
       </div>
 
       <div class="editor-body">
-        <div class="editor-canvas-area" id="canvasWrap">
-          <div class="canvas-stage">
-            <canvas id="canvas"></canvas>
-            <div class="processing hidden" id="processing">
-              <div class="spinner"></div><strong id="processingText">Removing background…</strong><span id="processingSub">Please wait</span>
+        <div class="editor-canvas-area enhancer-canvas-area" id="canvasWrap">
+          <div class="enhancer-compare-stage" id="enhancerCompareStage">
+            <div class="compare-pane">
+              <div class="compare-label">Original</div>
+              <div class="compare-frame"><canvas id="originalCompareCanvas"></canvas></div>
+            </div>
+            <div class="compare-pane">
+              <div class="compare-label enhanced-label">Enhanced <span id="enhancedFactorLabel">2×</span></div>
+              <div class="compare-frame"><canvas id="enhancedCompareCanvas"></canvas></div>
             </div>
           </div>
-          <div class="canvas-status"><span id="status">Ready</span></div>
+          <div class="canvas-stage enhancer-hidden-stage"><canvas id="canvas"></canvas></div>
+          <div class="processing hidden" id="processing">
+            <div class="spinner"></div><strong id="processingText">Enhancing image…</strong><span id="processingSub">Please wait</span>
+          </div>
+          <div class="canvas-status"><span id="status">Ready</span><span id="enhanceResolution"></span></div>
         </div>
-
         <aside class="side-panel" id="sidePanel">
           <div class="panel panel-cutout" data-panel-content="cutout">
             <h3>Cutout</h3>
