@@ -715,3 +715,78 @@ document.querySelectorAll(".mode-card").forEach(card=>{
     if(mode) applyHomeMode(mode);
   });
 });
+
+
+/* Custom size units */
+(function(){
+  const modal=document.getElementById("customSizeModal");
+  if(!modal) return;
+  const width=document.getElementById("customWidth");
+  const height=document.getElementById("customHeight");
+  const tabs=[...modal.querySelectorAll(".unit-tab")];
+  const labels=[...modal.querySelectorAll(".unit-label")];
+  const pxText=document.getElementById("customSizePixels");
+  let unit="mm";
+  const dpi=300;
+
+  function toMm(v,u){
+    v=Number(v)||0;
+    if(u==="cm") return v*10;
+    if(u==="inch") return v*25.4;
+    if(u==="px") return v*25.4/dpi;
+    return v;
+  }
+  function fromMm(v,u){
+    if(u==="cm") return v/10;
+    if(u==="inch") return v/25.4;
+    if(u==="px") return v*dpi/25.4;
+    return v;
+  }
+  function updatePixels(){
+    const w=Math.round(toMm(width.value,unit)*dpi/25.4);
+    const h=Math.round(toMm(height.value,unit)*dpi/25.4);
+    pxText.textContent=`≈ ${Math.max(1,w)} × ${Math.max(1,h)} px @ ${dpi} DPI`;
+  }
+  function setUnit(next){
+    const wmm=toMm(width.value,unit), hmm=toMm(height.value,unit);
+    unit=next;
+    width.value=Number(fromMm(wmm,unit).toFixed(2));
+    height.value=Number(fromMm(hmm,unit).toFixed(2));
+    labels.forEach(x=>x.textContent=unit);
+    tabs.forEach(t=>t.classList.toggle("active",t.dataset.unit===unit));
+    updatePixels();
+  }
+  function open(){
+    modal.hidden=false;
+    updatePixels();
+    width.focus();
+  }
+  function close(){modal.hidden=true}
+
+  document.addEventListener("click",e=>{
+    const custom=e.target.closest('[data-custom-size],#customSizeBtn,.custom-size-option');
+    if(custom){e.preventDefault();open();return}
+    if(e.target.closest("#customSizeClose")){close();return}
+    const tab=e.target.closest(".unit-tab");
+    if(tab){setUnit(tab.dataset.unit);return}
+    const preset=e.target.closest(".size-presets button");
+    if(preset){
+      width.value=Number(fromMm(Number(preset.dataset.w),unit).toFixed(2));
+      height.value=Number(fromMm(Number(preset.dataset.h),unit).toFixed(2));
+      updatePixels(); return;
+    }
+    if(e.target.closest("#swapSize")){
+      const t=width.value;width.value=height.value;height.value=t;updatePixels();return;
+    }
+    if(e.target.closest("#applyCustomSize")){
+      const wmm=toMm(width.value,unit), hmm=toMm(height.value,unit);
+      if(wmm<=0||hmm<=0)return;
+      window.PaliaCustomSize={widthMm:wmm,heightMm:hmm,widthPx:Math.round(wmm*dpi/25.4),heightPx:Math.round(hmm*dpi/25.4),unit};
+      document.dispatchEvent(new CustomEvent("palia:custom-size",{detail:window.PaliaCustomSize}));
+      close();
+    }
+  });
+  [width,height].forEach(x=>x.addEventListener("input",updatePixels));
+  modal.addEventListener("click",e=>{if(e.target===modal)close()});
+  document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
+})();
