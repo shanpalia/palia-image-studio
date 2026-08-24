@@ -183,7 +183,7 @@ function openRecent(id){
 
 function syncAdjustmentUI(){
   ["brightness","contrast","saturation","blur","grayscale"].forEach(k=>{
-    const el=$("#"+k), out=$("#"+k+"Value");
+    const el=document.querySelector("#"+k), out=document.querySelector("#"+k+"Value");
     if(!el||!out)return;
     el.value=adjustments[k];
     out.textContent=k==="blur"?adjustments[k]+"px":adjustments[k]+"%";
@@ -322,8 +322,50 @@ function fillCanvasBackground(context, value, width, height){
   context.fillStyle=value; context.fillRect(0,0,width,height);
 }
 
+function renderOriginalPreview(){
+  const oc=$("#originalPreviewCanvas");
+  if(!oc||!original)return;
+  const w=original.naturalWidth||original.width,h=original.naturalHeight||original.height;
+  oc.width=w;oc.height=h;
+  const ox=oc.getContext("2d");
+  ox.clearRect(0,0,w,h);
+  ox.drawImage(original,0,0,w,h);
+  oc.style.width=`${w}px`;oc.style.height=`${h}px`;
+}
+
+let cropMode="free";
+let borderSize=0;
+let borderColor="#000000";
+function setCropMode(mode){
+  cropMode=mode;
+  $$(".tool-option[data-crop]").forEach(x=>x.classList.toggle("selected",x.dataset.crop===mode));
+  if(mode==="free") return;
+  if(!original)return;
+  const [rw,rh]=mode.split(":").map(Number);
+  const w=original.naturalWidth||original.width,h=original.naturalHeight||original.height;
+  let cw=w,ch=h;
+  const target=rw/rh;
+  if(w/h>target) cw=Math.round(h*target); else ch=Math.round(w/target);
+  const sx=Math.round((w-cw)/2), sy=Math.round((h-ch)/2);
+  const c=document.createElement("canvas");c.width=cw;c.height=ch;
+  c.getContext("2d").drawImage(original,sx,sy,cw,ch,0,0,cw,ch);
+  const im=new Image(); im.onload=()=>{original=im;current=processed=im;render();}; im.src=c.toDataURL("image/png");
+}
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".tool-option[data-crop]");
+  if(b){e.preventDefault();setCropMode(b.dataset.crop);}
+  const border=e.target.closest(".tool-option[data-border]");
+  if(border){
+    borderSize=border.dataset.border==="5-white"?5:Number(border.dataset.border)||0;
+    borderColor=border.dataset.border==="5-white"?"#fff":"#000";
+    $$(".tool-option[data-border]").forEach(x=>x.classList.toggle("selected",x===border));
+    render();
+  }
+});
+
 function render(){
   if(!current)return;
+  renderOriginalPreview();
   const w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   const portrait=rotation%180!==0;
   canvas.width=portrait?h:w; canvas.height=portrait?w:h;
@@ -592,13 +634,13 @@ $("#downloadBtn").addEventListener("click",()=>{
   const c=document.createElement("canvas"),w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   c.width=rotation%180?h:w;c.height=rotation%180?w:h;const x=c.getContext("2d");
   if(format==="jpg"){fillCanvasBackground(x,bg==="transparent"?"#ffffff":bg,c.width,c.height)} else if(bg!=="transparent"){fillCanvasBackground(x,bg,c.width,c.height)}
-  x.save();x.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(current,-w/2,-h/2,w,h);x.restore();x.filter="none";
+  x.save();x.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;x.translate(c.width/2,c.height/2);x.rotate(rotation*Math.PI/180);x.drawImage(current,-w/2,-h/2,w,h);x.restore();x.filter="none"; if(borderSize>0){x.save();x.strokeStyle=borderColor;x.lineWidth=borderSize*2;x.strokeRect(borderSize,borderSize,c.width-borderSize*2,c.height-borderSize*2);x.restore();}
   const a=document.createElement("a");a.href=c.toDataURL(format==="jpg"?"image/jpeg":"image/png",.95);a.download=`palia-image-studio-edited.${format}`;document.body.appendChild(a);a.click();a.remove();
 });
 
 
 ["brightness","contrast","saturation","blur","grayscale"].forEach(k=>{
-  const el=$("#"+k), out=$("#"+k+"Value");
+  const el=document.querySelector("#"+k), out=document.querySelector("#"+k+"Value");
   if(!el)return;
   el.addEventListener("input",()=>{
     adjustments[k]=+el.value;
@@ -790,3 +832,50 @@ document.querySelectorAll(".mode-card").forEach(card=>{
   modal.addEventListener("click",e=>{if(e.target===modal)close()});
   document.addEventListener("keydown",e=>{if(e.key==="Escape"&&!modal.hidden)close()});
 })();
+
+document.addEventListener("click",e=>{
+  if(e.target.closest("#editorUploadBtn,#editorUploadNew")){
+    e.preventDefault(); fileInput.click();
+  }
+});
+document.addEventListener("click",e=>{
+  const btn=e.target.closest(".editor-tab");
+  if(!btn)return;
+  const target=btn.dataset.panel;
+  if(!target)return;
+  $$(".editor-tab").forEach(x=>x.classList.toggle("active",x===btn));
+  $$("[data-panel-content]").forEach(p=>p.classList.toggle("hidden",p.dataset.panelContent!==target));
+});
+document.addEventListener("click",e=>{
+  const b=e.target.closest(".download-choice");
+  if(!b)return;
+  e.preventDefault();
+  format=b.dataset.format||"png";
+  $("#downloadMenu")?.classList.remove("open");
+  const main=$("#downloadBtn"); if(main) main.classList.remove("open");
+  const event=new MouseEvent("click",{bubbles:true});
+  // trigger the existing exporter
+  if(main) main.dataset.directDownload="1";
+});
+document.addEventListener("click",e=>{
+  const main=e.target.closest("#downloadBtn");
+  const menu=$("#downloadMenu");
+  if(!main||!menu)return;
+  e.preventDefault();
+  menu.classList.toggle("open");
+});
+document.addEventListener("click",e=>{
+  if(!e.target.closest(".rb-download")) $("#downloadMenu")?.classList.remove("open");
+});
+
+document.addEventListener("palia:custom-size",e=>{
+  const d=e.detail;if(!original)return;
+  const w=original.naturalWidth||original.width,h=original.naturalHeight||original.height;
+  const target=d.widthMm/d.heightMm;
+  let cw=w,ch=h;
+  if(w/h>target) cw=Math.max(1,Math.round(h*target)); else ch=Math.max(1,Math.round(w/target));
+  const sx=Math.max(0,Math.round((w-cw)/2)),sy=Math.max(0,Math.round((h-ch)/2));
+  const c=document.createElement("canvas");c.width=cw;c.height=ch;
+  c.getContext("2d").drawImage(original,sx,sy,cw,ch,0,0,cw,ch);
+  const im=new Image(); im.onload=()=>{original=im;current=processed=im;render();}; im.src=c.toDataURL("image/png");
+});
