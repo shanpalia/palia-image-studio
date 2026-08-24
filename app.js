@@ -286,7 +286,7 @@ if(!validType && !validName){
         render();
         saveActiveToRecent();
       }else{
-        showProcessing("Removing background…","Fast AI mode • first use downloads a small model");
+        showProcessing("Removing background…","Fast mode • processing a reduced preview");
         try{
           await removeBackground();
         }catch(err){
@@ -443,7 +443,7 @@ $$(".tool").forEach(b=>b.addEventListener("click",async()=>{
 
 async function removeBackground(){
   if(!original) return;
-  showProcessing("Loading AI background remover...","First use may download the AI model");
+  showProcessing("Removing background…","Fast AI • first use may load the model");
   try{
     const resultBlob = await removeBackgroundAI(original, (current,total)=>{
       if(total){ const pct=Math.round(current/total*100); processingSub.textContent=`AI model: ${pct}%`; }
@@ -489,7 +489,7 @@ async function removeBackgroundAI(im, progress){
   // Convert the HTMLImageElement to a real PNG Blob before passing it
   // to the neural-network library. This avoids input-type incompatibilities.
   const sourceCanvas=document.createElement("canvas");
-  const maxSide=1024;
+  const maxSide=768;
   const ratio=Math.min(1,maxSide/Math.max(im.naturalWidth,im.naturalHeight));
   sourceCanvas.width=Math.max(1,Math.round(im.naturalWidth*ratio));
   sourceCanvas.height=Math.max(1,Math.round(im.naturalHeight*ratio));
@@ -500,7 +500,7 @@ async function removeBackgroundAI(im, progress){
     sourceCanvas.toBlob(blob=>{
       if(blob) resolve(blob);
       else reject(new Error("Could not prepare image for AI processing."));
-    },"image/png");
+    },"image/jpeg",0.82);
   });
 
   const baseConfig={
