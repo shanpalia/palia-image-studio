@@ -771,3 +771,12 @@ body[data-page="enhance"] .toolbar-format{margin-left:5px}
   font-size:10px;
   font-weight:900;
 }
+
+.ai-enhance-btn{
+  background:#111!important;
+  color:#fff!important;
+  border:0!important;
+  box-shadow:0 8px 20px rgba(0,0,0,.12);
+  font-weight:900!important;
+}
+.ai-enhance-btn:hover{transform:translateY(-1px)}

@@ -215,3 +215,8 @@ The enhancer now uses Real-ESRGAN x4v3 through ONNX Runtime Web for learned supe
 AI enhancement now uses a verified Real-ESRGAN general-purpose ONNX export, reads the model's actual output name/shape, and applies a lightweight clarity pass after neural restoration. This is intended to make real photographs visibly sharper and higher-detail rather than merely resizing them.
 
 Important: no super-resolution model can perfectly reconstruct information that was completely destroyed by severe blur; it generates plausible restored detail. Real-ESRGAN is designed for practical real-world image restoration/super-resolution. 
+
+
+## Cutout-style enhancement
+
+The enhancer now has an explicit AI HD Enhance action. It performs neural super-resolution when the local ONNX model can run, followed by a detail-preserving clarity pass. The UI labels the result as AI HD Restoration rather than pretending ordinary resizing is AI restoration.

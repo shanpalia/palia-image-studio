@@ -580,22 +580,55 @@ function tensorToCanvas(output,w,h){
 }
 
 function applyHdClarity(canvas){
-  // A lightweight post-pass after AI restoration so the result is visibly
-  // crisper without running another expensive neural network.
+  const w=canvas.width,h=canvas.height;
   const c=document.createElement("canvas");
-  c.width=canvas.width; c.height=canvas.height;
-  const x=c.getContext("2d");
+  c.width=w;c.height=h;
+  const x=c.getContext("2d",{willReadFrequently:true});
   x.imageSmoothingEnabled=true;
   x.imageSmoothingQuality="high";
-  x.filter="contrast(1.10) saturate(1.05) brightness(1.015)";
+  x.filter="contrast(1.12) saturate(1.06) brightness(1.01)";
   x.drawImage(canvas,0,0);
   x.filter="none";
-  // Blend a high-frequency-looking edge layer using a second slightly
-  // enlarged draw. This is intentionally subtle to avoid halos.
-  x.globalAlpha=.12;
-  x.drawImage(canvas,-1,-1,canvas.width+2,canvas.height+2);
-  x.globalAlpha=1;
+
+  // Detail-preserving unsharp mask approximation.
+  const src=x.getImageData(0,0,w,h);
+  const d=src.data;
+  const copy=new Uint8ClampedArray(d);
+  const strength=.34;
+  const radius=1;
+  for(let y=radius;y<h-radius;y++){
+    for(let xx=radius;xx<w-radius;xx++){
+      const p=(y*w+xx)*4;
+      for(let ch=0;ch<3;ch++){
+        const avg=(
+          copy[((y-1)*w+xx)*4+ch]+
+          copy[((y+1)*w+xx)*4+ch]+
+          copy[(y*w+xx-1)*4+ch]+
+          copy[(y*w+xx+1)*4+ch]
+        )/4;
+        d[p+ch]=Math.max(0,Math.min(255,copy[p+ch]+(copy[p+ch]-avg)*strength));
+      }
+    }
+  }
+  x.putImageData(src,0,0);
   return c;
+}
+
+async function runAiEnhance(){
+  if(!current) return;
+  const status=$("#uploadStatus");
+  if(status) status.textContent="AI restoring blur, recovering detail and creating HD…";
+  try{
+    const raw=await realEsrgan(current,4);
+    const restored=applyHdClarity(raw);
+    current=await canvasToImage(restored);
+    renderCurrent();
+    if(status) status.textContent="AI HD Restoration complete";
+    if(typeof addRecent==="function") addRecent(current);
+  }catch(err){
+    console.error("AI Enhance failed",err);
+    if(status) status.textContent="AI model could not run on this device";
+  }
 }
 
 async function realEsrgan(source, wantedScale=4){
@@ -896,3 +929,10 @@ document.querySelectorAll(".mode-card").forEach(card=>{
   setTimeout(applyZoom, 100);
   setTimeout(applyZoom, 500);
 })();
+
+document.addEventListener("click",e=>{
+  const b=e.target.closest("[data-ai-enhance],#aiEnhanceBtn");
+  if(!b) return;
+  e.preventDefault();
+  runAiEnhance();
+});
