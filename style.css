@@ -757,7 +757,3 @@ body[data-page="enhance"] .toolbar-format{margin-left:5px}
 .editor-canvas-area canvas{
   transform-origin:center center;
 }
-
-/* Stronger HD enhancement status */
-.enhance-quality-note{font-size:10px!important;font-weight:800!important;color:#14775f!important}
-.compare-difference-note{display:block;font-size:9px!important;font-weight:700!important;color:#14775f!important}
