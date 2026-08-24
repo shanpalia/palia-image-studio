@@ -204,3 +204,8 @@ The Enhancer page now includes an `AI Enhance` option. It uses a fast local smar
 ## Zoom fix
 
 Zoom In/Out/Reset now use a single delegated event handler and scale the editor canvas directly. Ctrl+mouse-wheel over the canvas also zooms. Zoom is clamped from 25% to 400%.
+
+
+## HD deblur enhancement update
+
+2x/4x enhancement now applies a visible detail-recovery/unsharp pass before HD upscaling, while keeping a safe processing pixel cap for low-RAM PCs. AI Enhance uses a stronger deblur/sharpen pass plus contrast, saturation and brightness recovery. The comparison label explicitly shows HD/deblur status.
