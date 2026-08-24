@@ -199,3 +199,8 @@ The Image Enhancer now uses a capped working resolution, browser-friendly image 
 ## AI Enhance
 
 The Enhancer page now includes an `AI Enhance` option. It uses a fast local smart-enhancement pipeline (clarity, contrast, saturation, brightness and light sharpening) rather than a cloud API, so no API key is required and the page stays responsive on low-RAM PCs. The button is clearly marked Fast.
+
+
+## Zoom fix
+
+Zoom In/Out/Reset now use a single delegated event handler and scale the editor canvas directly. Ctrl+mouse-wheel over the canvas also zooms. Zoom is clamped from 25% to 400%.

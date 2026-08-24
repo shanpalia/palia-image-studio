@@ -244,7 +244,7 @@ function bindLandingDrop(){
       e.stopPropagation();
       dropZone?.classList.remove("drag");
       const file=e.dataTransfer.files[0];
-      if(file && (/^image\\//i.test(file.type) || /\\.(jpe?g|png|webp)$/i.test(file.name||""))){
+      if(file && (/^image\//i.test(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name||""))){
         loadFile(file);
       }else{
         alert("Please drop a JPG, PNG or WEBP image.");
@@ -776,3 +776,64 @@ document.querySelectorAll(".mode-card").forEach(card=>{
     if(mode) applyHomeMode(mode);
   });
 });
+
+
+/* Reliable canvas zoom controls */
+(function setupZoomControls(){
+  let zoomLevel = 1;
+  const MIN_ZOOM = 0.25;
+  const MAX_ZOOM = 4;
+
+  function getCanvas(){
+    return document.querySelector("#editorCanvas, #canvas, canvas.editor-canvas, .editor-canvas-area canvas") ||
+           document.querySelector(".editor-canvas-area canvas");
+  }
+
+  function applyZoom(){
+    const canvas = getCanvas();
+    if(!canvas) return;
+
+    canvas.style.transformOrigin = "center center";
+    canvas.style.transform = `scale(${zoomLevel})`;
+    canvas.style.transition = "transform .12s ease";
+
+    document.querySelectorAll("[data-zoom-value], #zoomValue, .zoom-value").forEach(el=>{
+      el.textContent = Math.round(zoomLevel * 100) + "%";
+    });
+  }
+
+  function changeZoom(delta){
+    zoomLevel = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, +(zoomLevel + delta).toFixed(2)));
+    applyZoom();
+  }
+
+  function resetZoom(){
+    zoomLevel = 1;
+    applyZoom();
+  }
+
+  document.addEventListener("click", e=>{
+    const btn=e.target.closest("[data-zoom], #zoomInBtn, #zoomOutBtn, #zoomResetBtn");
+    if(!btn) return;
+
+    e.preventDefault();
+    e.stopPropagation();
+
+    const action=btn.dataset.zoom || btn.id;
+    if(action==="in" || action==="zoomIn" || action==="zoomInBtn") changeZoom(.25);
+    else if(action==="out" || action==="zoomOut" || action==="zoomOutBtn") changeZoom(-.25);
+    else if(action==="reset" || action==="zoomReset" || action==="zoomResetBtn") resetZoom();
+  }, true);
+
+  document.addEventListener("wheel", e=>{
+    const area=e.target.closest(".editor-canvas-area");
+    if(!area || !e.ctrlKey) return;
+    e.preventDefault();
+    changeZoom(e.deltaY < 0 ? .1 : -.1);
+  }, {passive:false});
+
+  window.addEventListener("resize", applyZoom);
+  window.PaliaZoom = {applyZoom, changeZoom, resetZoom};
+  setTimeout(applyZoom, 100);
+  setTimeout(applyZoom, 500);
+})();

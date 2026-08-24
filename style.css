@@ -742,3 +742,18 @@ body[data-page="enhance"] .toolbar-format{margin-left:5px}
   color:#14775f;
   font-size:8px;
 }
+
+/* Zoom controls */
+.zoom-top-btn,
+#zoomInBtn,
+#zoomOutBtn,
+#zoomResetBtn{
+  cursor:pointer!important;
+  user-select:none!important;
+}
+.editor-canvas-area{
+  overflow:hidden!important;
+}
+.editor-canvas-area canvas{
+  transform-origin:center center;
+}
