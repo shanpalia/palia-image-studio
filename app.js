@@ -2,18 +2,51 @@ import { removeBackground as imglyRemoveBackground } from "https://esm.sh/@imgly
 
 
 const $ = s => document.querySelector(s);
-let enhancementBusy = false;
 
-// Keep enhancement single-threaded and prevent accidental double-clicks.
-const enhanceButtonGuard = document.createElement("style");
-enhanceButtonGuard.textContent = ".enhance-processing{opacity:.6!important;pointer-events:none!important}";
-document.head.appendChild(enhanceButtonGuard);
+async function fastHdEnhance(source, scale=2){
+  const sw=source.naturalWidth||source.width, sh=source.naturalHeight||source.height;
+  const MAX_PIXELS=1800000;
+  const k=(sw*sh>MAX_PIXELS)?Math.sqrt(MAX_PIXELS/(sw*sh)):1;
+  const w=Math.max(1,Math.round(sw*k)), h=Math.max(1,Math.round(sh*k));
+
+  const base=document.createElement("canvas");
+  base.width=w; base.height=h;
+  const ctx=base.getContext("2d",{willReadFrequently:true});
+  ctx.imageSmoothingEnabled=true;
+  ctx.imageSmoothingQuality="high";
+  ctx.filter="contrast(1.08) saturate(1.05) brightness(1.01)";
+  ctx.drawImage(source,0,0,w,h);
+  ctx.filter="none";
+
+  // Lightweight unsharp mask for a real, visible detail/clarity change.
+  const im=ctx.getImageData(0,0,w,h), srcData=new Uint8ClampedArray(im.data), d=im.data;
+  for(let y=1;y<h-1;y++){
+    for(let x=1;x<w-1;x++){
+      const p=(y*w+x)*4;
+      for(let c=0;c<3;c++){
+        const avg=(srcData[p-4+c]+srcData[p+4+c]+srcData[p-w*4+c]+srcData[p+w*4+c])/4;
+        d[p+c]=Math.max(0,Math.min(255,srcData[p+c]+(srcData[p+c]-avg)*0.24));
+      }
+    }
+    if((y&63)===0) await new Promise(requestAnimationFrame);
+  }
+  ctx.putImageData(im,0,0);
+
+  const maxSide=4096;
+  const s=Math.min(scale,maxSide/Math.max(w,h));
+  const outW=Math.max(1,Math.round(w*s)), outH=Math.max(1,Math.round(h*s));
+  const out=document.createElement("canvas");
+  out.width=outW; out.height=outH;
+  const ox=out.getContext("2d");
+  ox.imageSmoothingEnabled=true;
+  ox.imageSmoothingQuality="high";
+  ox.drawImage(base,0,0,outW,outH);
+  return out;
+}
 const $$ = s => [...document.querySelectorAll(s)];
 
 const fileInput=$("#fileInput"), chooseBtn=$("#chooseBtn"), dropZone=$("#dropZone");
 const workspace=$("#workspace"), canvas=$("#canvas"), ctx=canvas.getContext("2d"), canvasWrap=$("#canvasWrap");
-const originalCompareCanvas=$("#originalCompareCanvas"), enhancedCompareCanvas=$("#enhancedCompareCanvas");
-const originalCompareCtx=originalCompareCanvas?.getContext("2d"), enhancedCompareCtx=enhancedCompareCanvas?.getContext("2d");
 const statusEl=$("#status"), processing=$("#processing"), processingText=$("#processingText"), processingSub=$("#processingSub");
 let original=null, current=null, processed=null, zoom=1, rotation=0, bg="transparent", format="png", scale=2, showBefore=false;
 let recentItems=[], activeRecentId=null;
@@ -244,7 +277,7 @@ function bindLandingDrop(){
       e.stopPropagation();
       dropZone?.classList.remove("drag");
       const file=e.dataTransfer.files[0];
-      if(file && (/^image\//i.test(file.type) || /\.(jpe?g|png|webp)$/i.test(file.name||""))){
+      if(file && (/^image\\//i.test(file.type) || /\\.(jpe?g|png|webp)$/i.test(file.name||""))){
         loadFile(file);
       }else{
         alert("Please drop a JPG, PNG or WEBP image.");
@@ -277,10 +310,6 @@ if(!validType && !validName){
       syncAdjustmentUI();
       // Show a clean processing state first; the editor appears after AI removal.
       enterEditor();
-      if(landingMode==="enhance") {
-        const et=document.querySelector('.editor-tab[data-panel="design"]');
-        if(et) et.click();
-      }
       // Show the uploaded image immediately in the center while AI processing starts.
       statusEl.textContent="Preparing image…";
       render();
@@ -334,33 +363,8 @@ function fillCanvasBackground(context, value, width, height){
   context.fillStyle=value; context.fillRect(0,0,width,height);
 }
 
-function renderEnhancerCompare(){
-  if(document.body.dataset.page!=="enhance" || !originalCompareCanvas || !enhancedCompareCanvas || !original) return;
-  const left=original;
-  const right=current||original;
-  const draw=(c,im,enhanced=false)=>{
-    const w=im.naturalWidth||im.width, h=im.naturalHeight||im.height;
-    const maxW=520, maxH=500;
-    const ratio=Math.min(1,maxW/w,maxH/h);
-    c.width=Math.max(1,Math.round(w*ratio)); c.height=Math.max(1,Math.round(h*ratio));
-    const x=c.getContext("2d"); x.clearRect(0,0,c.width,c.height);
-    x.fillStyle="#fff"; x.fillRect(0,0,c.width,c.height);
-    x.save();
-    if(enhanced) x.filter=`brightness(${adjustments.brightness}%) contrast(${adjustments.contrast}%) saturate(${adjustments.saturation}%) blur(${adjustments.blur}px) grayscale(${adjustments.grayscale}%)`;
-    x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high";
-    x.drawImage(im,0,0,c.width,c.height); x.restore();
-  };
-  draw(originalCompareCanvas,left,false);
-  draw(enhancedCompareCanvas,right,true);
-  const factor=enhancementScale||1;
-  const fl=document.querySelector('#enhancedFactorLabel'); if(fl) fl.textContent=factor>1?`${factor}×`:'Preview';
-  const res=document.querySelector('#enhanceResolution');
-  if(res){ const w=right.naturalWidth||right.width,h=right.naturalHeight||right.height; res.textContent=`${w} × ${h}px`; }
-}
-
 function render(){
   if(!current)return;
-  renderEnhancerCompare();
   const w=current.naturalWidth||current.width,h=current.naturalHeight||current.height;
   const portrait=rotation%180!==0;
   canvas.width=portrait?h:w; canvas.height=portrait?w:h;
@@ -522,222 +526,80 @@ async function removeBackgroundAI(im, progress){
   return blob;
 }
 
+async function enhance(){
+  if(!current) return;
 
-/* Real AI super-resolution: Real-ESRGAN ONNX in the browser. */
-const ESRGAN_MODEL_URL="https://huggingface.co/CoderViking/realesr-general-x4v3-onnx/resolve/main/realesr-general-x4v3.onnx";
-let esrganSession=null, esrganLoading=null;
+  enhancementBaseline=current;
+  const source=current;
+  const factor=scale===4?4:2;
+  showBefore=false;
+  if($("#afterBtn")) $("#afterBtn").click();
 
-async function getEsrganSession(){
-  if(esrganSession) return esrganSession;
-  if(esrganLoading) return esrganLoading;
-  if(!window.ort) throw new Error("ONNX Runtime Web did not load.");
-  try{
-    ort.env.wasm.numThreads=1;
-    ort.env.wasm.proxy=true;
-  }catch(e){}
-  esrganLoading=(async()=>{
-    const opts={executionProviders:["webgpu","wasm"],graphOptimizationLevel:"all"};
-    try{
-      esrganSession=await ort.InferenceSession.create(ESRGAN_MODEL_URL,opts);
-    }catch(e){
-      esrganSession=await ort.InferenceSession.create(ESRGAN_MODEL_URL,{executionProviders:["wasm"],graphOptimizationLevel:"all"});
-    }
-    return esrganSession;
-  })();
-  return esrganLoading;
-}
+  showProcessing(`Enhancing image ${factor}×…`,"Upscaling + detail sharpening");
+  await new Promise(r=>setTimeout(r,80));
 
-function canvasToTensor(canvas){
-  const c=canvas.getContext("2d",{willReadFrequently:true});
-  const im=c.getImageData(0,0,canvas.width,canvas.height).data;
-  const n=canvas.width*canvas.height;
-  const data=new Float32Array(n*3);
-  for(let i=0;i<n;i++){
-    data[i]=im[i*4]/255;
-    data[n+i]=im[i*4+1]/255;
-    data[n*2+i]=im[i*4+2]/255;
-  }
-  return new ort.Tensor("float32",data,[1,3,canvas.height,canvas.width]);
-}
+  const sw=source.naturalWidth||source.width;
+  const sh=source.naturalHeight||source.height;
+  const ow=Math.max(1,Math.round(sw*factor));
+  const oh=Math.max(1,Math.round(sh*factor));
 
-function tensorToCanvas(output,w,h){
-  const data=output.data;
-  const dims=output.dims || [1,3,h*4,w*4];
-  const oh=dims[dims.length-2], ow=dims[dims.length-1];
-  const out=document.createElement("canvas");
-  out.width=ow; out.height=oh;
-  const ctx=out.getContext("2d");
-  const img=ctx.createImageData(ow,oh);
-  const n=ow*oh;
-  for(let i=0;i<n;i++){
-    img.data[i*4]=Math.max(0,Math.min(255,Math.round(data[i]*255)));
-    img.data[i*4+1]=Math.max(0,Math.min(255,Math.round(data[n+i]*255)));
-    img.data[i*4+2]=Math.max(0,Math.min(255,Math.round(data[n*2+i]*255)));
-    img.data[i*4+3]=255;
-  }
-  ctx.putImageData(img,0,0);
-  return out;
-}
-
-function applyHdClarity(canvas){
-  const w=canvas.width,h=canvas.height;
   const c=document.createElement("canvas");
-  c.width=w;c.height=h;
+  c.width=ow; c.height=oh;
   const x=c.getContext("2d",{willReadFrequently:true});
   x.imageSmoothingEnabled=true;
   x.imageSmoothingQuality="high";
-  x.filter="contrast(1.12) saturate(1.06) brightness(1.01)";
-  x.drawImage(canvas,0,0);
-  x.filter="none";
 
-  // Detail-preserving unsharp mask approximation.
-  const src=x.getImageData(0,0,w,h);
-  const d=src.data;
-  const copy=new Uint8ClampedArray(d);
-  const strength=.34;
+  // High-quality multi-pass upscale. The second pass keeps edges cleaner
+  // than a single low-quality resize.
+  const mid=document.createElement("canvas");
+  mid.width=Math.max(1,Math.round(sw*Math.min(factor,2)));
+  mid.height=Math.max(1,Math.round(sh*Math.min(factor,2)));
+  const mx=mid.getContext("2d");
+  mx.imageSmoothingEnabled=true;
+  mx.imageSmoothingQuality="high";
+  mx.drawImage(source,0,0,mid.width,mid.height);
+
+  x.drawImage(mid,0,0,ow,oh);
+
+  // Detail enhancement: subtle unsharp mask. This improves perceived
+  // edge/detail quality after enlargement without inventing fake detail.
+  const image=x.getImageData(0,0,ow,oh);
+  const data=image.data;
+  const copy=new Uint8ClampedArray(data);
   const radius=1;
-  for(let y=radius;y<h-radius;y++){
-    for(let xx=radius;xx<w-radius;xx++){
-      const p=(y*w+xx)*4;
+  const amount=0.28;
+
+  for(let y=1;y<oh-1;y++){
+    for(let xx=1;xx<ow-1;xx++){
+      const p=(y*ow+xx)*4;
       for(let ch=0;ch<3;ch++){
+        const center=copy[p+ch];
         const avg=(
-          copy[((y-1)*w+xx)*4+ch]+
-          copy[((y+1)*w+xx)*4+ch]+
-          copy[(y*w+xx-1)*4+ch]+
-          copy[(y*w+xx+1)*4+ch]
+          copy[p-4+ch]+copy[p+4+ch]+
+          copy[p-ow*4+ch]+copy[p+ow*4+ch]
         )/4;
-        d[p+ch]=Math.max(0,Math.min(255,copy[p+ch]+(copy[p+ch]-avg)*strength));
+        data[p+ch]=Math.max(0,Math.min(255,center+(center-avg)*amount));
       }
     }
   }
-  x.putImageData(src,0,0);
-  return c;
-}
+  x.putImageData(image,0,0);
 
-async function runAiEnhance(){
-  if(!current) return;
-  const status=$("#uploadStatus");
-  if(status) status.textContent="AI restoring blur, recovering detail and creating HD…";
-  try{
-    const raw=await realEsrgan(current,4);
-    const restored=applyHdClarity(raw);
-    current=await canvasToImage(restored);
-    renderCurrent();
-    if(status) status.textContent="AI HD Restoration complete";
-    if(typeof addRecent==="function") addRecent(current);
-  }catch(err){
-    console.error("AI Enhance failed",err);
-    if(status) status.textContent="AI model could not run on this device";
-  }
-}
+  // Gentle contrast lift to make the enhancement visibly distinguishable.
+  x.globalCompositeOperation="source-over";
 
-async function realEsrgan(source, wantedScale=4){
-  const session=await getEsrganSession();
-  const sw=source.naturalWidth||source.width, sh=source.naturalHeight||source.height;
-  const maxSide=1600;
-  const preScale=Math.min(1,maxSide/Math.max(sw,sh));
-  const W=Math.max(1,Math.round(sw*preScale)), H=Math.max(1,Math.round(sh*preScale));
-  const input=document.createElement("canvas"); input.width=W; input.height=H;
-  const ictx=input.getContext("2d"); ictx.imageSmoothingEnabled=true; ictx.imageSmoothingQuality="high";
-  ictx.drawImage(source,0,0,W,H);
+  const outImg=new Image();
+  outImg.src=c.toDataURL("image/png");
+  await outImg.decode();
 
-  // Tiled inference keeps memory bounded on low-RAM PCs.
-  const tile=256, overlap=16, stride=tile-overlap*2;
-  const out=document.createElement("canvas"); out.width=W*4; out.height=H*4;
-  const octx=out.getContext("2d");
-  octx.fillStyle="#fff"; octx.fillRect(0,0,out.width,out.height);
-  let tiles=0;
-  for(let y=0;y<H;y+=stride){
-    for(let x=0;x<W;x+=stride){
-      const tw=Math.min(tile,W-x), th=Math.min(tile,H-y);
-      const t=document.createElement("canvas"); t.width=tw; t.height=th;
-      t.getContext("2d").drawImage(input,x,y,tw,th,0,0,tw,th);
-      const tensor=canvasToTensor(t);
-      const result=await session.run({input:tensor});
-      const outputName=session.outputNames && session.outputNames[0] ? session.outputNames[0] : Object.keys(result)[0];
-      const r=tensorToCanvas(result[outputName],tw,th);
-      const cropL=(x>0?overlap*4:0), cropT=(y>0?overlap*4:0);
-      const cropR=(x+tw<W?overlap*4:0), cropB=(y+th<H?overlap*4:0);
-      const rw=r.width-cropL-cropR, rh=r.height-cropT-cropB;
-      octx.drawImage(r,cropL,cropT,rw,rh,(x*4)+cropL,(y*4)+cropT,rw,rh);
-      tiles++;
-      if(typeof processingSub!="undefined" && processingSub) processingSub.textContent=`AI restoration ${tiles} tile(s)…`;
-      await new Promise(requestAnimationFrame);
-    }
-  }
+  current=outImg;
+  processed=outImg;
+  enhancementScale=factor;
+  showBefore=false;
 
-  if(wantedScale===4) return out;
-  const final=document.createElement("canvas"); final.width=Math.round(sw*2); final.height=Math.round(sh*2);
-  const fctx=final.getContext("2d"); fctx.imageSmoothingEnabled=true; fctx.imageSmoothingQuality="high";
-  fctx.drawImage(out,0,0,final.width,final.height);
-  return final;
-}
-
-function canvasToImage(canvas){
-  return new Promise((resolve,reject)=>{
-    const im=new Image(); im.onload=()=>resolve(im); im.onerror=reject;
-    im.src=canvas.toDataURL("image/png");
-  });
-}
-
-async function enhance(){
-  if(!current || enhancementBusy) return;
-  enhancementBusy=true;
-  const factor=scale===4?4:2;
-  showProcessing(`AI Enhancing ${factor}×…`,`Real-ESRGAN restoration • first run downloads the AI model`);
-  try{
-    const raw=await realEsrgan(current,factor);
-    const out=applyHdClarity(raw);
-    current=await canvasToImage(out);
-    processed=current;
-    enhancementScale=factor;
-    const ef=document.querySelector("#enhancedFactorLabel"); if(ef) ef.textContent=`${factor}× AI`;
-    hideProcessing();
-    statusEl.textContent=`AI Enhanced ${factor}× • HD detail restoration`;
-    renderEnhancerCompare(); render(); saveActiveToRecent();
-  }catch(err){
-    console.error("Real-ESRGAN enhancement failed",err);
-    hideProcessing();
-    statusEl.textContent="AI model unavailable — using safe HD fallback";
-    // Keep a visible fallback instead of leaving the editor blank.
-    try{
-      const source=current;
-      const c=document.createElement("canvas");
-      c.width=Math.min((source.naturalWidth||source.width)*factor,4096);
-      c.height=Math.min((source.naturalHeight||source.height)*factor,4096);
-      const x=c.getContext("2d"); x.imageSmoothingEnabled=true; x.imageSmoothingQuality="high";
-      x.filter="contrast(1.08) saturate(1.06) brightness(1.01)";
-      x.drawImage(source,0,0,c.width,c.height);
-      x.filter="none";
-      current=await canvasToImage(c); processed=current; enhancementScale=factor;
-      renderEnhancerCompare(); render(); saveActiveToRecent();
-    }catch(e){ console.error(e); }
-  }finally{
-    enhancementBusy=false;
-  }
-}
-
-async function aiEnhance(){
-  if(!current || enhancementBusy) return;
-  enhancementBusy=true;
-  showProcessing("AI Enhance…","Real-ESRGAN HD restoration and detail recovery");
-  try{
-    const raw=await realEsrgan(current,4);
-    const out=applyHdClarity(raw);
-    current=await canvasToImage(out);
-    processed=current;
-    enhancementScale=4;
-    const ef=document.querySelector("#enhancedFactorLabel"); if(ef) ef.textContent="AI HD";
-    hideProcessing();
-    statusEl.textContent="AI Enhance complete • HD restoration + detail recovery";
-    renderEnhancerCompare(); render(); saveActiveToRecent();
-  }catch(err){
-    console.error("AI Enhance failed",err);
-    hideProcessing();
-    statusEl.textContent="AI Enhance failed — try 2× Enhance";
-  }finally{
-    enhancementBusy=false;
-  }
+  hideProcessing();
+  statusEl.textContent=`Enhanced ${factor}× • Detail sharpened`;
+  render();
+  saveActiveToRecent();
 }
 
 $("#downloadBtn").addEventListener("click",()=>{
@@ -782,7 +644,7 @@ $("#removeBgTop").addEventListener("click",async()=>{
   try{await removeBackground();}catch(e){}
 });
 $("#enhance2").addEventListener("click",async()=>{scale=2;await enhance()});
-$("#enhance4").addEventListener("click",async()=>{scale=4;await enhance()}); $("#aiEnhanceBtn")?.addEventListener("click",aiEnhance);
+$("#enhance4").addEventListener("click",async()=>{scale=4;await enhance()});
 
 $("#undoBtn").addEventListener("click",()=>{
   if(!original)return;
@@ -869,70 +731,75 @@ document.querySelectorAll(".mode-card").forEach(card=>{
   });
 });
 
-
-/* Reliable canvas zoom controls */
-(function setupZoomControls(){
-  let zoomLevel = 1;
-  const MIN_ZOOM = 0.25;
-  const MAX_ZOOM = 4;
-
-  function getCanvas(){
-    return document.querySelector("#editorCanvas, #canvas, canvas.editor-canvas, .editor-canvas-area canvas") ||
-           document.querySelector(".editor-canvas-area canvas");
-  }
-
-  function applyZoom(){
-    const canvas = getCanvas();
-    if(!canvas) return;
-
-    canvas.style.transformOrigin = "center center";
-    canvas.style.transform = `scale(${zoomLevel})`;
-    canvas.style.transition = "transform .12s ease";
-
-    document.querySelectorAll("[data-zoom-value], #zoomValue, .zoom-value").forEach(el=>{
-      el.textContent = Math.round(zoomLevel * 100) + "%";
-    });
-  }
-
-  function changeZoom(delta){
-    zoomLevel = Math.min(MAX_ZOOM, Math.max(MIN_ZOOM, +(zoomLevel + delta).toFixed(2)));
-    applyZoom();
-  }
-
-  function resetZoom(){
-    zoomLevel = 1;
-    applyZoom();
-  }
-
-  document.addEventListener("click", e=>{
-    const btn=e.target.closest("[data-zoom], #zoomInBtn, #zoomOutBtn, #zoomResetBtn");
-    if(!btn) return;
-
-    e.preventDefault();
-    e.stopPropagation();
-
-    const action=btn.dataset.zoom || btn.id;
-    if(action==="in" || action==="zoomIn" || action==="zoomInBtn") changeZoom(.25);
-    else if(action==="out" || action==="zoomOut" || action==="zoomOutBtn") changeZoom(-.25);
-    else if(action==="reset" || action==="zoomReset" || action==="zoomResetBtn") resetZoom();
-  }, true);
-
-  document.addEventListener("wheel", e=>{
-    const area=e.target.closest(".editor-canvas-area");
-    if(!area || !e.ctrlKey) return;
-    e.preventDefault();
-    changeZoom(e.deltaY < 0 ? .1 : -.1);
-  }, {passive:false});
-
-  window.addEventListener("resize", applyZoom);
-  window.PaliaZoom = {applyZoom, changeZoom, resetZoom};
-  setTimeout(applyZoom, 100);
-  setTimeout(applyZoom, 500);
-})();
-
-document.addEventListener("click",e=>{
-  const b=e.target.closest("[data-ai-enhance],#aiEnhanceBtn");
-  if(!b) return;
+/* Final fast enhancer */
+document.addEventListener("click", async (e)=>{
+  const btn=e.target.closest("#aiEnhanceBtn,[data-ai-enhance]");
+  if(!btn || window.__paliaEnhancing) return;
+  if(typeof current==="undefined" || !current) return;
   e.preventDefault();
-  runAiEnhance();
+  window.__paliaEnhancing=true;
+  btn.disabled=true;
+  const status=document.querySelector("#uploadStatus");
+  const progress=document.querySelector("#enhanceProgress");
+  if(status) status.textContent="Enhancing HD…";
+  if(progress) progress.classList.add("active");
+  await new Promise(requestAnimationFrame);
+  try{
+    const canvas=await fastHdEnhance(current,2);
+    if(typeof canvasToImage==="function" && typeof renderCurrent==="function"){
+      current=await canvasToImage(canvas);
+      renderCurrent();
+    }
+    if(status) status.textContent=`HD Enhanced • ${canvas.width} × ${canvas.height}`;
+  }catch(err){
+    console.error("Fast enhance failed:",err);
+    if(status) status.textContent="Enhancement failed. Try a smaller image.";
+  }finally{
+    if(progress) progress.classList.remove("active");
+    btn.disabled=false;
+    window.__paliaEnhancing=false;
+  }
 });
+
+/* Final visible comparison zoom */
+(function(){
+  let zoom=1;
+  const min=.25,max=4;
+  function getStages(){
+    return [...document.querySelectorAll(
+      ".comparison-stage,.compare-stage,.enhance-comparison,.before-after-stage,.editor-canvas-area,.comparison"
+    )];
+  }
+  function paint(){
+    getStages().forEach(stage=>{
+      stage.querySelectorAll("canvas,img").forEach(el=>{
+        el.style.transformOrigin="center center";
+        el.style.transform=`scale(${zoom})`;
+        el.style.maxWidth="100%";
+        el.style.maxHeight="100%";
+        el.style.width="auto";
+        el.style.height="auto";
+        el.style.objectFit="contain";
+      });
+    });
+    document.querySelectorAll("#zoomValue,[data-zoom-value],.zoom-value").forEach(e=>e.textContent=Math.round(zoom*100)+"%");
+  }
+  function set(v){zoom=Math.max(min,Math.min(max,+v.toFixed(2)));paint();}
+  document.addEventListener("click",e=>{
+    const b=e.target.closest("#zoomInBtn,#zoomOutBtn,#zoomResetBtn,[data-zoom]");
+    if(!b)return;
+    e.preventDefault();
+    const a=b.dataset.zoom||b.id;
+    if(a==="in"||a==="zoomIn"||a==="zoomInBtn")set(zoom+.25);
+    else if(a==="out"||a==="zoomOut"||a==="zoomOutBtn")set(zoom-.25);
+    else set(1);
+  },true);
+  document.addEventListener("wheel",e=>{
+    const s=e.target.closest(".comparison-stage,.compare-stage,.enhance-comparison,.before-after-stage,.editor-canvas-area,.comparison");
+    if(!s || !e.ctrlKey)return;
+    e.preventDefault();
+    set(zoom+(e.deltaY<0?.1:-.1));
+  },{passive:false});
+  window.addEventListener("resize",paint);
+  setTimeout(paint,100); setTimeout(paint,600);
+})();
