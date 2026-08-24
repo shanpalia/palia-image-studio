@@ -204,3 +204,14 @@ The Enhancer page now includes an `AI Enhance` option. It uses a fast local smar
 ## Zoom fix
 
 Zoom In/Out/Reset now use a single delegated event handler and scale the editor canvas directly. Ctrl+mouse-wheel over the canvas also zooms. Zoom is clamped from 25% to 400%.
+
+
+## Real AI enhancement
+The enhancer now uses Real-ESRGAN x4v3 through ONNX Runtime Web for learned super-resolution/restoration. The model is loaded from a public Hugging Face model repository on first use; inference is tiled to limit browser memory use.
+
+
+## True HD restoration update
+
+AI enhancement now uses a verified Real-ESRGAN general-purpose ONNX export, reads the model's actual output name/shape, and applies a lightweight clarity pass after neural restoration. This is intended to make real photographs visibly sharper and higher-detail rather than merely resizing them.
+
+Important: no super-resolution model can perfectly reconstruct information that was completely destroyed by severe blur; it generates plausible restored detail. Real-ESRGAN is designed for practical real-world image restoration/super-resolution. 

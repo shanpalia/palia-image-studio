@@ -757,3 +757,17 @@ body[data-page="enhance"] .toolbar-format{margin-left:5px}
 .editor-canvas-area canvas{
   transform-origin:center center;
 }
+
+.ai-enhance-btn{border-color:#8fcfbe!important;background:#eefaf6!important;color:#11765e!important}
+
+.ai-restoration-note{
+  display:inline-flex;
+  align-items:center;
+  margin:8px 0;
+  padding:6px 9px;
+  border-radius:8px;
+  background:#eaf8f3;
+  color:#11765e;
+  font-size:10px;
+  font-weight:900;
+}
