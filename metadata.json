@@ -1,6 +1,10 @@
 {
-  "name": "Palia Image Studio",
-  "description": "Browser-based AI background removal and image enhancement tool by Hafsa Traders, compatible with GitHub Pages.",
+  "name": "Palia Resizer Studio",
+  "description": "Browser-based image resizing, compression, background removal and image editing by PaliaAPK HUB.",
   "requestFramePermissions": [],
-  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+  "majorCapabilities": [
+    "LOCAL_IMAGE_RESIZE",
+    "LOCAL_IMAGE_COMPRESSION",
+    "BROWSER_IMAGE_EDITING"
+  ]
 }
